@@ -1,0 +1,60 @@
+{
+  "SF1E-HUD": {
+    "Settings": {
+      "EnableTooltip": {
+        "Name": "Enable Token Tooltip",
+        "Hint": "Show tooltips when hovering over tokens"
+      },
+      "ShowDistance": {
+        "Name": "Show Distance",
+        "Hint": "Display distance to selected/targeted tokens in the tooltip"
+      },
+      "EnablePersistentHUD": {
+        "Name": "Enable Persistent HUD",
+        "Hint": "Show a persistent HUD for owned actors"
+      },
+      "AutoSetActor": {
+        "Name": "Auto-Set Actor",
+        "Hint": "Automatically set persistent actor when selecting tokens"
+      },
+      "HUDPosition": {
+        "Name": "HUD Position",
+        "Hint": "Position of the persistent HUD on screen"
+      },
+      "TooltipSide": {
+        "Name": "Tooltip Preferred Side",
+        "Hint": "Preferred side for tooltip display relative to the token"
+      },
+      "ShowStaminaBar": {
+        "Name": "Show Stamina Bar",
+        "Hint": "Display stamina points as a separate bar in tooltips and HUD"
+      }
+    },
+    "HealthStatus": {
+      "Dead": "Dead",
+      "Critical": "Critical",
+      "Wounded": "Wounded",
+      "Injured": "Injured",
+      "Healthy": "Healthy"
+    },
+    "Actions": {
+      "Standard": "Standard Action",
+      "Move": "Move Action",
+      "Swift": "Swift Action",
+      "Full": "Full Action",
+      "Reaction": "Reaction"
+    },
+    "Sidebars": {
+      "Actions": "Actions",
+      "Weapons": "Weapons",
+      "Spells": "Spells",
+      "Items": "Items",
+      "Skills": "Skills"
+    },
+    "Resources": {
+      "HP": "Hit Points",
+      "SP": "Stamina Points",
+      "RP": "Resolve Points"
+    }
+  }
+}

@@ -1,0 +1,695 @@
+/* Starfinder High Contrast Accessibility Theme */
+/* Designed for maximum readability and accessibility */
+/* Main color scheme variables */
+:root {
+  --dark-bg-primary: #000000;
+  --dark-bg-secondary: #1a1a1a;
+  --dark-bg-tertiary: #2a2a2a;
+  --dark-border: #ffffff;
+  --highlight: #ffff00;
+  --highlight-hover: #ffff99;
+  --highlight-dark: #cccc00;
+  --text-primary: #ffffff;
+  --text-secondary: #ffffff;
+  --text-muted: #cccccc;
+}
+
+/* Character and NPC Sheet Background */
+.sfrpg.sheet.actor,
+.sfrpg.sheet.actor .window-content {
+  background: var(--dark-bg-primary);
+  color: var(--text-primary);
+}
+
+/* Force all backgrounds to be dark - no light backgrounds allowed */
+.sfrpg.sheet.actor * {
+  background-color: inherit;
+}
+
+.sfrpg.sheet.actor *[style*="background: white"],
+.sfrpg.sheet.actor *[style*="background-color: white"],
+.sfrpg.sheet.actor *[style*="background:#fff"],
+.sfrpg.sheet.actor *[style*="background-color:#fff"] {
+  background: var(--dark-bg-primary) !important;
+}
+
+/* Fix any light/white backgrounds */
+.sfrpg.sheet.actor .light-bg,
+.sfrpg.sheet.actor .white-bg,
+.sfrpg.sheet.actor [class*="light"],
+.sfrpg.sheet.actor [class*="white"] {
+  background: var(--dark-bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Ensure yellow text never appears on light backgrounds */
+.sfrpg.sheet.actor *[style*="color: yellow"],
+.sfrpg.sheet.actor *[style*="color:#ff0"],
+.sfrpg.sheet.actor *[style*="color: #ffff00"] {
+  background: var(--dark-bg-primary) !important;
+}
+
+/* Sheet Header */
+.sfrpg.sheet.actor .sheet-header {
+  background: var(--dark-bg-secondary);
+  border-bottom: 3px solid var(--highlight);
+}
+
+.sfrpg.sheet.actor .sheet-header h1,
+.sfrpg.sheet.actor .sheet-header .charname input {
+  color: var(--highlight);
+  border-color: var(--highlight);
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+/* Character Portrait */
+.sfrpg.sheet.actor .profile-img {
+  border: 3px solid var(--highlight);
+}
+
+/* Navigation Tabs */
+.sfrpg.sheet.actor nav.sheet-tabs {
+  background: var(--dark-bg-secondary);
+  border-bottom: 2px solid var(--dark-border);
+}
+
+.sfrpg.sheet.actor nav.sheet-tabs .item {
+  color: var(--text-primary);
+  border: 2px solid var(--dark-border);
+  background: var(--dark-bg-tertiary);
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.sfrpg.sheet.actor nav.sheet-tabs .item:hover {
+  color: var(--dark-bg-primary);
+  background: var(--highlight);
+  border-color: var(--highlight);
+}
+
+.sfrpg.sheet.actor nav.sheet-tabs .item.active {
+  color: var(--dark-bg-primary);
+  background: var(--highlight);
+  border: 3px solid var(--highlight);
+  font-weight: bold;
+}
+
+/* Main Sheet Body */
+.sfrpg.sheet.actor .sheet-body {
+  background: var(--dark-bg-primary);
+}
+
+/* Input Fields and Text Areas */
+.sfrpg.sheet.actor input[type="text"],
+.sfrpg.sheet.actor input[type="number"],
+.sfrpg.sheet.actor textarea,
+.sfrpg.sheet.actor select {
+  background: var(--dark-bg-tertiary);
+  color: var(--text-primary);
+  border: 2px solid var(--dark-border);
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.sfrpg.sheet.actor input[type="text"]:focus,
+.sfrpg.sheet.actor input[type="number"]:focus,
+.sfrpg.sheet.actor textarea:focus,
+.sfrpg.sheet.actor select:focus {
+  border: 3px solid var(--highlight);
+  background: var(--dark-bg-secondary);
+  outline: 3px solid var(--highlight);
+  outline-offset: 2px;
+}
+
+/* Attributes and Stats Sections */
+.sfrpg.sheet.actor .attributes,
+.sfrpg.sheet.actor .stats-section {
+  background: var(--dark-bg-secondary);
+  border: 2px solid var(--dark-border);
+}
+
+.sfrpg.sheet.actor .attribute-label,
+.sfrpg.sheet.actor .stat-label {
+  color: var(--highlight);
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+/* Resource Bars (HP, Stamina, Resolve) */
+.sfrpg.sheet.actor .resource,
+.sfrpg.sheet.actor .resource-bar {
+  background: var(--dark-bg-tertiary);
+  border: 2px solid var(--dark-border);
+}
+
+.sfrpg.sheet.actor .resource-bar-fill,
+.sfrpg.sheet.actor .bar-fill {
+  background: var(--highlight);
+  border: 1px solid var(--dark-bg-primary);
+}
+
+.sfrpg.sheet.actor .resource-label {
+  color: var(--highlight);
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+/* Items List */
+.sfrpg.sheet.actor .items-list,
+.sfrpg.sheet.actor .inventory-list {
+  background: var(--dark-bg-secondary);
+  border: 2px solid var(--dark-border);
+}
+
+.sfrpg.sheet.actor .item,
+.sfrpg.sheet.actor .inventory-item {
+  background: var(--dark-bg-tertiary);
+  border: 2px solid var(--dark-border);
+  border-bottom: 2px solid var(--dark-border);
+  color: var(--text-primary);
+  margin: 2px 0;
+}
+
+.sfrpg.sheet.actor .item:hover,
+.sfrpg.sheet.actor .inventory-item:hover {
+  background: var(--dark-bg-primary);
+  border: 3px solid var(--highlight);
+}
+
+.sfrpg.sheet.actor .item-name,
+.sfrpg.sheet.actor .item-header {
+  color: var(--highlight);
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+/* Item Controls */
+.sfrpg.sheet.actor .item-controls a {
+  color: var(--text-primary);
+  font-weight: bold;
+}
+
+.sfrpg.sheet.actor .item-controls a:hover {
+  color: var(--highlight);
+}
+
+/* Buttons */
+.sfrpg.sheet.actor button,
+.sfrpg.sheet.actor .rollable {
+  background: var(--dark-bg-tertiary);
+  color: var(--text-primary);
+  border: 3px solid var(--highlight);
+  font-weight: bold;
+  font-size: 1.1em;
+  padding: 6px 12px;
+}
+
+.sfrpg.sheet.actor button:hover,
+.sfrpg.sheet.actor .rollable:hover {
+  background: var(--highlight);
+  color: var(--dark-bg-primary);
+  border-color: var(--highlight);
+}
+
+/* Skills Section */
+.sfrpg.sheet.actor .skills-list {
+  background: var(--dark-bg-secondary);
+}
+
+.sfrpg.sheet.actor .skill {
+  background: var(--dark-bg-tertiary);
+  border: 2px solid var(--dark-border);
+  margin: 2px 0;
+}
+
+.sfrpg.sheet.actor .skill:hover {
+  background: var(--dark-bg-primary);
+  border: 3px solid var(--highlight);
+}
+
+.sfrpg.sheet.actor .skill-name {
+  color: var(--text-primary);
+  font-weight: bold;
+}
+
+.sfrpg.sheet.actor .skill-trained,
+.sfrpg.sheet.actor .skill-proficiency {
+  color: var(--highlight);
+  font-weight: bold;
+}
+
+/* Features and Abilities */
+.sfrpg.sheet.actor .features,
+.sfrpg.sheet.actor .abilities-section {
+  background: var(--dark-bg-secondary);
+  border: 2px solid var(--dark-border);
+}
+
+.sfrpg.sheet.actor .feature-header,
+.sfrpg.sheet.actor .ability-header {
+  background: var(--dark-bg-tertiary);
+  color: var(--highlight);
+  border: 2px solid var(--highlight);
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+/* Spells Section */
+.sfrpg.sheet.actor .spellbook,
+.sfrpg.sheet.actor .spells-list {
+  background: var(--dark-bg-secondary);
+}
+
+.sfrpg.sheet.actor .spell-level-header {
+  background: var(--dark-bg-tertiary);
+  color: var(--highlight);
+  border: 2px solid var(--highlight);
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.sfrpg.sheet.actor .spell {
+  background: var(--dark-bg-primary);
+  border: 2px solid var(--dark-border);
+  margin: 2px 0;
+}
+
+.sfrpg.sheet.actor .spell:hover {
+  background: var(--dark-bg-tertiary);
+  border: 3px solid var(--highlight);
+}
+
+/* Biography and Description */
+.sfrpg.sheet.actor .editor,
+.sfrpg.sheet.actor .editor-content {
+  background: var(--dark-bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--dark-border);
+  font-size: 1.1em;
+}
+
+.sfrpg.sheet.actor .editor-content:focus {
+  border: 3px solid var(--highlight);
+  outline: 3px solid var(--highlight);
+  outline-offset: 2px;
+}
+
+/* Scrollbars */
+.sfrpg.sheet.actor ::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+.sfrpg.sheet.actor ::-webkit-scrollbar-track {
+  background: var(--dark-bg-primary);
+  border: 2px solid var(--dark-border);
+}
+
+.sfrpg.sheet.actor ::-webkit-scrollbar-thumb {
+  background: var(--highlight);
+  border: 2px solid var(--dark-bg-primary);
+  border-radius: 0;
+}
+
+.sfrpg.sheet.actor ::-webkit-scrollbar-thumb:hover {
+  background: var(--highlight-hover);
+}
+
+/* Headers and Section Titles */
+.sfrpg.sheet.actor h1,
+.sfrpg.sheet.actor h2,
+.sfrpg.sheet.actor h3,
+.sfrpg.sheet.actor h4 {
+  color: var(--highlight);
+  border-bottom: 3px solid var(--highlight);
+  font-weight: bold;
+  font-size: 1.3em;
+}
+
+/* Form Groups */
+.sfrpg.sheet.actor .form-group label {
+  color: var(--text-primary);
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.sfrpg.sheet.actor .form-group input:focus + label,
+.sfrpg.sheet.actor .form-group.stacked label {
+  color: var(--highlight);
+}
+
+/* Improved text readability */
+.sfrpg.sheet.actor .skill-name,
+.sfrpg.sheet.actor .item-name,
+.sfrpg.sheet.actor label,
+.sfrpg.sheet.actor span {
+  color: var(--text-primary);
+  font-weight: bold;
+}
+
+.sfrpg.sheet.actor .attribute-value,
+.sfrpg.sheet.actor .stat-value {
+  color: var(--text-primary);
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+/* Make small text more readable */
+.sfrpg.sheet.actor small,
+.sfrpg.sheet.actor .small-text {
+  color: var(--text-primary);
+  font-weight: bold;
+  font-size: 1em;
+}
+
+/* Checkboxes - Larger and Higher Contrast */
+.sfrpg.sheet.actor input[type="checkbox"] {
+  border: 3px solid var(--dark-border);
+  background: var(--dark-bg-tertiary);
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.sfrpg.sheet.actor input[type="checkbox"]:checked {
+  background: var(--highlight);
+  border-color: var(--highlight);
+}
+
+/* NPC Specific Styles */
+.sfrpg.sheet.npc .npc-header {
+  background: var(--dark-bg-secondary);
+  border-bottom: 3px solid var(--highlight);
+}
+
+.sfrpg.sheet.npc .cr-label,
+.sfrpg.sheet.npc .type-label {
+  color: var(--highlight);
+  font-weight: bold;
+}
+
+/* Ability Scores */
+.sfrpg.sheet.actor .ability-score {
+  background: var(--dark-bg-tertiary);
+  border: 3px solid var(--highlight);
+  color: var(--text-primary);
+  padding: 8px;
+  min-width: 80px;
+  min-height: 80px;
+}
+
+.sfrpg.sheet.actor .ability-score:hover {
+  border: 4px solid var(--highlight);
+  background: var(--dark-bg-secondary);
+}
+
+.sfrpg.sheet.actor .ability-name {
+  color: var(--highlight);
+  font-weight: bold;
+  font-size: 1.1em;
+  white-space: normal;
+  word-wrap: break-word;
+  line-height: 1.3;
+  padding: 2px 0;
+}
+
+.sfrpg.sheet.actor .ability-modifier {
+  color: var(--text-primary);
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+/* Fix ONLY attribute/stat labels getting cut off - not everything */
+.sfrpg.sheet.actor .attribute-name,
+.sfrpg.sheet.actor .stat-name {
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+/* Conditions and Effects */
+.sfrpg.sheet.actor .effects-list {
+  background: var(--dark-bg-secondary);
+}
+
+.sfrpg.sheet.actor .effect {
+  background: var(--dark-bg-tertiary);
+  border: 2px solid var(--dark-border);
+  color: var(--text-primary);
+}
+
+.sfrpg.sheet.actor .effect:hover {
+  border: 3px solid var(--highlight);
+}
+
+/* Window Resize Handle */
+.sfrpg.sheet.actor .window-resizable-handle {
+  color: var(--highlight);
+}
+
+/* ============================================
+   FOUNDRY V13 CHAT LOG STYLING - CORRECTED
+   ============================================ */
+
+/* Main Chat Container */
+#chat-log,
+.chat-message-list,
+#sidebar section#chat {
+  background: var(--dark-bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Individual Chat Messages */
+.chat-message,
+#chat-log .chat-message,
+.message {
+  background: var(--dark-bg-secondary) !important;
+  border: 1px solid var(--dark-border) !important;
+  border-left: 3px solid var(--highlight) !important;
+  color: var(--text-primary) !important;
+  margin-bottom: 8px !important;
+}
+
+.chat-message:hover {
+  background: var(--dark-bg-tertiary) !important;
+  border-left-color: var(--highlight-hover) !important;
+}
+
+/* Message Header */
+.chat-message .message-header,
+.message-header {
+  background: var(--dark-bg-tertiary) !important;
+  border-bottom: 1px solid var(--dark-border) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Message Sender/Speaker Name */
+.chat-message .message-sender,
+.message-sender,
+.chat-message header.message-header .message-sender {
+  color: var(--highlight) !important;
+  font-weight: bold !important;
+}
+
+/* Message Timestamp */
+.chat-message .message-timestamp,
+.message-metadata .message-timestamp {
+  color: var(--text-muted) !important;
+}
+
+/* Message Content */
+.chat-message .message-content,
+.message-content {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+/* Flavor Text */
+.chat-message .flavor-text,
+.flavor-text {
+  color: var(--highlight) !important;
+  font-style: italic !important;
+}
+
+/* Dice Roll Container */
+.chat-message .dice-roll,
+.dice-roll {
+  background: var(--dark-bg-tertiary) !important;
+  border: 1px solid var(--highlight) !important;
+  border-radius: 4px !important;
+  padding: 8px !important;
+}
+
+/* Dice Formula */
+.chat-message .dice-formula,
+.dice-formula {
+  color: var(--text-secondary) !important;
+  font-family: monospace !important;
+  background: var(--dark-bg-primary) !important;
+  padding: 4px 8px !important;
+  border-radius: 3px !important;
+  border: 1px solid var(--dark-border) !important;
+}
+
+/* Dice Total */
+.chat-message .dice-total,
+.dice-total,
+h4.dice-total {
+  color: var(--highlight) !important;
+  font-size: 1.3em !important;
+  font-weight: bold !important;
+  text-shadow: 0 0 10px var(--highlight-dark) !important;
+}
+
+/* Dice Tooltip */
+.chat-message .dice-tooltip,
+.dice-tooltip {
+  background: var(--dark-bg-primary) !important;
+  border: 1px solid var(--highlight) !important;
+  color: var(--text-primary) !important;
+}
+
+.dice-tooltip .part-header {
+  background: var(--dark-bg-secondary) !important;
+  color: var(--highlight) !important;
+  border-bottom: 1px solid var(--dark-border) !important;
+}
+
+.dice-tooltip ol.dice-rolls {
+  background: var(--dark-bg-secondary) !important;
+}
+
+.dice-tooltip .die {
+  color: var(--text-primary) !important;
+  border: 1px solid var(--dark-border) !important;
+  background: var(--dark-bg-tertiary) !important;
+}
+
+.dice-tooltip .die.min {
+  color: #ff5555 !important;
+  border-color: #ff5555 !important;
+}
+
+.dice-tooltip .die.max {
+  color: var(--highlight) !important;
+  border-color: var(--highlight) !important;
+  box-shadow: 0 0 8px var(--highlight-dark) !important;
+}
+
+/* Chat Form (Input Area) */
+#chat-form,
+form#chat-form {
+  background: var(--dark-bg-secondary) !important;
+  border-top: 2px solid var(--highlight) !important;
+}
+
+/* Chat Input Field */
+#chat-message,
+textarea#chat-message {
+  background: var(--dark-bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--dark-border) !important;
+}
+
+#chat-message:focus {
+  border-color: var(--highlight) !important;
+  box-shadow: 0 0 8px var(--highlight-dark) !important;
+  outline: none !important;
+}
+
+/* Chat Controls */
+#chat-controls,
+.chat-control-icon {
+  background: var(--dark-bg-secondary) !important;
+}
+
+.chat-control-icon {
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--dark-border) !important;
+  background: var(--dark-bg-tertiary) !important;
+}
+
+.chat-control-icon:hover {
+  color: var(--highlight) !important;
+  border-color: var(--highlight) !important;
+  box-shadow: 0 0 8px var(--highlight-dark) !important;
+}
+
+/* Roll Mode Button */
+#chat-controls .roll-type-select,
+a.roll-type-select {
+  background: var(--dark-bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--dark-border) !important;
+}
+
+/* Chat Card Buttons */
+.chat-message .card-buttons button,
+.card-buttons button {
+  background: var(--dark-bg-tertiary) !important;
+  color: var(--highlight) !important;
+  border: 1px solid var(--highlight) !important;
+}
+
+.card-buttons button:hover {
+  background: var(--highlight) !important;
+  color: var(--dark-bg-primary) !important;
+  box-shadow: 0 0 10px var(--highlight-dark) !important;
+}
+
+/* Whisper Messages */
+.chat-message.whisper,
+.message.whisper {
+  background: rgba(90, 180, 255, 0.1) !important;
+  border-left-color: var(--highlight) !important;
+}
+
+/* Blind Messages (GM) */
+.chat-message.blind,
+.message.blind {
+  background: rgba(255, 85, 85, 0.1) !important;
+  border-left-color: #ff5555 !important;
+}
+
+/* Chat Scrollbar */
+#chat-log::-webkit-scrollbar,
+.chat-message-list::-webkit-scrollbar {
+  width: 12px !important;
+}
+
+#chat-log::-webkit-scrollbar-track,
+.chat-message-list::-webkit-scrollbar-track {
+  background: var(--dark-bg-primary) !important;
+  border-left: 1px solid var(--dark-border) !important;
+}
+
+#chat-log::-webkit-scrollbar-thumb,
+.chat-message-list::-webkit-scrollbar-thumb {
+  background: var(--highlight-dark) !important;
+  border-radius: 6px !important;
+  border: 2px solid var(--dark-bg-primary) !important;
+}
+
+#chat-log::-webkit-scrollbar-thumb:hover,
+.chat-message-list::-webkit-scrollbar-thumb:hover {
+  background: var(--highlight) !important;
+  box-shadow: 0 0 8px var(--highlight-dark) !important;
+}
+
+/* Sidebar Tab Styling */
+#sidebar #chat {
+  background: var(--dark-bg-primary) !important;
+}
+
+/* Animation */
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+  50% { 
+    transform: scale(1.1); 
+    opacity: 0.9; 
+  }
+}
