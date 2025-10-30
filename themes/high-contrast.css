@@ -693,3 +693,307 @@ a.roll-type-select {
     opacity: 0.9; 
   }
 }
+
+/* ============================================
+   CHAT POPOUT FIX
+   ============================================ */
+
+/* Chat Popout Windows */
+.app.chat-popout,
+.app.chat-popout .window-content,
+.chat-popout #chat-log,
+.chat-popout .chat-message-list {
+  background: var(--dark-bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.chat-popout .chat-message,
+.chat-popout #chat-log .chat-message,
+.chat-popout .message {
+  background: var(--dark-bg-secondary) !important;
+  border: 1px solid var(--dark-border) !important;
+  color: var(--text-primary) !important;
+}
+
+.chat-popout .message-header {
+  background: var(--dark-bg-tertiary) !important;
+  color: var(--text-secondary) !important;
+}
+
+.chat-popout .message-sender {
+  color: inherit !important;
+}
+
+.chat-popout .message-content {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+/* Dice rolls in popouts */
+.chat-popout .dice-roll {
+  background: var(--dark-bg-tertiary) !important;
+}
+
+.chat-popout .dice-total {
+  color: inherit !important;
+}
+
+/* Ensure proper layering - players list above HUD */
+#players {
+  z-index: 70 !important;
+}
+
+/* ============================================
+ *  CHAT POPOUT FIX
+ *  ============================================ */
+
+.app.chat-popout,
+.app.chat-popout .window-app,
+.app.chat-popout .window-content,
+.app.chat-popout #chat,
+.app.chat-popout #chat-log,
+.app.chat-popout .chat-message-list,
+.chat-popout,
+.chat-popout .window-content,
+.chat-popout #chat-log,
+.chat-popout .chat-message-list {
+  background: var(--dark-bg-primary, #0a0a0a) !important;
+  color: var(--text-primary, #f5f5f5) !important;
+}
+
+.app.chat-popout .chat-message,
+.app.chat-popout #chat-log .chat-message,
+.app.chat-popout .message,
+.chat-popout .chat-message,
+.chat-popout #chat-log .chat-message,
+.chat-popout .message {
+  background: var(--dark-bg-secondary, #141414) !important;
+  border: 1px solid var(--dark-border, #2a2a2a) !important;
+  color: var(--text-primary, #f5f5f5) !important;
+  margin-bottom: 8px !important;
+}
+
+.app.chat-popout .message-header,
+.app.chat-popout .chat-message .message-header,
+.chat-popout .message-header,
+.chat-popout .chat-message .message-header {
+  background: var(--dark-bg-tertiary, #1e1e1e) !important;
+  color: var(--text-secondary, #d0d0d0) !important;
+  border-bottom: 1px solid var(--dark-border, #2a2a2a) !important;
+}
+
+.app.chat-popout .message-sender,
+.app.chat-popout .chat-message header.message-header .message-sender,
+.chat-popout .message-sender,
+.chat-popout .chat-message header.message-header .message-sender {
+  color: var(
+    --cyan-highlight,
+    var(--orange-highlight,
+        var(--green-highlight,
+            var(--red-highlight,
+                var(--blue-highlight,
+                    var(--purple-highlight,
+                        var(--pink-highlight,
+                            var(--highlight,
+                                #00ffff
+                            )))))))) !important;
+                            font-weight: bold !important;
+}
+
+.app.chat-popout .message-content,
+.app.chat-popout .chat-message .message-content,
+.chat-popout .message-content,
+.chat-popout .chat-message .message-content {
+  background: transparent !important;
+  color: var(--text-primary, #f5f5f5) !important;
+}
+
+.app.chat-popout .dice-roll,
+.app.chat-popout .chat-message .dice-roll,
+.chat-popout .dice-roll,
+.chat-popout .chat-message .dice-roll {
+  background: var(--dark-bg-tertiary, #1e1e1e) !important;
+  border: 1px solid var(--dark-border, #2a2a2a) !important;
+  padding: 8px !important;
+}
+
+.app.chat-popout .dice-formula,
+.app.chat-popout .chat-message .dice-formula,
+.chat-popout .dice-formula,
+.chat-popout .chat-message .dice-formula {
+  background: var(--dark-bg-primary, #0a0a0a) !important;
+  color: var(--text-secondary, #d0d0d0) !important;
+  padding: 4px 8px !important;
+  border-radius: 3px !important;
+}
+
+.app.chat-popout .dice-total,
+.app.chat-popout .chat-message .dice-total,
+.app.chat-popout h4.dice-total,
+.chat-popout .dice-total,
+.chat-popout .chat-message .dice-total,
+.chat-popout h4.dice-total {
+  color: var(
+    --cyan-highlight,
+    var(--orange-highlight,
+        var(--green-highlight,
+            var(--red-highlight,
+                var(--blue-highlight,
+                    var(--purple-highlight,
+                        var(--pink-highlight,
+                            var(--highlight,
+                                #00ffff
+                            )))))))) !important;
+                            font-size: 1.3em !important;
+                            font-weight: bold !important;
+}
+
+.app.chat-popout .flavor-text,
+.app.chat-popout .chat-message .flavor-text,
+.chat-popout .flavor-text,
+.chat-popout .chat-message .flavor-text {
+  color: var(--text-secondary, #d0d0d0) !important;
+  font-style: italic !important;
+}
+
+.app.chat-popout .message-timestamp,
+.app.chat-popout .message-metadata .message-timestamp,
+.chat-popout .message-timestamp,
+.chat-popout .message-metadata .message-timestamp {
+  color: var(--text-muted, #a0a0a0) !important;
+}
+
+.app.chat-popout #chat-controls,
+.app.chat-popout .chat-control-icon,
+.chat-popout #chat-controls,
+.chat-popout .chat-control-icon {
+  background: var(--dark-bg-secondary, #141414) !important;
+}
+
+.app.chat-popout #chat-form,
+.app.chat-popout #chat-message,
+.chat-popout #chat-form,
+.chat-popout #chat-message {
+  background: var(--dark-bg-secondary, #141414) !important;
+  color: var(--text-primary, #f5f5f5) !important;
+  border-color: var(--dark-border, #2a2a2a) !important;
+}
+
+.app.chat-popout #chat-log::-webkit-scrollbar,
+.app.chat-popout .chat-message-list::-webkit-scrollbar,
+.chat-popout #chat-log::-webkit-scrollbar,
+.chat-popout .chat-message-list::-webkit-scrollbar {
+  width: 12px !important;
+}
+
+.app.chat-popout #chat-log::-webkit-scrollbar-track,
+.app.chat-popout .chat-message-list::-webkit-scrollbar-track,
+.chat-popout #chat-log::-webkit-scrollbar-track,
+.chat-popout .chat-message-list::-webkit-scrollbar-track {
+  background: var(--dark-bg-primary, #0a0a0a) !important;
+}
+
+.app.chat-popout #chat-log::-webkit-scrollbar-thumb,
+.app.chat-popout .chat-message-list::-webkit-scrollbar-thumb,
+.chat-popout #chat-log::-webkit-scrollbar-thumb,
+.chat-popout .chat-message-list::-webkit-scrollbar-thumb {
+  background: var(--dark-border, #2a2a2a) !important;
+  border-radius: 6px !important;
+}
+
+#players {
+bottom: 170px !important;
+}
+
+/* ============================================
+   CHAT POPOUT FIX
+   ============================================ */
+
+.app.chat-popout,
+.app.chat-popout .window-app,
+.app.chat-popout .window-content,
+.app.chat-popout #chat,
+.app.chat-popout #chat-log,
+.app.chat-popout .chat-message-list,
+.chat-popout,
+.chat-popout .window-content,
+.chat-popout #chat-log,
+.chat-popout .chat-message-list {
+  background: var(--dark-bg-primary, #0a0a0a) !important;
+  color: var(--text-primary, #f5f5f5) !important;
+}
+
+.app.chat-popout .chat-message,
+.app.chat-popout #chat-log .chat-message,
+.app.chat-popout .message,
+.chat-popout .chat-message,
+.chat-popout #chat-log .chat-message,
+.chat-popout .message {
+  background: var(--dark-bg-secondary, #141414) !important;
+  border: 1px solid var(--dark-border, #2a2a2a) !important;
+  color: var(--text-primary, #f5f5f5) !important;
+  margin-bottom: 8px !important;
+}
+
+.app.chat-popout .message-header,
+.app.chat-popout .chat-message .message-header,
+.chat-popout .message-header,
+.chat-popout .chat-message .message-header {
+  background: var(--dark-bg-tertiary, #1e1e1e) !important;
+  color: var(--text-secondary, #d0d0d0) !important;
+  border-bottom: 1px solid var(--dark-border, #2a2a2a) !important;
+}
+
+.app.chat-popout .message-sender,
+.chat-popout .message-sender {
+  font-weight: bold !important;
+}
+
+.app.chat-popout .message-content,
+.chat-popout .message-content {
+  background: transparent !important;
+  color: var(--text-primary, #f5f5f5) !important;
+}
+
+.app.chat-popout .dice-roll,
+.chat-popout .dice-roll {
+  background: var(--dark-bg-tertiary, #1e1e1e) !important;
+  border: 1px solid var(--dark-border, #2a2a2a) !important;
+  padding: 8px !important;
+}
+
+.app.chat-popout .dice-formula,
+.chat-popout .dice-formula {
+  background: var(--dark-bg-primary, #0a0a0a) !important;
+  color: var(--text-secondary, #d0d0d0) !important;
+  padding: 4px 8px !important;
+  border-radius: 3px !important;
+}
+
+.app.chat-popout .dice-total,
+.chat-popout .dice-total {
+  font-size: 1.3em !important;
+  font-weight: bold !important;
+}
+
+.app.chat-popout #chat-log::-webkit-scrollbar,
+.chat-popout #chat-log::-webkit-scrollbar {
+  width: 12px !important;
+}
+
+.app.chat-popout #chat-log::-webkit-scrollbar-track,
+.chat-popout #chat-log::-webkit-scrollbar-track {
+  background: var(--dark-bg-primary, #0a0a0a) !important;
+}
+
+.app.chat-popout #chat-log::-webkit-scrollbar-thumb,
+.chat-popout #chat-log::-webkit-scrollbar-thumb {
+  background: var(--dark-border, #2a2a2a) !important;
+  border-radius: 6px !important;
+}
+
+/* Move players list to top of screen */
+#players {
+  top: 70px !important;
+  bottom: auto !important;
+}

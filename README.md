@@ -1,107 +1,239 @@
-# Starfinder 1E HUD & Theme Switcher
+# SF1E HUD - Complete Update Package
+## All Files Updated and Ready to Use!
 
-A comprehensive module for Starfinder 1E combining a cyberpunk/sci-fi themed HUD system with customizable character sheet themes.
+---
 
-## Features
+## What's Included
 
-### HUD System
-- **Token Tooltip**: Hover over tokens to see health, armor (EAC/KAC), saves, speeds, immunities/resistances/vulnerabilities, and distance
-- **Persistent HUD**: Always-visible HUD showing your character's portrait, HP/SP/RP, and quick access buttons
-- **Action Sidebars**: Quick access to weapons, spells, items, skills, and actions - opens upward to avoid screen clutter
-- **Sci-Fi Aesthetic**: Neon cyan/magenta/green colors with glowing effects
-- **Compact Layout**: Buttons above resource bars for better screen real estate
+### ✅ All 10 Theme Files (COMPLETE - Ready to use!)
+All theme files have been updated with the chat popout fix built-in:
+- `themes/cyberpunk.css`
+- `themes/cyberpunk-orange.css`
+- `themes/cyberpunk-green.css`
+- `themes/cyberpunk-red.css`
+- `themes/cyberpunk-purple.css`
+- `themes/dark-blue.css`
+- `themes/dark-red.css`
+- `themes/dark-green.css`
+- `themes/dark-purple.css`
+- `themes/high-contrast.css`
 
-### Theme System
-- **11 Beautiful Themes**: Choose from multiple color schemes including 5 cyberpunk variants and a high-contrast accessibility mode
-- **Accessibility First**: High Contrast theme designed for visually impaired users with WCAG AAA compliance
-- **Character Sheet Styling**: All sheet sections styled including Equipment, Feats, Actions, Weapons, Armor, and more
-- **Chat Log Styling**: Themed dice rolls, messages, and chat interface
-- **Easy Theme Switching**: Change themes instantly via module settings
+### ✅ HUD Styling (UPDATED)
+- `styles/main.css` - HUD now uses theme colors directly
 
-## Available Themes
+### ✅ HUD Logic (UPDATED)
+- `scripts/persistent-hud.js` - New features: click portrait, EAC/KAC, saves
 
-1. **Default** - Use the Starfinder system's default appearance
-2. **High Contrast (Accessibility)** - Maximum contrast (Black/White/Yellow) for visually impaired users
-3. **Dark Blue** - Professional blue highlights
-4. **Dark Red** - Aggressive crimson/red highlights
-5. **Dark Green** - Natural emerald/green highlights
-6. **Dark Purple** - Mystical violet/purple highlights
-7. **Cyberpunk (Cyan/Magenta)** - Classic cyberpunk with dual neon glow
-8. **Cyberpunk (Orange/Blue)** - Warm dystopian sunset aesthetic
-9. **Cyberpunk (Green/Yellow)** - Toxic/radioactive Matrix-style
-10. **Cyberpunk (Red/Blue)** - High-contrast aggressive energy
-11. **Cyberpunk (Purple/Pink)** - Synthwave retro-futuristic glamour
+---
 
-## Installation
+## Installation (SUPER SIMPLE!)
 
-1. In FoundryVTT, go to Add-on Modules
-2. Click "Install Module"
-3. Paste manifest URL or search for "sf1e-hud"
-4. Enable the module in your world
+### Just Replace These Folders:
 
-## Usage
+1. **Copy `themes/` folder** → Replace your entire `themes/` folder
+2. **Copy `styles/` folder** → Replace your entire `styles/` folder
+3. **Copy `scripts/persistent-hud.js`** → Replace just this one script file
 
-### HUD Controls
-- Hover over tokens to see tooltips
-- Select a token to set it as your persistent HUD actor
-- Click sidebar buttons (above the HP/SP bars) to access weapons, spells, items, and skills
-- Sidebars open upward to prevent going off-screen
-- Right-click the portrait to clear the persistent actor
-- Click HP/SP bars to adjust values
+That's it! No manual editing needed - all files are complete and ready!
 
-### Theme Selection
-1. Click **Settings** (gear icon) → **Module Settings**
-2. Find **"SF1E HUD & Theme Switcher"**
-3. Select your preferred theme from **"Sheet Theme"** dropdown
-4. The theme applies immediately to character sheets and chat
+---
 
-## Settings
+## What's Fixed & Added
 
-Configure in Game Settings > Module Settings:
+### ✅ Fixed Issues:
+1. **HUD now uses theme colors** - Purple theme = purple HUD glow!
+2. **Players list at top** - Moved to `top: 70px` (no more overlap)
+3. **Chat popouts readable** - Proper backgrounds and text
 
-### HUD Settings
-- Enable/disable tooltips and persistent HUD
-- Set HUD position (bottom-left default, avoids player list)
-- Toggle auto-actor selection
-- Show/hide stamina bar
-- Tooltip preferred side
+### ✅ New Features:
+4. **Click portrait** → Opens character sheet (left-click)
+5. **Right-click portrait** → Clears actor (unchanged)
+6. **EAC/KAC displayed** → Two armor boxes above HP/SP
+7. **Saves displayed** → FORT/REF/WILL (clickable to roll!)
 
-### Theme Settings
-- **Sheet Theme** - Choose your character sheet color scheme (Default: Cyberpunk Cyan/Magenta)
+---
+
+## New HUD Layout
+
+```
+┌─────────────────────────┐
+│    [Character Portrait]  │  ← Click to open sheet
+│                         │     Right-click to clear
+│                         │
+│   [EAC: 15] [KAC: 17]   │  ← NEW: Armor classes
+│                         │
+│ [FORT:+5][REF:+3][WILL:+4] ← NEW: Saves (click to roll!)
+│                         │
+│  [━━━━ SP: 25/30 ━━━━]  │  ← Stamina bar (click to edit)
+│  [━━━━ HP: 40/45 ━━━━]  │  ← HP bar (click to edit)
+│  [RP: ●●●○○]            │  ← Resolve points
+│                         │
+│  [⚔][✨][🎒][📋]        │  ← Quick action buttons
+└─────────────────────────┘
+```
+
+---
 
 ## File Structure
 
 ```
-sf1e-hud/
-├── module.json
-├── README.md
-├── TROUBLESHOOTING.md
-├── scripts/
-│   ├── main.js
-│   ├── settings.js
-│   ├── token-tooltip.js
-│   ├── persistent-hud.js
-│   └── theme-switcher.js
+complete-package/
+├── README.md (this file)
+├── themes/ (ALL 10 FILES - Just copy this whole folder!)
+│   ├── cyberpunk.css ✓
+│   ├── cyberpunk-orange.css ✓
+│   ├── cyberpunk-green.css ✓
+│   ├── cyberpunk-red.css ✓
+│   ├── cyberpunk-purple.css ✓
+│   ├── dark-blue.css ✓
+│   ├── dark-red.css ✓
+│   ├── dark-green.css ✓
+│   ├── dark-purple.css ✓
+│   └── high-contrast.css ✓
 ├── styles/
-│   └── main.css (HUD styling)
-├── themes/
-│   ├── high-contrast.css
-│   ├── dark-blue.css
-│   ├── dark-red.css
-│   ├── dark-green.css
-│   ├── dark-purple.css
-│   ├── cyberpunk.css
-│   ├── cyberpunk-orange.css
-│   ├── cyberpunk-green.css
-│   ├── cyberpunk-red.css
-│   └── cyberpunk-purple.css
-└── lang/
-    └── en.json
+│   └── main.css ✓
+└── scripts/
+    └── persistent-hud.js ✓
 ```
 
-## Compatibility
+---
 
-Requires Starfinder 1E (sfrpg) system for FoundryVTT v11+
-Tested on Foundry v13
+## Quick Installation Steps
 
-**Replaces**: If you previously had "Starfinder Theme Switcher" installed, you can disable it as this module includes all its functionality.
+### Method 1: Drag and Drop (Easiest!)
+1. Navigate to your module folder: `FoundryVTT/Data/modules/sf1e-hud/`
+2. Drag the `themes/` folder from this package → Replace your existing `themes/` folder
+3. Drag the `styles/` folder from this package → Replace your existing `styles/` folder
+4. Drag `scripts/persistent-hud.js` → Replace in your `scripts/` folder
+
+### Method 2: Command Line
+```bash
+# Navigate to your module directory
+cd /path/to/FoundryVTT/Data/modules/sf1e-hud/
+
+# Backup existing files (optional but recommended)
+mv themes themes.backup
+mv styles styles.backup
+cp scripts/persistent-hud.js scripts/persistent-hud.js.backup
+
+# Copy new files
+cp -r /path/to/complete-package/themes .
+cp -r /path/to/complete-package/styles .
+cp /path/to/complete-package/scripts/persistent-hud.js scripts/
+```
+
+---
+
+## Testing Checklist
+
+After installation, refresh Foundry (F5) and test:
+
+1. ✓ **Select a token** → HUD appears
+2. ✓ **Change theme to "Cyberpunk (Purple/Pink)"** → HUD should glow purple!
+3. ✓ **Click character portrait** → Character sheet opens
+4. ✓ **Click FORT save** → Rolls fortitude save to chat
+5. ✓ **Look at top-left corner** → Players list should be at top of screen
+6. ✓ **Pop out chat window** → Messages should be readable with dark background
+7. ✓ **Change to different theme** → HUD colors change to match!
+
+---
+
+## Theme Colors Reference
+
+Each theme has its own color scheme, and the HUD will now match:
+
+| Theme | Primary Color | Secondary Color |
+|-------|--------------|-----------------|
+| Cyberpunk (Cyan/Magenta) | Cyan (#00f5ff) | Magenta (#ff00ff) |
+| Cyberpunk (Orange/Blue) | Orange (#ff9500) | Blue (#00bfff) |
+| Cyberpunk (Green/Yellow) | Green (#39ff14) | Yellow (#ffff00) |
+| Cyberpunk (Red/Blue) | Red (#ff0040) | Blue (#00d9ff) |
+| Cyberpunk (Purple/Pink) | Purple (#b847ff) | Pink (#ff1493) |
+| Dark Blue | Blue (#5ab4ff) | - |
+| Dark Red | Red (#ff5555) | - |
+| Dark Green | Green (#50fa7b) | - |
+| Dark Purple | Purple (#bd93f9) | - |
+| High Contrast | Yellow (#ffff00) | White (#ffffff) |
+
+---
+
+## Customization
+
+### Adjusting Players List Position
+
+If `top: 70px` doesn't work for your screen, you can adjust it:
+
+1. Open **each theme CSS file** in `themes/`
+2. Scroll to the very bottom
+3. Find: `#players { top: 70px !important; }`
+4. Change `70px` to your preferred value (try 50-100px)
+
+---
+
+## What Changed in Each File
+
+### themes/*.css (All 10 files)
+- ✅ Added chat popout styling at the end
+- ✅ Added players list positioning
+- ✅ No other changes - all original styling preserved
+
+### styles/main.css
+- ✅ HUD elements now use theme color variables
+- ✅ Added EAC/KAC armor stat boxes
+- ✅ Added save stat buttons (FORT/REF/WILL)
+- ✅ Players list positioning
+
+### scripts/persistent-hud.js
+- ✅ Added left-click handler on portrait (opens sheet)
+- ✅ Display EAC/KAC from actor data
+- ✅ Display saves from actor data
+- ✅ Saves are clickable and roll to chat
+- ✅ Better resource bar organization
+
+---
+
+## Troubleshooting
+
+### HUD still not matching theme colors?
+- Make sure you copied the NEW `styles/main.css`
+- Hard refresh browser (Ctrl+F5 or Cmd+Shift+R)
+- Check browser console (F12) for errors
+
+### Players list still overlapping?
+- Make sure you copied ALL theme files with the fix
+- Adjust the `top: 70px` value in theme files
+- Try `top: 50px` or `top: 100px`
+
+### Chat popouts still transparent?
+- Make sure you replaced ALL theme files
+- The active theme must have the fix
+- Check which theme is active in module settings
+
+### Portrait click not working?
+- Make sure you copied the NEW `scripts/persistent-hud.js`
+- Refresh the page completely (F5)
+- Check browser console for JavaScript errors
+
+---
+
+## Support
+
+If you encounter issues:
+
+1. Check browser console (F12) for errors
+2. Verify all files were copied correctly
+3. Try disabling other modules to check for conflicts
+4. Make sure you're running Foundry v11+ with Starfinder 1E system
+
+---
+
+## Credits
+
+SF1E HUD & Theme Switcher
+- HUD System: Cyberpunk/sci-fi themed persistent HUD
+- Theme System: 11 beautiful themes for character sheets
+- Combined package with enhanced features
+
+---
+
+**Enjoy your fully-themed, feature-rich Starfinder HUD!** 🚀

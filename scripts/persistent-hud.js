@@ -74,6 +74,14 @@ export class PersistentHUD {
     }
     
     _addEventListeners() {
+        // Portrait LEFT-click to open character sheet
+        this.hud.find('.sf1e-hud-portrait').on('click', (e) => {
+            if (e.button === 0 && this.actor) {  // Left click only
+                console.log('SF1E-HUD | Opening character sheet for:', this.actor.name);
+                this.actor.sheet.render(true);
+            }
+        });
+        
         // Portrait right-click to clear actor
         this.hud.find('.sf1e-hud-portrait').on('contextmenu', (e) => {
             e.preventDefault();
@@ -139,11 +147,46 @@ export class PersistentHUD {
         const sp = system.attributes?.sp || { value: 0, max: 0 };
         const rp = system.attributes?.rp || { value: 0, max: 0 };
         
+        // Get armor values
+        const eac = system.attributes?.eac?.value || 10;
+        const kac = system.attributes?.kac?.value || 10;
+        
+        // Get saves
+        const fort = system.attributes?.fort?.total || 0;
+        const reflex = system.attributes?.reflex?.total || 0;
+        const will = system.attributes?.will?.total || 0;
+        
         const healthPercent = hp.max > 0 ? (hp.value / hp.max) * 100 : 0;
         const staminaPercent = sp.max > 0 ? (sp.value / sp.max) * 100 : 0;
         
         const resourcesDiv = this.hud.find('.sf1e-hud-resources');
         resourcesDiv.html(`
+            <div class="sf1e-hud-armor">
+                <div class="sf1e-armor-stat" title="Energy Armor Class">
+                    <div class="sf1e-armor-label">EAC</div>
+                    <div class="sf1e-armor-value">${eac}</div>
+                </div>
+                <div class="sf1e-armor-stat" title="Kinetic Armor Class">
+                    <div class="sf1e-armor-label">KAC</div>
+                    <div class="sf1e-armor-value">${kac}</div>
+                </div>
+            </div>
+            
+            <div class="sf1e-hud-saves">
+                <div class="sf1e-save-stat" title="Fortitude Save">
+                    <div class="sf1e-save-label">FORT</div>
+                    <div class="sf1e-save-value">+${fort}</div>
+                </div>
+                <div class="sf1e-save-stat" title="Reflex Save">
+                    <div class="sf1e-save-label">REF</div>
+                    <div class="sf1e-save-value">+${reflex}</div>
+                </div>
+                <div class="sf1e-save-stat" title="Will Save">
+                    <div class="sf1e-save-label">WILL</div>
+                    <div class="sf1e-save-value">+${will}</div>
+                </div>
+            </div>
+            
             ${sp.max > 0 ? `
                 <div class="sf1e-hud-bar sf1e-hud-stamina" title="Stamina Points">
                     <div class="sf1e-hud-bar-fill" style="width: ${staminaPercent}%"></div>
@@ -161,46 +204,112 @@ export class PersistentHUD {
             ${rp.max > 0 ? `
                 <div class="sf1e-hud-resolve" title="Resolve Points">
                     <span class="sf1e-resolve-label">RP:</span>
-                    ${this._generateResolvePoints(rp.value, rp.max)}
+                    ${Array.from({length: rp.max}, (_, i) => 
+                        `<span class="sf1e-rp-pip ${i < rp.value ? 'filled' : ''}">●</span>`
+                    ).join('')}
                 </div>
             ` : ''}
         `);
         
-        // Add click handlers for adjusting resources
-        resourcesDiv.find('.sf1e-hud-stamina').on('click', () => this._openResourceDialog('sp'));
-        resourcesDiv.find('.sf1e-hud-hp').on('click', () => this._openResourceDialog('hp'));
+        // Add click handlers for bars
+        this.hud.find('.sf1e-hud-bar').on('click', (e) => {
+            const bar = $(e.currentTarget);
+            if (bar.hasClass('sf1e-hud-stamina')) {
+                this._editResource('sp');
+            } else if (bar.hasClass('sf1e-hud-hp')) {
+                this._editResource('hp');
+            }
+        });
+        
+        // Add click handler for saves
+        this.hud.find('.sf1e-save-stat').on('click', (e) => {
+            const stat = $(e.currentTarget);
+            const label = stat.find('.sf1e-save-label').text().toLowerCase();
+            this._rollSave(label);
+        });
+        
+        // Add click handler for armor stats
+        this.hud.find('.sf1e-armor-stat').on('click', (e) => {
+            e.stopPropagation();
+            // Just a visual confirmation, AC doesn't usually get rolled
+        });
     }
     
-    _generateResolvePoints(current, max) {
-        let html = '';
-        for (let i = 0; i < max; i++) {
-            const filled = i < current;
-            html += `<span class="sf1e-rp-pip ${filled ? 'filled' : ''}" data-index="${i}">◆</span>`;
+    async _editResource(type) {
+        if (!this.actor) return;
+        
+        const resource = this.actor.system.attributes[type];
+        const current = resource.value;
+        const max = resource.max;
+        
+        const newValue = await Dialog.prompt({
+            title: `Edit ${type.toUpperCase()}`,
+            content: `
+                <form>
+                    <div class="form-group">
+                        <label>Current ${type.toUpperCase()}: </label>
+                        <input type="number" name="value" value="${current}" min="0" max="${max}" autofocus />
+                        <span> / ${max}</span>
+                    </div>
+                </form>
+            `,
+            callback: (html) => html.find('[name="value"]').val(),
+            rejectClose: false
+        });
+        
+        if (newValue !== null) {
+            await this.actor.update({
+                [`system.attributes.${type}.value`]: parseInt(newValue)
+            });
         }
-        return html;
+    }
+    
+    async _rollSave(saveType) {
+        if (!this.actor) return;
+        
+        const saveMap = {
+            'fort': 'fortitude',
+            'ref': 'reflex',
+            'will': 'will'
+        };
+        
+        const saveName = saveMap[saveType] || saveType;
+        
+        // Use Starfinder's roll save method if available
+        if (this.actor.rollSave) {
+            await this.actor.rollSave(saveName);
+        } else {
+            // Fallback manual roll
+            const save = this.actor.system.attributes[saveName];
+            if (save) {
+                const roll = await new Roll(`1d20 + ${save.total}`).evaluate();
+                roll.toMessage({
+                    speaker: ChatMessage.getSpeaker({actor: this.actor}),
+                    flavor: `${saveName.charAt(0).toUpperCase() + saveName.slice(1)} Save`
+                });
+            }
+        }
     }
     
     _updateButtons() {
         const buttonsDiv = this.hud.find('.sf1e-hud-buttons');
         buttonsDiv.html(`
-            <button class="sf1e-sidebar-btn" data-sidebar="actions" title="Actions">
-                <i class="fas fa-bolt"></i>
-            </button>
-            <button class="sf1e-sidebar-btn" data-sidebar="weapons" title="Weapons">
-                <i class="fas fa-crosshairs"></i>
-            </button>
-            <button class="sf1e-sidebar-btn" data-sidebar="spells" title="Spells">
-                <i class="fas fa-wand-magic-sparkles"></i>
-            </button>
-            <button class="sf1e-sidebar-btn" data-sidebar="items" title="Items">
+            <div class="sf1e-sidebar-btn" data-sidebar="weapons" title="Weapons">
+                <i class="fas fa-crossed-swords"></i>
+            </div>
+            <div class="sf1e-sidebar-btn" data-sidebar="spells" title="Spells">
+                <i class="fas fa-magic"></i>
+            </div>
+            <div class="sf1e-sidebar-btn" data-sidebar="items" title="Items">
                 <i class="fas fa-backpack"></i>
-            </button>
-            <button class="sf1e-sidebar-btn" data-sidebar="skills" title="Skills">
-                <i class="fas fa-graduation-cap"></i>
-            </button>
+            </div>
+            <div class="sf1e-sidebar-btn" data-sidebar="skills" title="Skills">
+                <i class="fas fa-list-check"></i>
+            </div>
         `);
         
-        buttonsDiv.find('.sf1e-sidebar-btn').on('click', (e) => {
+        // Add click handlers
+        this.hud.find('.sf1e-sidebar-btn').on('click', (e) => {
             const sidebar = $(e.currentTarget).data('sidebar');
             this._toggleSidebar(sidebar);
         });
@@ -209,87 +318,73 @@ export class PersistentHUD {
     _toggleSidebar(sidebarType) {
         const sidebarDiv = this.hud.find('.sf1e-hud-sidebar');
         
+        // If clicking the same sidebar, close it
         if (this.activeSidebar === sidebarType) {
-            // Close current sidebar
             this.activeSidebar = null;
-            sidebarDiv.removeClass('active').empty();
+            sidebarDiv.removeClass('active');
             this.hud.find('.sf1e-sidebar-btn').removeClass('active');
-        } else {
-            // Open new sidebar
-            this.activeSidebar = sidebarType;
-            this.hud.find('.sf1e-sidebar-btn').removeClass('active');
-            this.hud.find(`[data-sidebar="${sidebarType}"]`).addClass('active');
-            
-            sidebarDiv.addClass('active');
-            this._renderSidebar(sidebarType);
+            return;
         }
+        
+        // Update active sidebar
+        this.activeSidebar = sidebarType;
+        this.hud.find('.sf1e-sidebar-btn').removeClass('active');
+        this.hud.find(`.sf1e-sidebar-btn[data-sidebar="${sidebarType}"]`).addClass('active');
+        
+        // Build sidebar content
+        this._buildSidebar(sidebarType);
+        sidebarDiv.addClass('active');
     }
     
-    _renderSidebar(type) {
+    _buildSidebar(type) {
         const sidebarDiv = this.hud.find('.sf1e-hud-sidebar');
         
+        let title = type.charAt(0).toUpperCase() + type.slice(1);
         let content = '';
+        
         switch(type) {
-            case 'actions':
-                content = this._renderActionsSidebar();
-                break;
             case 'weapons':
-                content = this._renderWeaponsSidebar();
+                content = this._buildWeaponsList();
                 break;
             case 'spells':
-                content = this._renderSpellsSidebar();
+                content = this._buildSpellsList();
                 break;
             case 'items':
-                content = this._renderItemsSidebar();
+                content = this._buildItemsList();
                 break;
             case 'skills':
-                content = this._renderSkillsSidebar();
+                content = this._buildSkillsList();
                 break;
         }
         
-        sidebarDiv.html(content);
-        this._addSidebarEventListeners(type);
-    }
-    
-    _renderActionsSidebar() {
-        return `
+        sidebarDiv.html(`
             <div class="sf1e-sidebar-header">
-                <h3>Actions</h3>
+                <h3>${title}</h3>
                 <button class="sf1e-sidebar-close"><i class="fas fa-times"></i></button>
             </div>
             <div class="sf1e-sidebar-content">
-                <div class="sf1e-action-grid">
-                    <button class="sf1e-action-btn" data-action="standard">
-                        <i class="fas fa-fist-raised"></i>
-                        <span>Standard Action</span>
-                    </button>
-                    <button class="sf1e-action-btn" data-action="move">
-                        <i class="fas fa-running"></i>
-                        <span>Move Action</span>
-                    </button>
-                    <button class="sf1e-action-btn" data-action="swift">
-                        <i class="fas fa-bolt"></i>
-                        <span>Swift Action</span>
-                    </button>
-                    <button class="sf1e-action-btn" data-action="full">
-                        <i class="fas fa-expand"></i>
-                        <span>Full Action</span>
-                    </button>
-                    <button class="sf1e-action-btn" data-action="reaction">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>Reaction</span>
-                    </button>
-                </div>
+                ${content}
             </div>
-        `;
+        `);
+        
+        // Add close handler
+        sidebarDiv.find('.sf1e-sidebar-close').on('click', () => {
+            this.activeSidebar = null;
+            sidebarDiv.removeClass('active');
+            this.hud.find('.sf1e-sidebar-btn').removeClass('active');
+        });
     }
     
-    _renderWeaponsSidebar() {
+    _buildWeaponsList() {
         const weapons = this.actor.items.filter(i => i.type === 'weapon');
         
-        let weaponsList = weapons.map(weapon => {
-            const attack = weapon.system.attack?.bonus || 0;
-            const damage = weapon.system.damage?.parts?.[0]?.[0] || '';
+        if (weapons.length === 0) {
+            return '<div class="sf1e-sidebar-empty">No weapons equipped</div>';
+        }
+        
+        return weapons.map(weapon => {
+            const damage = weapon.system.damage?.parts?.[0]?.[0] || '—';
+            const range = weapon.system.range?.value || '—';
             
             return `
                 <div class="sf1e-sidebar-item" data-item-id="${weapon.id}">
@@ -297,40 +392,28 @@ export class PersistentHUD {
                     <div class="sf1e-item-info">
                         <div class="sf1e-item-name">${weapon.name}</div>
                         <div class="sf1e-item-details">
-                            <span>+${attack}</span>
                             <span>${damage}</span>
+                            <span>${range}ft</span>
                         </div>
                     </div>
-                    <button class="sf1e-item-roll" data-action="attack">
+                    <div class="sf1e-item-roll" title="Attack">
                         <i class="fas fa-dice-d20"></i>
-                    </button>
+                    </div>
                 </div>
             `;
         }).join('');
-        
-        if (!weaponsList) {
-            weaponsList = '<div class="sf1e-sidebar-empty">No weapons equipped</div>';
-        }
-        
-        return `
-            <div class="sf1e-sidebar-header">
-                <h3>Weapons</h3>
-                <button class="sf1e-sidebar-close"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="sf1e-sidebar-content">
-                ${weaponsList}
-            </div>
-        `;
     }
     
-    _renderSpellsSidebar() {
-        const spells = this.actor.items.filter(i => i.type === 'spell').sort((a, b) => {
-            return (a.system.level || 0) - (b.system.level || 0);
-        });
+    _buildSpellsList() {
+        const spells = this.actor.items.filter(i => i.type === 'spell');
         
-        let spellsList = spells.map(spell => {
+        if (spells.length === 0) {
+            return '<div class="sf1e-sidebar-empty">No spells available</div>';
+        }
+        
+        return spells.map(spell => {
             const level = spell.system.level || 0;
-            const school = spell.system.school || '';
+            const school = spell.system.school || '—';
             
             return `
                 <div class="sf1e-sidebar-item" data-item-id="${spell.id}">
@@ -342,35 +425,26 @@ export class PersistentHUD {
                             <span>${school}</span>
                         </div>
                     </div>
-                    <button class="sf1e-item-roll" data-action="cast">
+                    <div class="sf1e-item-roll" title="Cast">
                         <i class="fas fa-wand-sparkles"></i>
-                    </button>
+                    </div>
                 </div>
             `;
         }).join('');
-        
-        if (!spellsList) {
-            spellsList = '<div class="sf1e-sidebar-empty">No spells known</div>';
-        }
-        
-        return `
-            <div class="sf1e-sidebar-header">
-                <h3>Spells</h3>
-                <button class="sf1e-sidebar-close"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="sf1e-sidebar-content">
-                ${spellsList}
-            </div>
-        `;
     }
     
-    _renderItemsSidebar() {
+    _buildItemsList() {
         const items = this.actor.items.filter(i => 
-            ['consumable', 'goods', 'technological'].includes(i.type)
+            !['weapon', 'spell', 'feat', 'class'].includes(i.type)
         );
         
-        let itemsList = items.map(item => {
+        if (items.length === 0) {
+            return '<div class="sf1e-sidebar-empty">No items in inventory</div>';
+        }
+        
+        return items.map(item => {
             const quantity = item.system.quantity || 1;
+            const bulk = item.system.bulk || '—';
             
             return `
                 <div class="sf1e-sidebar-item" data-item-id="${item.id}">
@@ -379,140 +453,41 @@ export class PersistentHUD {
                         <div class="sf1e-item-name">${item.name}</div>
                         <div class="sf1e-item-details">
                             <span>Qty: ${quantity}</span>
+                            <span>Bulk: ${bulk}</span>
                         </div>
                     </div>
-                    <button class="sf1e-item-roll" data-action="use">
-                        <i class="fas fa-hand-pointer"></i>
-                    </button>
+                    <div class="sf1e-item-roll" title="Use">
+                        <i class="fas fa-hand"></i>
+                    </div>
                 </div>
             `;
         }).join('');
-        
-        if (!itemsList) {
-            itemsList = '<div class="sf1e-sidebar-empty">No items in inventory</div>';
-        }
-        
-        return `
-            <div class="sf1e-sidebar-header">
-                <h3>Items</h3>
-                <button class="sf1e-sidebar-close"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="sf1e-sidebar-content">
-                ${itemsList}
-            </div>
-        `;
     }
     
-    _renderSkillsSidebar() {
+    _buildSkillsList() {
         const skills = this.actor.system.skills || {};
         
-        let skillsList = Object.entries(skills).map(([key, skill]) => {
+        if (Object.keys(skills).length === 0) {
+            return '<div class="sf1e-sidebar-empty">No skills available</div>';
+        }
+        
+        return Object.entries(skills).map(([key, skill]) => {
+            const name = skill.label || key;
             const mod = skill.mod || 0;
             const ranks = skill.ranks || 0;
-            const isClassSkill = skill.classSkill || false;
+            const isClass = skill.isTrainedOnly || false;
             
             return `
-                <div class="sf1e-sidebar-item sf1e-skill-item ${isClassSkill ? 'class-skill' : ''}" 
-                     data-skill="${key}">
+                <div class="sf1e-sidebar-item sf1e-skill-item ${isClass ? 'class-skill' : ''}" data-skill="${key}">
                     <div class="sf1e-skill-info">
-                        <div class="sf1e-skill-name">${skill.label || key}</div>
+                        <div class="sf1e-skill-name">${name}</div>
                         <div class="sf1e-skill-details">
-                            <span class="sf1e-skill-mod">${mod >= 0 ? '+' : ''}${mod}</span>
-                            <span class="sf1e-skill-ranks">Ranks: ${ranks}</span>
+                            <span class="sf1e-skill-mod">+${mod}</span>
+                            <span class="sf1e-skill-ranks">${ranks} ranks</span>
                         </div>
                     </div>
-                    <button class="sf1e-skill-roll">
-                        <i class="fas fa-dice-d20"></i>
-                    </button>
                 </div>
             `;
         }).join('');
-        
-        return `
-            <div class="sf1e-sidebar-header">
-                <h3>Skills</h3>
-                <button class="sf1e-sidebar-close"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="sf1e-sidebar-content">
-                ${skillsList}
-            </div>
-        `;
-    }
-    
-    _addSidebarEventListeners(type) {
-        const sidebarDiv = this.hud.find('.sf1e-hud-sidebar');
-        
-        // Close button
-        sidebarDiv.find('.sf1e-sidebar-close').on('click', () => {
-            this._toggleSidebar(this.activeSidebar);
-        });
-        
-        // Item rolls
-        sidebarDiv.find('.sf1e-item-roll').on('click', (e) => {
-            const itemId = $(e.currentTarget).closest('.sf1e-sidebar-item').data('item-id');
-            const item = this.actor.items.get(itemId);
-            if (item) {
-                item.roll();
-            }
-        });
-        
-        // Skill rolls
-        sidebarDiv.find('.sf1e-skill-roll').on('click', (e) => {
-            const skillKey = $(e.currentTarget).closest('.sf1e-skill-item').data('skill');
-            this.actor.rollSkill(skillKey);
-        });
-        
-        // Item right-click to view sheet
-        sidebarDiv.find('.sf1e-sidebar-item').on('contextmenu', (e) => {
-            e.preventDefault();
-            const itemId = $(e.currentTarget).data('item-id');
-            const item = this.actor.items.get(itemId);
-            if (item) {
-                item.sheet.render(true);
-            }
-        });
-    }
-    
-    _openResourceDialog(resourceType) {
-        const system = this.actor.system;
-        const resource = system.attributes?.[resourceType];
-        if (!resource) return;
-        
-        const label = resourceType === 'hp' ? 'Hit Points' : 'Stamina Points';
-        
-        new Dialog({
-            title: `Adjust ${label}`,
-            content: `
-                <form>
-                    <div class="form-group">
-                        <label>Current Value (${resource.value}/${resource.max})</label>
-                        <input type="number" name="value" value="${resource.value}" 
-                               min="0" max="${resource.max}" step="1"/>
-                    </div>
-                </form>
-            `,
-            buttons: {
-                set: {
-                    label: 'Set',
-                    callback: (html) => {
-                        const value = parseInt(html.find('[name="value"]').val());
-                        this.actor.update({
-                            [`system.attributes.${resourceType}.value`]: value
-                        });
-                    }
-                },
-                cancel: {
-                    label: 'Cancel'
-                }
-            },
-            default: 'set'
-        }).render(true);
-    }
-    
-    destroy() {
-        if (this._updateHook) {
-            Hooks.off('updateActor', this._updateHook);
-        }
-        this.hud?.remove();
     }
 }
