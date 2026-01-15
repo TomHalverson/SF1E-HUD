@@ -143,11 +143,10 @@ export class TokenTooltip {
         
         const eac = system.attributes?.eac?.value || 0;
         const kac = system.attributes?.kac?.value || 0;
-        
-        const saves = system.saves || {};
-        const fort = saves.fortitude?.total || 0;
-        const reflex = saves.reflex?.total || 0;
-        const will = saves.will?.total || 0;
+
+        const fort = system.attributes?.fort?.bonus || 0;
+        const reflex = system.attributes?.reflex?.bonus || 0;
+        const will = system.attributes?.will?.bonus || 0;
         
         const speeds = this._getSpeeds(system);
         const immunities = this._getIWR(system, 'di');

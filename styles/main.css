@@ -5,6 +5,163 @@
 /* HUD elements directly use theme variables - no fallbacks needed */
 
 /* ===============================================
+   System CSS Theme Overrides
+   =============================================== */
+
+/* Override foundry default colors with theme colors */
+:root {
+    --color-text-light: var(--text-primary, #e0e0ff);
+    --color-border-light: var(--dark-border, #2a2a4a);
+    --color-bg-light: var(--dark-bg-primary, #0a0a0f);
+}
+
+/* Sheet headers and panels */
+.window-header,
+.sheet-header {
+    background: linear-gradient(135deg,
+        var(--dark-bg-secondary, #141420) 0%,
+        var(--dark-bg-primary, #0a0a0f) 100%) !important;
+    border-bottom: 2px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+    box-shadow: 0 0 10px var(--cyan-highlight, rgba(0, 255, 255, 0.2)) !important;
+}
+
+.window-header .window-title,
+.sheet-header h1 {
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+    text-shadow: 0 0 5px var(--cyan-highlight, rgba(0, 255, 255, 0.3)) !important;
+}
+
+/* Sheet content background */
+.sheet-body,
+.window-content {
+    background: var(--dark-bg-primary, #0a0a0f) !important;
+    color: var(--text-primary, #e0e0ff) !important;
+}
+
+/* Form elements and inputs */
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+    background: var(--dark-bg-secondary, #141420) !important;
+    color: var(--text-primary, #e0e0ff) !important;
+    border: 1px solid var(--dark-border, #2a2a4a) !important;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+    box-shadow: 0 0 8px var(--cyan-highlight, rgba(0, 255, 255, 0.3)) !important;
+}
+
+/* Buttons */
+button,
+.button {
+    background: var(--dark-bg-secondary, #141420) !important;
+    color: var(--text-primary, #e0e0ff) !important;
+    border: 1px solid var(--dark-border, #2a2a4a) !important;
+    transition: all 0.2s ease;
+}
+
+button:hover,
+.button:hover {
+    background: var(--dark-bg-tertiary, #1a1a2e) !important;
+    border-color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+    box-shadow: 0 0 8px var(--cyan-highlight, rgba(0, 255, 255, 0.2)) !important;
+}
+
+/* Tabs */
+.tabs .item {
+    color: var(--text-secondary, #8080a0) !important;
+    border-bottom: 2px solid transparent !important;
+}
+
+.tabs .item.active {
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+    border-bottom-color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+}
+
+/* Chat messages */
+.chat-message {
+    background: var(--dark-bg-secondary, #141420) !important;
+    border-left: 3px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+}
+
+.chat-message .message-header {
+    background: var(--dark-bg-tertiary, #1a1a2e) !important;
+    border-bottom: 1px solid var(--dark-border, #2a2a4a) !important;
+}
+
+/* Fix item links in chat messages */
+#chat .chat-message a,
+.chat-message a,
+.chat-message a.item-link,
+.chat-message a[data-entity-link],
+.chat-message .item-link,
+.chat-message .message-content a,
+.chat-message .message-content .item-link {
+    color: var(--text-primary, #e0e0ff) !important;
+    text-decoration: none !important;
+}
+
+.chat-message a:visited,
+.chat-message a.item-link:visited,
+.chat-message a[data-entity-link]:visited,
+.chat-message .message-content a:visited {
+    color: var(--text-primary, #e0e0ff) !important;
+}
+
+.chat-message a:hover,
+.chat-message a.item-link:hover,
+.chat-message a[data-entity-link]:hover {
+    color: var(--cyan-highlight, var(--orange-highlight, #00ffff)) !important;
+    text-decoration: underline !important;
+}
+
+/* Fix item names in chat (including the noborder class) */
+.chat-message .item-name,
+.chat-message h3.item-name,
+.chat-message h3.item-name.noborder {
+    color: var(--text-primary, #e0e0ff) !important;
+    text-decoration: none !important;
+}
+
+.chat-message .item-name:hover,
+.chat-message h3.item-name:hover,
+.chat-message h3.item-name.noborder:hover {
+    color: var(--cyan-highlight, var(--orange-highlight, #00ffff)) !important;
+    text-decoration: underline !important;
+}
+
+/* Dialog windows */
+.dialog,
+.form {
+    background: var(--dark-bg-primary, #0a0a0f) !important;
+    border: 2px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark-bg-primary, #0a0a0f);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    filter: brightness(1.2);
+}
+
+/* ===============================================
    Token Tooltip Styles
    =============================================== */
 
@@ -145,7 +302,6 @@
     font-size: 18px;
     font-weight: bold;
     color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
-    text-shadow: 0 0 5px var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, rgba(0,255,255,0.5))))))));
 }
 
 .sf1e-health-section {
@@ -184,8 +340,8 @@
 }
 
 .sf1e-stamina-bar .sf1e-resource-fill {
-    background: linear-gradient(90deg, #0080ff 0%, #00ccff 100%);
-    box-shadow: 0 0 10px rgba(0, 200, 255, 0.5);
+    background: linear-gradient(90deg, var(--blue-highlight, var(--cyan-highlight, #0080ff)) 0%, var(--cyan-highlight, var(--blue-highlight, #00ccff)) 100%);
+    box-shadow: 0 0 10px var(--cyan-highlight, rgba(0, 200, 255, 0.5));
 }
 
 .sf1e-hp-bar .sf1e-resource-fill {
@@ -326,8 +482,8 @@
 
 .sf1e-hud-main {
     display: flex;
-    gap: 8px;
-    align-items: flex-end;
+    gap: 12px;
+    align-items: flex-start;
 }
 
 .sf1e-hud-content {
@@ -336,10 +492,16 @@
     gap: 6px;
 }
 
+.sf1e-hud-stats-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
 .sf1e-hud-portrait {
     position: relative;
     width: 120px;
-    height: 120px;
+    height: 210px;
     border: 3px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--pink-highlight, var(--highlight, #00ffff))))))));
     border-radius: 8px;
     background: var(--dark-bg-primary, #0a0a0f);
@@ -348,6 +510,7 @@
     overflow: hidden;
     cursor: pointer;
     transition: all 0.3s ease;
+    flex-shrink: 0;
 }
 
 .sf1e-hud-portrait:hover {
@@ -391,15 +554,32 @@
 .sf1e-hud-resources {
     display: flex;
     flex-direction: column;
+    gap: 8px;
+    min-width: 300px;
+}
+
+.sf1e-hud-bars-section {
+    display: flex;
+    flex-direction: column;
     gap: 6px;
-    min-width: 200px;
+}
+
+.sf1e-hud-stats-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
 }
 
 .sf1e-hud-armor {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6px;
-    margin-bottom: 6px;
+}
+
+.sf1e-hud-stats-panel .sf1e-hud-armor {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
 }
 
 .sf1e-armor-stat {
@@ -410,7 +590,6 @@
     border: 2px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
     border-radius: 6px;
     padding: 8px;
-    box-shadow: 0 0 10px var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, rgba(0,255,255,0.3))))))));
 }
 
 .sf1e-armor-label {
@@ -425,15 +604,19 @@
     font-size: 20px;
     font-weight: bold;
     color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
-    text-shadow: 0 0 8px var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, rgba(0,255,255,0.5))))))));
     line-height: 1;
 }
 
 .sf1e-hud-saves {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    flex-direction: column;
     gap: 4px;
-    margin-bottom: 6px;
+}
+
+.sf1e-hud-stats-panel .sf1e-hud-saves {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
 }
 
 .sf1e-save-stat {
@@ -457,7 +640,6 @@
     font-size: 14px;
     font-weight: bold;
     color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
-    text-shadow: 0 0 5px var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, rgba(0,255,255,0.3))))))));
 }
 
 .sf1e-hud-bar {
@@ -469,6 +651,7 @@
     overflow: hidden;
     cursor: pointer;
     transition: all 0.2s ease;
+    min-width: 250px;
 }
 
 .sf1e-hud-bar:hover {
@@ -483,8 +666,8 @@
 }
 
 .sf1e-hud-stamina .sf1e-hud-bar-fill {
-    background: linear-gradient(90deg, #0080ff 0%, #00ccff 100%);
-    box-shadow: 0 0 15px rgba(0, 200, 255, 0.6);
+    background: linear-gradient(90deg, var(--blue-highlight, var(--cyan-highlight, #0080ff)) 0%, var(--cyan-highlight, var(--blue-highlight, #00ccff)) 100%);
+    box-shadow: 0 0 15px var(--cyan-highlight, rgba(0, 200, 255, 0.6));
 }
 
 .sf1e-hud-hp .sf1e-hud-bar-fill {
@@ -546,18 +729,19 @@
 .sf1e-sidebar-btn {
     width: 42px;
     height: 42px;
-    background: linear-gradient(135deg, 
-        var(--dark-bg-secondary, #141420) 0%, 
+    background: linear-gradient(135deg,
+        var(--dark-bg-secondary, #141420) 0%,
         var(--dark-bg-primary, #0a0a0f) 100%);
     border: 2px solid var(--dark-border, #2a2a4a);
     border-radius: 6px;
-    color: var(--text-primary, #e0e0ff);
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
+    text-shadow: 0 0 5px currentColor;
 }
 
 .sf1e-sidebar-btn:hover {
@@ -717,6 +901,61 @@
     color: var(--text-secondary, var(--text-muted, #8080a0));
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Ammo Badges - Loaded/Capacity */
+.sf1e-ammo-loaded {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 45px;
+    height: 28px;
+    padding: 0 8px;
+    background: linear-gradient(135deg, var(--orange-highlight, #ff6b00) 0%, var(--orange-highlight, #ff9900) 100%);
+    border: 2px solid var(--orange-highlight, #ffcc00);
+    border-radius: 4px;
+    color: var(--dark-bg-primary, #000);
+    font-size: 13px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 8px var(--orange-highlight, rgba(255, 153, 0, 0.4));
+}
+
+.sf1e-ammo-loaded:hover {
+    background: linear-gradient(135deg, var(--orange-highlight, #ff7700) 0%, var(--orange-highlight, #ffaa00) 100%);
+    box-shadow: 0 0 12px var(--orange-highlight, rgba(255, 153, 0, 0.6));
+    border-color: var(--orange-highlight, #ffdd00);
+    transform: scale(1.05);
+}
+
+/* Ammo Badges - Total Available */
+.sf1e-ammo-total {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 45px;
+    height: 28px;
+    padding: 0 8px;
+    background: linear-gradient(135deg, var(--blue-highlight, #004488) 0%, var(--blue-highlight, #0066cc) 100%);
+    border: 2px solid var(--cyan-highlight, var(--blue-highlight, #00aaff));
+    border-radius: 4px;
+    color: var(--cyan-highlight, var(--blue-highlight, #00ffff));
+    font-size: 13px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 8px var(--cyan-highlight, rgba(0, 170, 255, 0.4));
+    margin-left: 4px;
+}
+
+.sf1e-ammo-total:hover {
+    background: linear-gradient(135deg, var(--blue-highlight, #005599) 0%, var(--blue-highlight, #0077dd) 100%);
+    box-shadow: 0 0 12px var(--cyan-highlight, rgba(0, 170, 255, 0.6));
+    border-color: var(--cyan-highlight, var(--blue-highlight, #00ffff));
+    transform: scale(1.05);
 }
 
 .sf1e-item-roll {
@@ -754,6 +993,330 @@
     border-left: 3px solid var(--green-highlight, var(--cyan-highlight, #00ff00));
 }
 
+.sf1e-feature-item {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sf1e-feature-item:hover {
+    border-color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    background: var(--dark-bg-tertiary, #1a1a2e);
+    box-shadow: 0 0 10px var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, rgba(0,255,255,0.3))))))));
+}
+
+.sf1e-feature-type {
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    font-size: 9px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* ===============================================
+   Currency Display Styles
+   =============================================== */
+
+.sf1e-currency-display {
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    background: var(--dark-bg-secondary, #141420);
+    border-bottom: 1px solid var(--dark-border, #2a2a4a);
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.sf1e-currency-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: var(--dark-bg-tertiary, rgba(20,20,40,0.5));
+    border: 1px solid var(--dark-border, #2a2a4a);
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.sf1e-currency-item i {
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #ffff00)))))));
+    text-shadow: 0 0 5px currentColor;
+}
+
+.sf1e-currency-label {
+    color: var(--text-secondary, #8080a0);
+    font-weight: bold;
+}
+
+.sf1e-currency-value {
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #ffff00)))))));
+    font-weight: bold;
+    text-shadow: 0 0 5px currentColor;
+}
+
+/* ===============================================
+   Inventory Control Styles
+   =============================================== */
+
+.sf1e-inventory-controls {
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    background: var(--dark-bg-tertiary, rgba(20,20,40,0.5));
+    border-bottom: 1px solid var(--dark-border, #2a2a4a);
+    flex-wrap: wrap;
+}
+
+.sf1e-filter-buttons,
+.sf1e-sort-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.sf1e-filter-btn,
+.sf1e-sort-btn {
+    padding: 4px 8px;
+    background: var(--dark-bg-primary, #0a0a0f);
+    border: 1px solid var(--dark-border, #2a2a4a);
+    border-radius: 4px;
+    color: var(--text-secondary, #8080a0);
+    cursor: pointer;
+    font-size: 11px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.sf1e-filter-btn:hover,
+.sf1e-sort-btn:hover {
+    border-color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    background: var(--dark-bg-secondary, #141420);
+    box-shadow: 0 0 8px var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, rgba(0,255,255,0.3))))))));
+}
+
+.sf1e-filter-btn.active,
+.sf1e-sort-btn.active {
+    border-color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    background: var(--dark-bg-secondary, #141420);
+    box-shadow: 0 0 10px var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, rgba(0,255,255,0.4))))))));
+}
+
+/* ===============================================
+   Bulk Display Styles
+   =============================================== */
+
+.sf1e-bulk-display {
+    padding: 8px;
+    background: var(--dark-bg-primary, #0a0a0f);
+    border-bottom: 1px solid var(--dark-border, #2a2a4a);
+}
+
+.sf1e-bulk-bar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sf1e-bulk-label {
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--text-secondary, #8080a0);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.sf1e-bulk-bar {
+    position: relative;
+    height: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid var(--dark-border, #2a2a4a);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.sf1e-bulk-fill {
+    position: absolute;
+    height: 100%;
+    background: linear-gradient(90deg,
+        var(--green-highlight, #00ff00) 0%,
+        var(--cyan-highlight, #00ffff) 50%,
+        #ff9900 100%);
+    transition: width 0.3s ease;
+    box-shadow: 0 0 8px var(--cyan-highlight, rgba(0,255,255,0.5));
+}
+
+.sf1e-bulk-text {
+    font-size: 10px;
+    color: var(--text-secondary, #8080a0);
+    text-align: right;
+}
+
+/* ===============================================
+   Container/Bag styling
+   =============================================== */
+
+.sf1e-container-item {
+    border-left: 4px solid var(--magenta-highlight, var(--pink-highlight, var(--yellow-highlight, var(--blue-highlight, #ff00ff))));
+    background: linear-gradient(90deg,
+        var(--dark-bg-primary, #0a0a0f) 0%,
+        var(--dark-bg-secondary, #141420) 100%);
+}
+
+.sf1e-container-item:hover {
+    border-left-color: var(--magenta-highlight, var(--pink-highlight, var(--yellow-highlight, var(--blue-highlight, #ff00ff))));
+    box-shadow: 0 0 15px var(--magenta-highlight, var(--pink-highlight, var(--yellow-highlight, var(--blue-highlight, rgba(255,0,255,0.3)))));
+}
+
+.sf1e-container-toggle {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    padding: 0;
+    margin: 0 4px 0 0;
+    background: transparent;
+    border: none;
+    color: var(--magenta-highlight, var(--pink-highlight, var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #ff00ff)))))))));
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.sf1e-container-toggle:hover {
+    transform: scale(1.2);
+    text-shadow: 0 0 8px currentColor;
+    filter: brightness(1.2);
+}
+
+.sf1e-container-toggle:active {
+    transform: scale(0.95);
+}
+
+.sf1e-container-toggle-placeholder {
+    width: 24px;
+    flex-shrink: 0;
+}
+
+.sf1e-container-badge {
+    display: inline-block;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    background: var(--magenta-highlight, var(--pink-highlight, var(--yellow-highlight, var(--blue-highlight, #ff00ff))));
+    color: var(--dark-bg-primary, #0a0a0f);
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
+}
+
+.sf1e-container-contents {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-left: 8px;
+    border-left: 2px dashed var(--dark-border, #2a2a4a);
+    margin: 4px 0 4px 0;
+}
+
+/* Item indentation for nested containers */
+.sf1e-item-indent-1 {
+    margin-left: 12px;
+}
+
+.sf1e-item-indent-2 {
+    margin-left: 24px;
+}
+
+.sf1e-item-indent-3 {
+    margin-left: 36px;
+}
+
+/* ===============================================
+   Equipped Item Styling
+   =============================================== */
+
+.sf1e-equipped-item {
+    border-right: 3px solid var(--green-highlight, var(--cyan-highlight, #00ff00));
+    background: linear-gradient(90deg,
+        var(--dark-bg-primary, #0a0a0f) 0%,
+        rgba(0, 255, 0, 0.05) 100%);
+}
+
+.sf1e-equipped-item:hover {
+    border-right-color: var(--green-highlight, var(--cyan-highlight, #00ff00));
+    box-shadow: 0 0 15px var(--green-highlight, var(--cyan-highlight, rgba(0,255,0,0.3)));
+}
+
+.sf1e-equipped-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    background: var(--green-highlight, var(--cyan-highlight, #00ff00));
+    color: var(--dark-bg-primary, #0a0a0f);
+    border-radius: 50%;
+    font-size: 10px;
+    margin-left: 4px;
+    font-weight: bold;
+}
+
+/* ===============================================
+   Items Inside Containers
+   =============================================== */
+
+.sf1e-item-in-container {
+    border-top: 2px solid var(--dark-border, #2a2a4a);
+    background: linear-gradient(90deg,
+        var(--dark-bg-primary, #0a0a0f) 0%,
+        rgba(100, 100, 255, 0.05) 100%);
+    padding-left: 12px;
+    margin-left: 8px;
+    position: relative;
+}
+
+.sf1e-item-in-container::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    opacity: 0.6;
+}
+
+.sf1e-in-container-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    background: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #0080ff)))))));
+    color: var(--dark-bg-primary, #0a0a0f);
+    border-radius: 4px;
+    font-size: 9px;
+    margin-left: 4px;
+    font-weight: bold;
+    opacity: 0.8;
+}
+
+.sf1e-container-info {
+    display: inline-block;
+    font-size: 9px;
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #0080ff)))))));
+    font-style: italic;
+    margin-left: 4px;
+    opacity: 0.8;
+}
+
 .sf1e-skill-info {
     flex: 1;
 }
@@ -779,10 +1342,515 @@
 }
 
 /* ===============================================
+   Categorized Inventory Styles
+   =============================================== */
+
+.sf1e-categorized-inventory {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sf1e-inventory-category {
+    border: 1px solid var(--dark-border, #2a2a4a);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--dark-bg-primary, #0a0a0f);
+}
+
+.sf1e-category-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    background: var(--dark-bg-secondary, #141420);
+    border-bottom: 1px solid var(--dark-border, #2a2a4a);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.sf1e-category-header:hover {
+    background: var(--dark-bg-tertiary, #1a1a2e);
+    border-bottom-color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+}
+
+.sf1e-category-header i {
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    text-shadow: 0 0 5px currentColor;
+    min-width: 16px;
+}
+
+.sf1e-category-label {
+    flex: 1;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--text-primary, #e0e0ff);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sf1e-category-count {
+    font-size: 10px;
+    color: var(--text-secondary, #8080a0);
+    background: var(--dark-bg-primary, #0a0a0f);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--dark-border, #2a2a4a);
+}
+
+.sf1e-category-items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.sf1e-category-items .sf1e-sidebar-item {
+    margin-bottom: 0;
+}
+
+/* Scrollbar styling for category items */
+.sf1e-category-items::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sf1e-category-items::-webkit-scrollbar-track {
+    background: var(--dark-bg-primary, #0a0a0f);
+}
+
+.sf1e-category-items::-webkit-scrollbar-thumb {
+    background: var(--dark-border, #2a2a4a);
+    border-radius: 3px;
+}
+
+.sf1e-category-items::-webkit-scrollbar-thumb:hover {
+    background: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+}
+
+/* ===============================================
+   Quick Action Buttons
+   =============================================== */
+
+.sf1e-hud-quick-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.sf1e-quick-btn {
+    flex: 1;
+    padding: 6px 8px;
+    background: linear-gradient(135deg,
+        var(--dark-bg-secondary, #141420) 0%,
+        var(--dark-bg-primary, #0a0a0f) 100%);
+    border: 1px solid var(--dark-border, #2a2a4a);
+    border-radius: 4px;
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    text-shadow: 0 0 3px currentColor;
+}
+
+.sf1e-quick-btn:hover {
+    border-color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    background: var(--dark-bg-tertiary, #1a1a2e);
+    box-shadow: 0 0 8px var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, rgba(0,255,255,0.4))))))));
+}
+
+.sf1e-quick-btn:active {
+    transform: scale(0.95);
+}
+
+/* ===============================================
+   Ability Check Boxes
+   =============================================== */
+
+.sf1e-hud-abilities {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.sf1e-ability-check {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 2px;
+    background: linear-gradient(135deg,
+        var(--dark-bg-secondary, #141420) 0%,
+        var(--dark-bg-primary, #0a0a0f) 100%);
+    border: 1px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    border-radius: 3px;
+    color: var(--text-primary, #e0e0ff);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 1px;
+    min-height: 36px;
+}
+
+.sf1e-ability-check:hover {
+    background: var(--dark-bg-tertiary, #1a1a2e);
+    border-color: var(--magenta-highlight, var(--pink-highlight, var(--yellow-highlight, var(--blue-highlight, #ff00ff))));
+    box-shadow: 0 0 8px var(--magenta-highlight, var(--pink-highlight, var(--yellow-highlight, var(--blue-highlight, rgba(255,0,255,0.3)))));
+    transform: scale(1.05);
+}
+
+.sf1e-ability-check:active {
+    transform: scale(0.95);
+}
+
+.sf1e-ability-label {
+    font-size: 7px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    text-shadow: 0 0 1px currentColor;
+    line-height: 1;
+}
+
+.sf1e-ability-mod {
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    text-shadow: 0 0 3px currentColor;
+    line-height: 1;
+}
+
+/* ===============================================
+   Conditions Manager
+   =============================================== */
+
+.sf1e-condition-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--red-highlight, #ff3333);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    border: 2px solid var(--dark-bg-primary, #0a0a0f);
+}
+
+.sf1e-condition-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: var(--dark-bg-primary, #0a0a0f);
+    border: 2px solid var(--dark-border, #2a2a4a);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sf1e-condition-item.active {
+    border-color: var(--red-highlight, #ff3333);
+    background: var(--dark-bg-secondary, #141420);
+    box-shadow: 0 0 8px var(--red-highlight, rgba(255, 51, 51, 0.3));
+}
+
+.sf1e-condition-item.inactive {
+    opacity: 0.6;
+}
+
+.sf1e-condition-item:hover {
+    border-color: var(--cyan-highlight, var(--red-highlight, #00ffff));
+    background: var(--dark-bg-tertiary, #1a1a2e);
+    box-shadow: 0 0 10px var(--cyan-highlight, rgba(0, 255, 255, 0.2));
+}
+
+.sf1e-condition-icon {
+    font-size: 18px;
+    color: var(--red-highlight, #ff3333);
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.sf1e-condition-item.inactive .sf1e-condition-icon {
+    color: var(--text-secondary, #8080a0);
+}
+
+.sf1e-condition-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sf1e-condition-name {
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--text-primary, #e0e0ff);
+    text-transform: capitalize;
+}
+
+.sf1e-condition-notes {
+    font-size: 11px;
+    color: var(--text-secondary, #8080a0);
+    font-style: italic;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Condition sections with headers */
+.sf1e-conditions-section {
+    margin-bottom: 20px;
+}
+
+.sf1e-conditions-section:last-child {
+    margin-bottom: 0;
+}
+
+.sf1e-conditions-header {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 8px 12px;
+    margin: 0 0 8px 0;
+    border-bottom: 2px solid var(--dark-border, #2a2a4a);
+    background: var(--dark-bg-secondary, #141420);
+    border-radius: 3px;
+}
+
+/* ===============================================
+   Spell List Organization
+   =============================================== */
+
+.sf1e-spells-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.sf1e-spell-level-group {
+    margin-bottom: 16px;
+    border-left: 3px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+}
+
+.sf1e-spell-level-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--dark-bg-secondary, #141420);
+    border-bottom: 1px solid var(--dark-border, #2a2a4a);
+    gap: 12px;
+}
+
+.sf1e-spell-level-name {
+    font-weight: bold;
+    font-size: 13px;
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex: 1;
+}
+
+.sf1e-spell-slots {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--text-secondary, #a0a0c0);
+    background: var(--dark-bg-tertiary, #1a1a2e);
+    padding: 4px 8px;
+    border-radius: 3px;
+    border: 1px solid var(--dark-border, #2a2a4a);
+    white-space: nowrap;
+}
+
+.sf1e-slots-used {
+    color: var(--green-highlight, var(--cyan-highlight, #00ff00));
+    font-weight: bold;
+}
+
+.sf1e-slots-separator {
+    color: var(--text-secondary, #a0a0c0);
+}
+
+.sf1e-slots-max {
+    color: var(--text-secondary, #a0a0c0);
+}
+
+.sf1e-spell-level-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: var(--dark-bg-primary, #0a0a0f);
+}
+
+.sf1e-spell-level-items .sf1e-spell-item {
+    border-bottom: 1px solid var(--dark-border, #2a2a4a);
+}
+
+.sf1e-spell-level-items .sf1e-spell-item:last-child {
+    border-bottom: none;
+}
+
+.sf1e-spell-target {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: bold;
+    background: var(--dark-bg-tertiary, #1a1a2e);
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-left: 4px;
+}
+
+/* ===============================================
+   Weapon Attachments
+   =============================================== */
+
+.sf1e-weapon-toggle {
+    background: none;
+    border: none;
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 4px;
+    transition: transform 0.2s ease;
+}
+
+.sf1e-weapon-toggle:hover {
+    transform: scale(1.2);
+}
+
+.sf1e-weapon-toggle-placeholder {
+    width: 20px;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+.sf1e-weapon-attachments-badge {
+    display: inline-block;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    background: var(--orange-highlight, var(--cyan-highlight, #ff9900));
+    color: var(--dark-bg-primary, #000);
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 18px;
+    margin-left: 6px;
+}
+
+.sf1e-weapon-attachments {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 8px 8px 32px;
+    background: var(--dark-bg-tertiary, #1a1a2e);
+    border-left: 2px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))));
+}
+
+.sf1e-weapon-attachment {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: var(--dark-bg-secondary, #141420);
+    border: 1px solid var(--dark-border, #2a2a4a);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sf1e-weapon-attachment:hover {
+    border-color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    background: var(--dark-bg-tertiary, #1a1a2e);
+    box-shadow: 0 0 8px var(--cyan-highlight, rgba(0, 255, 255, 0.2));
+}
+
+.sf1e-weapon-attachment img {
+    width: 32px;
+    height: 32px;
+    border-radius: 3px;
+    border: 1px solid var(--dark-border, #2a2a4a);
+    object-fit: cover;
+}
+
+.sf1e-attachment-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sf1e-attachment-name {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--text-primary, #e0e0ff);
+}
+
+.sf1e-attachment-type {
+    font-size: 10px;
+    color: var(--text-secondary, #8080a0);
+    text-transform: capitalize;
+}
+
+.sf1e-attachment-qty {
+    font-size: 10px;
+    color: var(--text-secondary, #8080a0);
+}
+
+/* ===============================================
    Players List Repositioning - MOVED TO TOP
    =============================================== */
 
 #players {
-    top: 70px !important;  /* Move to top under main UI bar */
-    bottom: auto !important;  /* Remove bottom positioning */
+    position: fixed !important;
+    top: auto !important;  /* Remove top positioning */
+    bottom: 310px !important;  /* Position just above HUD */
+    left: 10px !important;  /* Position on left side */
+    right: auto !important;  /* Remove right positioning */
+    z-index: 61 !important;  /* Just above HUD (HUD is z-index 60) */
+    max-width: 250px !important;  /* Constrain width */
+}
+
+/* ===============================================
+   HUD Glass Container Styling
+   =============================================== */
+
+.sf1e-persistent-hud {
+    background: rgba(10, 10, 15, 0.75) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 2px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    box-shadow: 0 0 30px var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, rgba(0,255,255,0.3)))))))) !important,
+                inset 0 0 20px rgba(255,255,255,0.05) !important;
 }

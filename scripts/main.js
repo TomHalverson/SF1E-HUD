@@ -1,7 +1,11 @@
 import { TokenTooltip } from './token-tooltip.js';
 import { PersistentHUD } from './persistent-hud.js';
 import { registerSettings } from './settings.js';
+import { HealthUtils } from './health-utils.js';
 import './theme-switcher.js';
+
+// Make utilities available globally
+window.SF1EHealthUtils = HealthUtils;
 
 Hooks.once('init', () => {
     console.log('SF1E-HUD | Initializing Starfinder 1E HUD');
@@ -74,5 +78,18 @@ Hooks.on('controlToken', (token, controlled) => {
             console.log('SF1E-HUD | Setting actor from token:', token.actor.name);
             game.sf1eHUD.persistentHUD.setActor(token.actor);
         }
+    }
+});
+
+// Update HUD when actor data changes (conditions, stats, etc.)
+Hooks.on('updateActor', (actor, data, options) => {
+    if (game.sf1eHUD?.persistentHUD && game.sf1eHUD.persistentHUD.actor?.id === actor.id) {
+        console.log('SF1E-HUD | Actor updated, refreshing HUD');
+        // Check if the active sidebar is conditions and refresh it
+        if (game.sf1eHUD.persistentHUD.activeSidebar === 'conditions') {
+            game.sf1eHUD.persistentHUD._buildSidebar('conditions');
+        }
+        // Also update the button badges (condition count, etc.)
+        game.sf1eHUD.persistentHUD._updateButtons();
     }
 });

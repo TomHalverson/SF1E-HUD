@@ -55,6 +55,24 @@
       "HP": "Hit Points",
       "SP": "Stamina Points",
       "RP": "Resolve Points"
+    },
+    "Inventory": {
+      "FilterAll": "All Items",
+      "FilterEquipped": "Equipped Only",
+      "FilterContainers": "Containers Only",
+      "SortDefault": "Default Order",
+      "SortBulk": "Sort by Bulk",
+      "Encumbrance": "Encumbrance",
+      "ContainerContents": "items",
+      "Equipped": "Equipped",
+      "NoItems": "No items in inventory"
+    },
+    "HealthStates": {
+      "Dead": "Dead",
+      "Critical": "Critical (0-3)",
+      "Wounded": "Wounded (4-6)",
+      "Injured": "Injured (7-9)",
+      "Healthy": "Healthy (10+)"
     }
   }
 }

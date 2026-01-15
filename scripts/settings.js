@@ -84,4 +84,47 @@ export function registerSettings() {
         type: String,
         default: ''
     });
+
+    game.settings.register('sf1e-hud', 'showBulkBar', {
+        name: 'Show Bulk/Encumbrance Bar',
+        hint: 'Display encumbrance bar in inventory sidebar',
+        scope: 'client',
+        config: true,
+        type: Boolean,
+        default: true
+    });
+
+    game.settings.register('sf1e-hud', 'showEquippedIndicators', {
+        name: 'Show Equipped Indicators',
+        hint: 'Display visual indicators for equipped items in inventory',
+        scope: 'client',
+        config: true,
+        type: Boolean,
+        default: true
+    });
+
+    game.settings.register('sf1e-hud', 'expandContainersByDefault', {
+        name: 'Expand Containers by Default',
+        hint: 'Show container contents by default when opening inventory',
+        scope: 'client',
+        config: true,
+        type: Boolean,
+        default: false
+    });
+
+    game.settings.register('sf1e-hud', 'healthStateLabels', {
+        name: 'Health State Labels',
+        hint: 'Customize health status labels (JSON format)',
+        scope: 'client',
+        config: true,
+        type: String,
+        default: JSON.stringify({
+            "dead": "Dead",
+            "critical": "Critical",
+            "wounded": "Wounded",
+            "injured": "Injured",
+            "healthy": "Healthy"
+        }),
+        onChange: () => window.location.reload()
+    });
 }
