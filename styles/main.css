@@ -94,45 +94,70 @@ button:hover,
     border-bottom: 1px solid var(--dark-border, #2a2a4a) !important;
 }
 
-/* Fix item links in chat messages */
+/* Fix item links in chat messages - use highlight color for visibility */
 #chat .chat-message a,
 .chat-message a,
 .chat-message a.item-link,
 .chat-message a[data-entity-link],
+.chat-message a.content-link,
+.chat-message a.inline-roll,
 .chat-message .item-link,
 .chat-message .message-content a,
-.chat-message .message-content .item-link {
-    color: var(--text-primary, #e0e0ff) !important;
+.chat-message .message-content .item-link,
+.chat-message .message-content .content-link,
+#chat-log .chat-message a,
+.chat-log .chat-message a {
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
     text-decoration: none !important;
+    text-shadow: 0 0 3px currentColor;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    padding: 0 !important;
 }
 
 .chat-message a:visited,
 .chat-message a.item-link:visited,
 .chat-message a[data-entity-link]:visited,
-.chat-message .message-content a:visited {
-    color: var(--text-primary, #e0e0ff) !important;
+.chat-message .message-content a:visited,
+#chat-log .chat-message a:visited {
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
 }
 
 .chat-message a:hover,
 .chat-message a.item-link:hover,
-.chat-message a[data-entity-link]:hover {
-    color: var(--cyan-highlight, var(--orange-highlight, #00ffff)) !important;
+.chat-message a[data-entity-link]:hover,
+.chat-message a.content-link:hover,
+.chat-message a.inline-roll:hover,
+#chat-log .chat-message a:hover {
+    color: var(--magenta-highlight, var(--pink-highlight, var(--yellow-highlight, var(--blue-highlight, #ff00ff)))) !important;
     text-decoration: underline !important;
+    text-shadow: 0 0 5px currentColor;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 /* Fix item names in chat (including the noborder class) */
 .chat-message .item-name,
 .chat-message h3.item-name,
-.chat-message h3.item-name.noborder {
-    color: var(--text-primary, #e0e0ff) !important;
+.chat-message h3.item-name.noborder,
+#chat-log .chat-message .item-name {
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
     text-decoration: none !important;
+    text-shadow: 0 0 3px currentColor;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 .chat-message .item-name:hover,
 .chat-message h3.item-name:hover,
-.chat-message h3.item-name.noborder:hover {
-    color: var(--cyan-highlight, var(--orange-highlight, #00ffff)) !important;
+.chat-message h3.item-name.noborder:hover,
+#chat-log .chat-message .item-name:hover {
+    color: var(--magenta-highlight, var(--pink-highlight, var(--yellow-highlight, var(--blue-highlight, #ff00ff)))) !important;
     text-decoration: underline !important;
+    text-shadow: 0 0 5px currentColor;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 /* Dialog windows */
@@ -458,6 +483,76 @@ button:hover,
 .sf1e-persistent-hud.active {
     opacity: 1;
     pointer-events: all;
+}
+
+/* ===============================================
+   HUD Minimize Button
+   =============================================== */
+
+.sf1e-hud-minimize {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg,
+        var(--dark-bg-secondary, #141420) 0%,
+        var(--dark-bg-primary, #0a0a0f) 100%);
+    border: 2px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    border-radius: 50%;
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    z-index: 100;
+    box-shadow: 0 0 10px var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, rgba(0,255,255,0.4))))))));
+}
+
+.sf1e-hud-minimize:hover {
+    background: var(--dark-bg-tertiary, #1a1a2e);
+    border-color: var(--magenta-highlight, var(--pink-highlight, var(--yellow-highlight, var(--blue-highlight, #ff00ff))));
+    color: var(--magenta-highlight, var(--pink-highlight, var(--yellow-highlight, var(--blue-highlight, #ff00ff))));
+    box-shadow: 0 0 15px var(--magenta-highlight, var(--pink-highlight, var(--yellow-highlight, var(--blue-highlight, rgba(255,0,255,0.5)))));
+    transform: scale(1.1);
+}
+
+/* ===============================================
+   Minimized HUD State
+   =============================================== */
+
+.sf1e-persistent-hud.minimized {
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.sf1e-persistent-hud.minimized .sf1e-hud-main,
+.sf1e-persistent-hud.minimized .sf1e-hud-sidebar {
+    display: none !important;
+}
+
+.sf1e-persistent-hud.minimized .sf1e-hud-minimize {
+    position: relative;
+    top: 0;
+    right: 0;
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+    background: linear-gradient(135deg,
+        var(--dark-bg-secondary, #141420) 0%,
+        var(--dark-bg-primary, #0a0a0f) 100%);
+    border: 3px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    box-shadow: 0 0 20px var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, rgba(0,255,255,0.5))))))));
+}
+
+.sf1e-persistent-hud.minimized .sf1e-hud-minimize:hover {
+    width: 52px;
+    height: 52px;
+    box-shadow: 0 0 25px var(--magenta-highlight, var(--pink-highlight, var(--yellow-highlight, var(--blue-highlight, rgba(255,0,255,0.6)))));
 }
 
 .sf1e-persistent-hud.top-left {
@@ -931,7 +1026,7 @@ button:hover,
     transform: scale(1.05);
 }
 
-/* Ammo Badges - Total Available */
+/* Ammo Badges - Total Available (uses secondary/contrast highlight for theme compatibility) */
 .sf1e-ammo-total {
     display: inline-flex;
     align-items: center;
@@ -939,22 +1034,24 @@ button:hover,
     min-width: 45px;
     height: 28px;
     padding: 0 8px;
-    background: linear-gradient(135deg, var(--blue-highlight, #004488) 0%, var(--blue-highlight, #0066cc) 100%);
-    border: 2px solid var(--cyan-highlight, var(--blue-highlight, #00aaff));
+    background: linear-gradient(135deg,
+        var(--magenta-highlight, var(--blue-highlight, var(--purple-highlight, #9900cc))) 0%,
+        var(--magenta-dark, var(--blue-dark, var(--purple-dark, #6600aa))) 100%);
+    border: 2px solid var(--magenta-highlight, var(--blue-highlight, var(--purple-highlight, #cc00ff)));
     border-radius: 4px;
-    color: var(--cyan-highlight, var(--blue-highlight, #00ffff));
+    color: #ffffff;
     font-size: 13px;
     font-weight: bold;
     font-family: 'Courier New', monospace;
     transition: all 0.2s ease;
-    box-shadow: 0 0 8px var(--cyan-highlight, rgba(0, 170, 255, 0.4));
+    box-shadow: 0 0 8px var(--magenta-highlight, var(--blue-highlight, rgba(153, 0, 204, 0.4)));
     margin-left: 4px;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
 .sf1e-ammo-total:hover {
-    background: linear-gradient(135deg, var(--blue-highlight, #005599) 0%, var(--blue-highlight, #0077dd) 100%);
-    box-shadow: 0 0 12px var(--cyan-highlight, rgba(0, 170, 255, 0.6));
-    border-color: var(--cyan-highlight, var(--blue-highlight, #00ffff));
+    box-shadow: 0 0 12px var(--magenta-highlight, var(--blue-highlight, rgba(153, 0, 204, 0.6)));
+    border-color: var(--magenta-highlight, var(--blue-highlight, #ff00ff));
     transform: scale(1.05);
 }
 

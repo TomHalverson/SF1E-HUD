@@ -7,6 +7,7 @@ export class PersistentHUD {
         this.expandedWeapons = new Set(); // Track expanded weapons with attachments
         this.inventoryFilter = 'all'; // Track current inventory filter
         this.inventorySort = 'default'; // Track current sorting method
+        this.minimized = false; // Track minimized state
     }
     
     render() {
@@ -23,6 +24,9 @@ export class PersistentHUD {
         const position = game.settings.get('sf1e-hud', 'hudPosition');
         this.hud = $(`
             <div id="sf1e-persistent-hud" class="sf1e-persistent-hud ${position}">
+                <button class="sf1e-hud-minimize" title="Minimize HUD">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
                 <div class="sf1e-hud-main">
                     <div class="sf1e-hud-portrait"></div>
                     <div class="sf1e-hud-content">
@@ -79,6 +83,12 @@ export class PersistentHUD {
     }
     
     _addEventListeners() {
+        // Minimize button click handler
+        this.hud.find('.sf1e-hud-minimize').on('click', (e) => {
+            e.stopPropagation();
+            this._toggleMinimize();
+        });
+
         // Portrait LEFT-click to open character sheet
         this.hud.find('.sf1e-hud-portrait').on('click', (e) => {
             if (e.button === 0 && this.actor) {  // Left click only
@@ -106,7 +116,31 @@ export class PersistentHUD {
             e.preventDefault();
         });
     }
-    
+
+    _toggleMinimize() {
+        this.minimized = !this.minimized;
+
+        if (this.minimized) {
+            this.hud.addClass('minimized');
+            // Close any open sidebar when minimizing
+            if (this.activeSidebar) {
+                this.activeSidebar = null;
+                this.hud.find('.sf1e-hud-sidebar').removeClass('active');
+                this.hud.find('.sf1e-sidebar-btn').removeClass('active');
+            }
+            // Update the icon to show expand
+            this.hud.find('.sf1e-hud-minimize i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+            this.hud.find('.sf1e-hud-minimize').attr('title', 'Expand HUD');
+        } else {
+            this.hud.removeClass('minimized');
+            // Update the icon to show minimize
+            this.hud.find('.sf1e-hud-minimize i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+            this.hud.find('.sf1e-hud-minimize').attr('title', 'Minimize HUD');
+        }
+
+        console.log('SF1E-HUD | HUD minimized:', this.minimized);
+    }
+
     async _handleDrop(data) {
         if (!this.actor) return;
         

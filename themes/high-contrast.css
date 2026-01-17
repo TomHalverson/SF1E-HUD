@@ -997,3 +997,49 @@ bottom: 170px !important;
   top: 70px !important;
   bottom: auto !important;
 }
+
+/* ============================================
+   CHAT LINK STYLING - HIGH VISIBILITY
+   ============================================ */
+
+#chat .chat-message a,
+.chat-message a,
+.chat-message a.item-link,
+.chat-message a[data-entity-link],
+.chat-message a.content-link,
+.chat-message a.inline-roll,
+.chat-message .item-link,
+.chat-message .message-content a,
+#chat-log .chat-message a {
+  color: var(--highlight, #ffff00) !important;
+  text-decoration: none !important;
+  text-shadow: 0 0 4px var(--highlight-dark, #cccc00) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.chat-message a:hover,
+.chat-message a.item-link:hover,
+.chat-message a.content-link:hover,
+#chat-log .chat-message a:hover {
+  color: #ffffff !important;
+  text-decoration: underline !important;
+  text-shadow: 0 0 8px #ffffff !important;
+  background: transparent !important;
+}
+
+.chat-message .item-name,
+.chat-message h3.item-name,
+#chat-log .chat-message .item-name {
+  color: var(--highlight, #ffff00) !important;
+  text-shadow: 0 0 4px var(--highlight-dark, #cccc00) !important;
+  background: transparent !important;
+}
+
+.chat-message .item-name:hover,
+.chat-message h3.item-name:hover {
+  color: #ffffff !important;
+  text-shadow: 0 0 8px #ffffff !important;
+  background: transparent !important;
+}

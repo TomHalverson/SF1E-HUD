@@ -2,7 +2,7 @@
   "id": "sf1e-hud",
   "title": "Starfinder 1E HUD & Theme Switcher",
   "description": "A sci-fi themed HUD system with token tooltips, persistent character HUD, action sidebars, and multiple customizable dark themes for Starfinder 1E",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "authors": [
     {
       "name": "SF1E HUD Development"
@@ -10,7 +10,7 @@
   ],
   "compatibility": {
     "minimum": "11",
-    "verified": "13"
+    "verified": "12"
   },
   "esmodules": [
     "scripts/main.js"
