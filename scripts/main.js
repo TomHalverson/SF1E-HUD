@@ -25,6 +25,10 @@ Hooks.once('ready', async () => {
     
     console.log('SF1E-HUD | System ready');
     
+    // Initialize text scale from settings
+    const textSize = game.settings.get('sf1e-hud', 'textSize');
+    document.documentElement.style.setProperty('--sf1e-hud-text-scale', textSize / 100);
+    
     // Initialize HUD components
     game.sf1eHUD = {
         tokenTooltip: new TokenTooltip(),
@@ -91,5 +95,15 @@ Hooks.on('updateActor', (actor, data, options) => {
         }
         // Also update the button badges (condition count, etc.)
         game.sf1eHUD.persistentHUD._updateButtons();
+    }
+});
+
+// Update HUD when embedded items change (actorResource items for class resources, etc.)
+Hooks.on('updateItem', (item, data, options) => {
+    if (game.sf1eHUD?.persistentHUD && item.parent?.id === game.sf1eHUD.persistentHUD.actor?.id) {
+        if (item.type === 'actorResource') {
+            console.log('SF1E-HUD | Actor resource item updated, refreshing HUD');
+            game.sf1eHUD.persistentHUD._updateDisplay();
+        }
     }
 });

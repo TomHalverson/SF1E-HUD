@@ -13,6 +13,8 @@
     --color-text-light: var(--text-primary, #e0e0ff);
     --color-border-light: var(--dark-border, #2a2a4a);
     --color-bg-light: var(--dark-bg-primary, #0a0a0f);
+    /* Text size scaling for accessibility - set via JS from settings */
+    --sf1e-hud-text-scale: 1;
 }
 
 /* Sheet headers and panels */
@@ -56,17 +58,21 @@ select:focus {
     box-shadow: 0 0 8px var(--cyan-highlight, rgba(0, 255, 255, 0.3)) !important;
 }
 
-/* Buttons */
-button,
-.button {
+/* Buttons - scoped to sheet/window/dialog elements to avoid breaking Foundry core UI */
+.window-content button,
+.window-content .button,
+.dialog button,
+.dialog .button {
     background: var(--dark-bg-secondary, #141420) !important;
     color: var(--text-primary, #e0e0ff) !important;
     border: 1px solid var(--dark-border, #2a2a4a) !important;
     transition: all 0.2s ease;
 }
 
-button:hover,
-.button:hover {
+.window-content button:hover,
+.window-content .button:hover,
+.dialog button:hover,
+.dialog .button:hover {
     background: var(--dark-bg-tertiary, #1a1a2e) !important;
     border-color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
     box-shadow: 0 0 8px var(--cyan-highlight, rgba(0, 255, 255, 0.2)) !important;
@@ -197,6 +203,8 @@ button:hover,
     opacity: 0;
     transition: opacity 0.2s ease;
     font-family: 'Orbitron', 'Rajdhani', sans-serif;
+    /* Text size scaling for accessibility */
+    font-size: calc(1em * var(--sf1e-hud-text-scale, 1));
 }
 
 .sf1e-tooltip.active {
@@ -478,6 +486,8 @@ button:hover,
     pointer-events: none;
     transition: opacity 0.3s ease;
     font-family: 'Orbitron', 'Rajdhani', sans-serif;
+    /* Text size scaling for accessibility */
+    font-size: calc(1em * var(--sf1e-hud-text-scale, 1));
 }
 
 .sf1e-persistent-hud.active {
@@ -808,10 +818,94 @@ button:hover,
 }
 
 .sf1e-resolve-label {
-    font-size: 11px;
+    font-size: calc(11px * var(--sf1e-hud-text-scale, 1));
     font-weight: bold;
     color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
     text-shadow: 0 0 5px var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, rgba(0,255,255,0.5))))))));
+}
+
+/* ===============================================
+   Class Resource Styles
+   =============================================== */
+
+.sf1e-class-resource {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sf1e-class-resource:hover {
+    transform: scale(1.02);
+}
+
+.sf1e-class-resource-bar {
+    position: relative;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid var(--magenta-highlight, var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #ff00ff))))))));
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.sf1e-class-resource-fill {
+    position: absolute;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        var(--magenta-highlight, var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #ff00ff)))))))) 0%, 
+        var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #8800ff))))))) 100%);
+    box-shadow: 0 0 15px var(--magenta-highlight, var(--cyan-highlight, var(--orange-highlight, rgba(255,0,255,0.6))));
+    transition: width 0.3s ease;
+}
+
+.sf1e-class-resource-icon {
+    position: relative;
+    z-index: 2;
+    padding: 0 6px;
+    font-size: calc(12px * var(--sf1e-hud-text-scale, 1));
+    color: var(--magenta-highlight, var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #ff00ff))))))));
+    text-shadow: 0 0 5px currentColor;
+}
+
+.sf1e-class-resource-label {
+    position: relative;
+    z-index: 2;
+    font-size: calc(10px * var(--sf1e-hud-text-scale, 1));
+    font-weight: bold;
+    color: var(--text-primary, #e0e0ff);
+    text-shadow: 0 0 3px #000, 0 0 6px #000;
+    flex: 1;
+}
+
+.sf1e-class-resource-value {
+    position: relative;
+    z-index: 2;
+    padding: 0 8px;
+    font-size: calc(11px * var(--sf1e-hud-text-scale, 1));
+    font-weight: bold;
+    color: var(--text-primary, #e0e0ff);
+    text-shadow: 0 0 3px #000, 0 0 6px #000;
+}
+
+.sf1e-class-resource-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--dark-bg-tertiary, rgba(20,20,40,0.5));
+    border: 2px solid var(--magenta-highlight, var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #ff00ff))))))));
+    border-radius: 6px;
+    box-shadow: 0 0 10px var(--magenta-highlight, var(--cyan-highlight, var(--orange-highlight, rgba(255,0,255,0.3))));
+}
+
+.sf1e-class-resource-display .sf1e-class-resource-label {
+    flex: 0;
+}
+
+.sf1e-class-resource-display .sf1e-class-resource-value {
+    padding: 0;
+    color: var(--magenta-highlight, var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #ff00ff))))))));
+    font-size: calc(14px * var(--sf1e-hud-text-scale, 1));
 }
 
 .sf1e-hud-buttons {

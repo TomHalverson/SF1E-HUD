@@ -232,6 +232,8 @@ export class PersistentHUD {
                 </div>
             ` : ''}
 
+            ${this._getClassResourceHTML()}
+
             <div class="sf1e-hud-quick-buttons">
                 <button class="sf1e-quick-btn" data-action="perception" title="Quick Roll Perception">
                     <i class="fas fa-eye"></i>
@@ -340,8 +342,222 @@ export class PersistentHUD {
             const ability = $(e.currentTarget).data('ability');
             await this._rollAbilityCheck(ability);
         });
+
+        // Add class resource click handler
+        this.hud.find('.sf1e-class-resource').on('click', (e) => {
+            const el = $(e.currentTarget);
+            const type = el.data('resource-type');
+            const subType = el.data('resource-subtype');
+            const itemId = el.data('resource-item-id');
+            const name = el.data('resource-name');
+            if (type && subType) {
+                this._editClassResource(type, subType, itemId, name);
+            }
+        });
     }
     
+    /**
+     * Icon map for known class resource types
+     */
+    static CLASS_RESOURCE_ICONS = {
+        vanguard:     'fa-atom',
+        solarian:     'fa-sun',
+        biohacker:    'fa-syringe',
+        evolutionist: 'fa-dna',
+        nanocyte:     'fa-microscope',
+        witchwarper:  'fa-globe',
+        precog:       'fa-hourglass-half',
+        soldier:      'fa-crosshairs',
+        mystic:       'fa-hand-sparkles',
+        technomancer: 'fa-microchip',
+        mechanic:     'fa-cog',
+        operative:    'fa-user-secret',
+        envoy:        'fa-comments'
+    };
+
+    /**
+     * Get all class-specific resources from the actor's actorResource items.
+     * The sfrpg system stores class resources as embedded items of type "actorResource"
+     * which are computed into system.resources during prepareData().
+     * @returns {Array} Array of resource objects with name, type, subType, value, max, icon, itemId
+     */
+    _getClassResources() {
+        if (!this.actor) return [];
+        if (!game.settings.get('sf1e-hud', 'showClassResource')) return [];
+
+        const results = [];
+        const system = this.actor.system;
+        const computedResources = system.resources || {};
+
+        // Primary approach: find actorResource items on the actor
+        const resourceItems = this.actor.items.filter(i => i.type === 'actorResource');
+        
+        for (const item of resourceItems) {
+            const type = item.system.type;
+            const subType = item.system.subType;
+            if (!type || !subType) continue;
+
+            // Read the computed value from system.resources (populated during prepareData)
+            const computed = computedResources[type]?.[subType];
+            const value = computed?.value ?? item.system.base ?? 0;
+            const min = item.system.range?.min ?? 0;
+            const max = computed?.max ?? item.system.range?.max ?? 0;
+            
+            // Pick an icon based on type, fall back to a generic one
+            const icon = PersistentHUD.CLASS_RESOURCE_ICONS[type] || 'fa-star';
+            
+            results.push({
+                className: type,
+                name: item.name || `${type} ${subType}`,
+                type: type,
+                subType: subType,
+                value: value,
+                min: min,
+                max: max,
+                icon: icon,
+                itemId: item.id
+            });
+        }
+
+        // Fallback: if no actorResource items found, scan system.resources directly
+        // (in case data was prepared but items aren't visible for some reason)
+        if (results.length === 0) {
+            for (const [type, subtypes] of Object.entries(computedResources)) {
+                if (typeof subtypes !== 'object' || subtypes === null) continue;
+                for (const [subType, data] of Object.entries(subtypes)) {
+                    if (typeof data !== 'object' || data === null) continue;
+                    if (data.value !== undefined || data.base !== undefined) {
+                        const icon = PersistentHUD.CLASS_RESOURCE_ICONS[type] || 'fa-star';
+                        results.push({
+                            className: type,
+                            name: `${type.charAt(0).toUpperCase() + type.slice(1)} ${subType}`,
+                            type: type,
+                            subType: subType,
+                            value: data.value ?? data.base ?? 0,
+                            min: 0,
+                            max: data.max ?? 0,
+                            icon: icon,
+                            itemId: data.source || null
+                        });
+                    }
+                }
+            }
+        }
+
+        return results;
+    }
+
+    /**
+     * Generate HTML for class resource display
+     * @returns {string} HTML string for class resources or empty string
+     */
+    _getClassResourceHTML() {
+        const resources = this._getClassResources();
+        if (resources.length === 0) return '';
+
+        return resources.map(resource => {
+            const { className, name, type, subType, value, max, icon, itemId } = resource;
+
+            // For resources with max values, show a bar
+            if (max > 0) {
+                const percent = Math.min((value / max) * 100, 100);
+                return `
+                    <div class="sf1e-class-resource sf1e-class-resource-${className}" 
+                         data-resource-type="${type}" 
+                         data-resource-subtype="${subType}"
+                         data-resource-item-id="${itemId || ''}"
+                         data-resource-name="${name}"
+                         title="${name}: ${value}/${max}">
+                        <div class="sf1e-class-resource-bar">
+                            <div class="sf1e-class-resource-fill" style="width: ${percent}%"></div>
+                            <div class="sf1e-class-resource-icon"><i class="fas ${icon}"></i></div>
+                            <div class="sf1e-class-resource-label">${name}</div>
+                            <div class="sf1e-class-resource-value">${value}/${max}</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // For resources without max (like Solarian mode which is a state), show current value
+                return `
+                    <div class="sf1e-class-resource sf1e-class-resource-${className}" 
+                         data-resource-type="${type}" 
+                         data-resource-subtype="${subType}"
+                         data-resource-item-id="${itemId || ''}"
+                         data-resource-name="${name}"
+                         title="${name}: ${value}">
+                        <div class="sf1e-class-resource-display">
+                            <span class="sf1e-class-resource-icon"><i class="fas ${icon}"></i></span>
+                            <span class="sf1e-class-resource-label">${name}:</span>
+                            <span class="sf1e-class-resource-value">${value}</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }).join('');
+    }
+
+    /**
+     * Edit a class-specific resource value.
+     * Uses the sfrpg API (actor.setResourceBaseValue) when available,
+     * falls back to directly updating the actorResource item.
+     */
+    async _editClassResource(type, subType, itemId, displayName) {
+        if (!this.actor) return;
+
+        // Read current computed values
+        const computed = this.actor.system.resources?.[type]?.[subType];
+        let currentValue, maxValue, minValue;
+
+        if (computed) {
+            currentValue = computed.value ?? computed.base ?? 0;
+        }
+
+        // Also read from the item if we have an ID
+        const resourceItem = itemId ? this.actor.items.get(itemId) : null;
+        if (resourceItem) {
+            currentValue = currentValue ?? resourceItem.system.base ?? 0;
+            maxValue = resourceItem.system.range?.max ?? null;
+            minValue = resourceItem.system.range?.min ?? 0;
+        } else {
+            maxValue = computed?.max ?? null;
+            minValue = 0;
+        }
+
+        currentValue = currentValue ?? 0;
+
+        const maxAttr = maxValue !== null ? `max="${maxValue}"` : '';
+        const maxLabel = maxValue !== null ? `<span> / ${maxValue}</span>` : '';
+
+        const content = `
+            <form>
+                <div class="form-group">
+                    <label>Current ${displayName}: </label>
+                    <input type="number" name="value" value="${currentValue}" min="${minValue}" ${maxAttr} autofocus />
+                    ${maxLabel}
+                </div>
+            </form>
+        `;
+
+        const newValue = await Dialog.prompt({
+            title: `Edit ${displayName}`,
+            content: content,
+            callback: (html) => html.find('[name="value"]').val(),
+            rejectClose: false
+        });
+
+        if (newValue !== null && newValue !== undefined) {
+            const parsedValue = parseInt(newValue);
+            
+            // Prefer the sfrpg system API if available
+            if (typeof this.actor.setResourceBaseValue === 'function') {
+                await this.actor.setResourceBaseValue(type, subType, parsedValue);
+            } else if (resourceItem) {
+                // Fallback: update the actorResource item directly
+                await resourceItem.update({ 'system.base': parsedValue });
+            }
+        }
+    }
+
     async _editResource(type) {
         if (!this.actor) return;
         
@@ -404,9 +620,16 @@ export class PersistentHUD {
         const buttonsDiv = this.hud.find('.sf1e-hud-buttons');
 
         // Count active conditions for badge
-        // In SFRPG, conditions are stored as boolean values directly
-        const activeConditions = this.actor.system.conditions?.conditions ?
-            Object.values(this.actor.system.conditions.conditions).filter(c => c === true).length : 0;
+        // Use hasCondition API if available, fall back to boolean flags
+        let activeConditions = 0;
+        const conditions = this.actor.system.conditions || {};
+        if (typeof this.actor.hasCondition === 'function') {
+            for (const condId of Object.keys(conditions)) {
+                if (this.actor.hasCondition(condId)) activeConditions++;
+            }
+        } else {
+            activeConditions = Object.values(conditions).filter(c => c === true).length;
+        }
         const conditionBadge = activeConditions > 0 ?
             `<span class="sf1e-condition-badge">${activeConditions}</span>` : '';
 
@@ -698,7 +921,7 @@ export class PersistentHUD {
                 });
                 break;
             case 'conditions':
-                // Toggle conditions on/off
+                // Toggle conditions on/off using the sfrpg system API
                 sidebarDiv.find('.sf1e-condition-item').on('click', async (e) => {
                     try {
                         e.preventDefault();
@@ -708,60 +931,32 @@ export class PersistentHUD {
                         const isActive = $(e.currentTarget).hasClass('active');
 
                         console.log('SF1E-HUD | Toggling condition:', conditionId, '- Current active:', isActive);
-                        console.log('  - this.actor.id:', this.actor?.id);
 
-                        // Refresh actor reference to get latest data
+                        // Refresh actor reference
                         const freshActor = game.actors.get(this.actor?.id);
                         if (!freshActor) {
-                            console.error('SF1E-HUD | Could not refresh actor reference, this.actor.id =', this.actor?.id);
+                            console.error('SF1E-HUD | Could not refresh actor reference');
                             return;
                         }
 
-                        console.log('  - freshActor found:', freshActor.name);
-                        console.log('  - freshActor.system.conditions type:', typeof freshActor.system.conditions);
-                        console.log('  - freshActor.system.conditions:', freshActor.system.conditions);
-                        console.log('  - freshActor.system.conditions?.conditions:', freshActor.system.conditions?.conditions);
-
-                        // Get current conditions - the conditions object IS the system.conditions itself, not nested
-                        const currentConditions = freshActor.system.conditions;
-                        if (!currentConditions || typeof currentConditions !== 'object') {
-                            console.error('SF1E-HUD | No conditions object found at system.conditions');
-                            console.error('  - currentConditions:', currentConditions);
-                            return;
-                        }
-
-                        const newConditions = { ...currentConditions };
-
-                        console.log('  - Current conditions object:', currentConditions);
-                        console.log('  - Condition exists:', conditionId in newConditions);
-                        console.log('  - All condition keys:', Object.keys(newConditions));
-                        console.log('  - newConditions type:', typeof newConditions);
-
-                        // In SFRPG, conditions are stored as boolean values, not objects
-                        if (conditionId in newConditions) {
-                            const oldValue = newConditions[conditionId];
-                            const newValue = !oldValue;
-                            newConditions[conditionId] = newValue;
-                            console.log('  - Condition found! Toggling from', oldValue, 'to', newValue);
-                            console.log('  - newConditions after update:', newConditions);
-
-                            console.log('  - Attempting to update actor...');
-                            const updateResult = await freshActor.update({
-                                'system.conditions': newConditions
-                            });
-                            console.log('  - Condition update result:', updateResult);
-
-                            console.log('  - Rebuilding sidebar...');
-                            this._buildSidebar('conditions');
+                        // Use the sfrpg system's setCondition API if available
+                        // This properly creates/deletes the condition Item from compendium
+                        // AND updates the boolean flag on system.conditions
+                        if (typeof freshActor.setCondition === 'function') {
+                            console.log('SF1E-HUD | Using setCondition API, setting', conditionId, 'to', !isActive);
+                            await freshActor.setCondition(conditionId, !isActive);
                         } else {
-                            console.warn('SF1E-HUD | Condition not found:', conditionId);
-                            console.warn('  - Available keys:', Object.keys(newConditions));
-                            console.warn('  - Checking if condition exists elsewhere...');
-                            console.warn('  - freshActor.system:', freshActor.system);
+                            // Fallback: directly update the boolean flag
+                            console.warn('SF1E-HUD | setCondition not available, falling back to direct update');
+                            await freshActor.update({
+                                [`system.conditions.${conditionId}`]: !isActive
+                            });
                         }
+
+                        console.log('SF1E-HUD | Condition toggled successfully');
+                        this._buildSidebar('conditions');
                     } catch (err) {
                         console.error('SF1E-HUD | Error toggling condition:', err);
-                        console.error('  - Stack:', err.stack);
                     }
                 });
                 break;
@@ -1657,7 +1852,6 @@ export class PersistentHUD {
 
     _buildConditionsList() {
         console.log('SF1E-HUD | Building conditions list');
-        console.log('  - Actor:', this.actor?.name);
 
         // Refresh actor reference to get latest data
         const freshActor = game.actors.get(this.actor?.id);
@@ -1666,113 +1860,74 @@ export class PersistentHUD {
             return '<div class="sf1e-sidebar-empty">Error loading conditions</div>';
         }
 
-        console.log('  - Actor system.conditions:', freshActor.system?.conditions);
-
-        // Check if conditions are stored as items with type 'condition'
-        const conditionItems = freshActor.items.filter(i => i.type === 'condition');
-        console.log('  - Condition items found:', conditionItems.length, conditionItems);
-
-        // In SFRPG, conditions are stored directly at system.conditions
+        // In SFRPG, conditions are defined at system.conditions as boolean fields
         const conditions = freshActor.system.conditions || {};
+        const conditionsList = Object.entries(conditions);
 
-        const conditionsList = Array.isArray(conditions)
-            ? conditions
-            : Object.entries(conditions);
+        if (conditionsList.length === 0) {
+            return '<div class="sf1e-sidebar-empty">No conditions available</div>';
+        }
 
-        console.log('  - Conditions object:', conditions);
-        console.log('  - Conditions entries:', conditionsList);
-        console.log('  - Entry count:', conditionsList.length);
+        // Use actor.hasCondition() if available for more reliable active-state detection
+        // (checks both the boolean flag AND the embedded condition Item)
+        const hasConditionFn = typeof freshActor.hasCondition === 'function';
 
-        // Deep debug: Log the actual keys and values
-        if (conditionsList.length > 0) {
-            if (Array.isArray(conditionsList)) {
-                conditionsList.forEach((item, idx) => {
-                    console.log(`    - Condition [${idx}]:`, item);
-                });
+        // Separate active and inactive conditions
+        const activeConditions = [];
+        const inactiveConditions = [];
+
+        conditionsList.forEach(([condId, isActive]) => {
+            // Prefer the API method, fall back to the boolean flag
+            const reallyActive = hasConditionFn ? freshActor.hasCondition(condId) : (isActive === true);
+            if (reallyActive) {
+                activeConditions.push(condId);
             } else {
-                conditionsList.forEach(([key, value]) => {
-                    console.log(`    - Condition "${key}":`, value);
-                });
+                inactiveConditions.push(condId);
             }
-        }
+        });
 
-        // Also check for condition items
-        if (conditionsList.length === 0 && conditionItems.length === 0) {
-            return '<div class="sf1e-sidebar-empty">No conditions applied</div>';
-        }
+        // Sort alphabetically
+        activeConditions.sort((a, b) => a.localeCompare(b));
+        inactiveConditions.sort((a, b) => a.localeCompare(b));
 
         let html = '';
 
-        // Display condition items (if any exist)
-        if (conditionItems.length > 0) {
-            html += conditionItems.map(item => `
-                <div class="sf1e-condition-item active" data-condition-id="${item.id}">
-                    <div class="sf1e-condition-icon">
-                        <i class="fas fa-check-circle"></i>
+        // Display active conditions
+        if (activeConditions.length > 0) {
+            html += '<div class="sf1e-conditions-section"><h4 class="sf1e-conditions-header">Active Conditions</h4>';
+            html += activeConditions.map(condId => {
+                const condName = condId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                return `
+                    <div class="sf1e-condition-item active" data-condition-id="${condId}">
+                        <div class="sf1e-condition-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="sf1e-condition-info">
+                            <div class="sf1e-condition-name">${condName}</div>
+                        </div>
                     </div>
-                    <div class="sf1e-condition-info">
-                        <div class="sf1e-condition-name">${item.name}</div>
-                        ${item.system?.description ? `<div class="sf1e-condition-notes">${item.system.description}</div>` : ''}
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+            html += '</div>';
         }
 
-        // Display system conditions if any exist
-        if (conditionsList.length > 0) {
-            // Separate active and inactive conditions
-            const activeConditions = [];
-            const inactiveConditions = [];
-
-            conditionsList.forEach(([condId, isActive]) => {
-                if (isActive === true) {
-                    activeConditions.push([condId, isActive]);
-                } else {
-                    inactiveConditions.push([condId, isActive]);
-                }
-            });
-
-            // Sort alphabetically within each group
-            activeConditions.sort((a, b) => a[0].localeCompare(b[0]));
-            inactiveConditions.sort((a, b) => a[0].localeCompare(b[0]));
-
-            // Display active conditions header
-            if (activeConditions.length > 0) {
-                html += '<div class="sf1e-conditions-section"><h4 class="sf1e-conditions-header">Active Conditions</h4>';
-                html += activeConditions.map(([condId, isActive]) => {
-                    const condName = condId.charAt(0).toUpperCase() + condId.slice(1);
-                    return `
-                        <div class="sf1e-condition-item active" data-condition-id="${condId}">
-                            <div class="sf1e-condition-icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div class="sf1e-condition-info">
-                                <div class="sf1e-condition-name">${condName}</div>
-                            </div>
+        // Display inactive conditions
+        if (inactiveConditions.length > 0) {
+            html += '<div class="sf1e-conditions-section"><h4 class="sf1e-conditions-header">All Conditions</h4>';
+            html += inactiveConditions.map(condId => {
+                const condName = condId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                return `
+                    <div class="sf1e-condition-item inactive" data-condition-id="${condId}">
+                        <div class="sf1e-condition-icon">
+                            <i class="fas fa-circle"></i>
                         </div>
-                    `;
-                }).join('');
-                html += '</div>';
-            }
-
-            // Display inactive conditions header
-            if (inactiveConditions.length > 0) {
-                html += '<div class="sf1e-conditions-section"><h4 class="sf1e-conditions-header">Inactive Conditions</h4>';
-                html += inactiveConditions.map(([condId, isActive]) => {
-                    const condName = condId.charAt(0).toUpperCase() + condId.slice(1);
-                    return `
-                        <div class="sf1e-condition-item inactive" data-condition-id="${condId}">
-                            <div class="sf1e-condition-icon">
-                                <i class="fas fa-circle"></i>
-                            </div>
-                            <div class="sf1e-condition-info">
-                                <div class="sf1e-condition-name">${condName}</div>
-                            </div>
+                        <div class="sf1e-condition-info">
+                            <div class="sf1e-condition-name">${condName}</div>
                         </div>
-                    `;
-                }).join('');
-                html += '</div>';
-            }
+                    </div>
+                `;
+            }).join('');
+            html += '</div>';
         }
 
         return html;
@@ -1893,16 +2048,35 @@ export class PersistentHUD {
 
         console.log('SF1E-HUD | Rolling Initiative');
 
-        // Initiative is typically based on Dexterity modifier + any initiative bonuses
-        const dexMod = this.actor.system.abilities?.dex?.mod || 0;
-        const initBonus = this.actor.system.attributes?.init?.bonus || 0;
-        const totalMod = dexMod + initBonus;
+        // Check if there is an active combat encounter
+        const combat = game.combat;
+        if (!combat) {
+            ui.notifications.warn('No active encounter. Create an encounter in the Combat Tracker first.');
+            return;
+        }
 
-        const roll = await new Roll(`1d20 + ${totalMod}`).evaluate({async: true});
-        await roll.toMessage({
-            speaker: ChatMessage.getSpeaker({actor: this.actor}),
-            flavor: 'Initiative Check'
-        });
+        // Find this actor's combatant in the active encounter
+        let combatant = combat.combatants.find(c => c.actorId === this.actor.id);
+
+        // If the actor isn't in the encounter, try to add them via their token
+        if (!combatant) {
+            const token = this.actor.getActiveTokens()?.[0];
+            if (token) {
+                // Add token to combat
+                await token.toggleCombat(combat);
+                // Re-fetch combatant after adding
+                combatant = combat.combatants.find(c => c.actorId === this.actor.id);
+            }
+
+            if (!combatant) {
+                ui.notifications.warn(`${this.actor.name} has no token in the scene to add to the encounter.`);
+                return;
+            }
+        }
+
+        // Roll initiative using the combat encounter's method (uses the system's formula)
+        await combat.rollInitiative([combatant.id]);
+        console.log('SF1E-HUD | Initiative rolled for', this.actor.name);
     }
 
     async _rollAbilityCheck(ability) {

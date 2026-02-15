@@ -127,4 +127,30 @@ export function registerSettings() {
         }),
         onChange: () => window.location.reload()
     });
+
+    game.settings.register('sf1e-hud', 'showClassResource', {
+        name: 'Show Class Resource',
+        hint: 'Display class-specific resources like Vanguard Entropy Points or Solarian Stellar Mode',
+        scope: 'client',
+        config: true,
+        type: Boolean,
+        default: true
+    });
+
+    game.settings.register('sf1e-hud', 'textSize', {
+        name: 'Text Size',
+        hint: 'Adjust the overall text size of the HUD for accessibility (100% is default)',
+        scope: 'client',
+        config: true,
+        type: Number,
+        range: {
+            min: 75,
+            max: 200,
+            step: 25
+        },
+        default: 100,
+        onChange: (value) => {
+            document.documentElement.style.setProperty('--sf1e-hud-text-scale', value / 100);
+        }
+    });
 }

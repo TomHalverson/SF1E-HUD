@@ -28,6 +28,14 @@
       "ShowStaminaBar": {
         "Name": "Show Stamina Bar",
         "Hint": "Display stamina points as a separate bar in tooltips and HUD"
+      },
+      "ShowClassResource": {
+        "Name": "Show Class Resource",
+        "Hint": "Display class-specific resources like Vanguard Entropy Points or Solarian Stellar Mode"
+      },
+      "TextSize": {
+        "Name": "Text Size",
+        "Hint": "Adjust the overall text size of the HUD for accessibility (100% is default)"
       }
     },
     "HealthStatus": {
@@ -55,6 +63,15 @@
       "HP": "Hit Points",
       "SP": "Stamina Points",
       "RP": "Resolve Points"
+    },
+    "ClassResources": {
+      "VanguardEntropy": "Entropy Points",
+      "SolarianStellar": "Stellar Mode",
+      "BiohackerBiohacks": "Biohacks",
+      "EvolutionistMutation": "Mutation Points",
+      "NanocyteSurge": "Nanite Surge",
+      "WitchwarperWorlds": "Infinite Worlds",
+      "PrecogParadox": "Paradox"
     },
     "Inventory": {
       "FilterAll": "All Items",
