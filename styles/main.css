@@ -1,5 +1,6 @@
 /* ===============================================
-   SF1E HUD - Themed HUD with Direct Theme Variable Inheritance
+   Starfinder HUD - Themed HUD with Direct Theme Variable Inheritance
+   Supports both SF1E (sfrpg) and SF2E (sf2e) systems
    =============================================== */
 
 /* HUD elements directly use theme variables - no fallbacks needed */

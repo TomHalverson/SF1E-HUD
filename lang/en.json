@@ -27,11 +27,19 @@
       },
       "ShowStaminaBar": {
         "Name": "Show Stamina Bar",
-        "Hint": "Display stamina points as a separate bar in tooltips and HUD"
+        "Hint": "Display stamina points as a separate bar in tooltips and HUD (SF1E only)"
       },
       "ShowClassResource": {
         "Name": "Show Class Resource",
-        "Hint": "Display class-specific resources like Vanguard Entropy Points or Solarian Stellar Mode"
+        "Hint": "Display class-specific resources like Vanguard Entropy Points or Solarian Stellar Mode (SF1E only)"
+      },
+      "ShowHeroPoints": {
+        "Name": "Show Hero Points",
+        "Hint": "Display Hero Points pips in the HUD and tooltip (SF2E only)"
+      },
+      "ShowFocusPoints": {
+        "Name": "Show Focus Points",
+        "Hint": "Display Focus Points pips in the HUD (SF2E only)"
       },
       "TextSize": {
         "Name": "Text Size",
@@ -52,17 +60,45 @@
       "Full": "Full Action",
       "Reaction": "Reaction"
     },
+    "SF2EActions": {
+      "Single": "Single Action",
+      "Double": "Two Actions",
+      "Triple": "Three Actions",
+      "Free": "Free Action",
+      "Reaction": "Reaction"
+    },
     "Sidebars": {
       "Actions": "Actions",
       "Weapons": "Weapons",
       "Spells": "Spells",
       "Items": "Items",
-      "Skills": "Skills"
+      "Skills": "Skills",
+      "Conditions": "Conditions",
+      "Features": "Features"
     },
     "Resources": {
       "HP": "Hit Points",
       "SP": "Stamina Points",
-      "RP": "Resolve Points"
+      "RP": "Resolve Points",
+      "HeroPoints": "Hero Points",
+      "FocusPoints": "Focus Points"
+    },
+    "Proficiency": {
+      "Untrained": "Untrained",
+      "Trained": "Trained",
+      "Expert": "Expert",
+      "Master": "Master",
+      "Legendary": "Legendary",
+      "U": "U",
+      "T": "T",
+      "E": "E",
+      "M": "M",
+      "L": "L"
+    },
+    "AC": {
+      "AC": "Armor Class",
+      "EAC": "Energy Armor Class",
+      "KAC": "Kinetic Armor Class"
     },
     "ClassResources": {
       "VanguardEntropy": "Entropy Points",

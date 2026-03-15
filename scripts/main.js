@@ -2,13 +2,17 @@ import { TokenTooltip } from './token-tooltip.js';
 import { PersistentHUD } from './persistent-hud.js';
 import { registerSettings } from './settings.js';
 import { HealthUtils } from './health-utils.js';
+import { SystemAdapter } from './system-adapter.js';
 import './theme-switcher.js';
+
+// Supported system IDs
+const SUPPORTED_SYSTEMS = ['sfrpg', 'sf2e'];
 
 // Make utilities available globally
 window.SF1EHealthUtils = HealthUtils;
 
 Hooks.once('init', () => {
-    console.log('SF1E-HUD | Initializing Starfinder 1E HUD');
+    console.log('SF1E-HUD | Initializing Starfinder HUD');
     registerSettings();
     
     // Initialize theme switcher
@@ -18,19 +22,24 @@ Hooks.once('init', () => {
 });
 
 Hooks.once('ready', async () => {
-    if (game.system.id !== 'sfrpg') {
-        ui.notifications.warn('SF1E-HUD | This module is designed for the Starfinder 1E system.');
+    const currentSystem = game.system.id;
+    if (!SUPPORTED_SYSTEMS.includes(currentSystem)) {
+        ui.notifications.warn('SF1E-HUD | This module requires Starfinder 1E (sfrpg) or Starfinder 2E (sf2e).');
         return;
     }
     
-    console.log('SF1E-HUD | System ready');
+    console.log(`SF1E-HUD | System ready: ${currentSystem}`);
     
     // Initialize text scale from settings
     const textSize = game.settings.get('sf1e-hud', 'textSize');
     document.documentElement.style.setProperty('--sf1e-hud-text-scale', textSize / 100);
     
-    // Initialize HUD components
+    // Initialize HUD components with system detection
     game.sf1eHUD = {
+        systemId: currentSystem,
+        isSF1E: currentSystem === 'sfrpg',
+        isSF2E: currentSystem === 'sf2e',
+        adapter: SystemAdapter,
         tokenTooltip: new TokenTooltip(),
         persistentHUD: new PersistentHUD()
     };
@@ -98,12 +107,37 @@ Hooks.on('updateActor', (actor, data, options) => {
     }
 });
 
-// Update HUD when embedded items change (actorResource items for class resources, etc.)
+// Update HUD when embedded items change (actorResource items for class resources, conditions, etc.)
 Hooks.on('updateItem', (item, data, options) => {
     if (game.sf1eHUD?.persistentHUD && item.parent?.id === game.sf1eHUD.persistentHUD.actor?.id) {
-        if (item.type === 'actorResource') {
-            console.log('SF1E-HUD | Actor resource item updated, refreshing HUD');
+        if (item.type === 'actorResource' || item.type === 'condition') {
+            console.log('SF1E-HUD | Embedded item updated, refreshing HUD');
             game.sf1eHUD.persistentHUD._updateDisplay();
+        }
+    }
+});
+
+// Update HUD when embedded items are created or deleted (SF2E conditions, etc.)
+Hooks.on('createItem', (item, options, userId) => {
+    if (game.sf1eHUD?.persistentHUD && item.parent?.id === game.sf1eHUD.persistentHUD.actor?.id) {
+        if (item.type === 'condition') {
+            console.log('SF1E-HUD | Condition added, refreshing HUD');
+            game.sf1eHUD.persistentHUD._updateButtons();
+            if (game.sf1eHUD.persistentHUD.activeSidebar === 'conditions') {
+                game.sf1eHUD.persistentHUD._buildSidebar('conditions');
+            }
+        }
+    }
+});
+
+Hooks.on('deleteItem', (item, options, userId) => {
+    if (game.sf1eHUD?.persistentHUD && item.parent?.id === game.sf1eHUD.persistentHUD.actor?.id) {
+        if (item.type === 'condition') {
+            console.log('SF1E-HUD | Condition removed, refreshing HUD');
+            game.sf1eHUD.persistentHUD._updateButtons();
+            if (game.sf1eHUD.persistentHUD.activeSidebar === 'conditions') {
+                game.sf1eHUD.persistentHUD._buildSidebar('conditions');
+            }
         }
     }
 });

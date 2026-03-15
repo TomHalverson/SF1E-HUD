@@ -1,3 +1,5 @@
+import { SystemAdapter } from './system-adapter.js';
+
 export class PersistentHUD {
     constructor() {
         this.hud = null;
@@ -188,49 +190,94 @@ export class PersistentHUD {
     
     _updateResources() {
         const system = this.actor.system;
-        const hp = system.attributes?.hp || { value: 0, max: 0 };
-        const sp = system.attributes?.sp || { value: 0, max: 0 };
-        const rp = system.attributes?.rp || { value: 0, max: 0 };
-
-        // Get armor values
-        const eac = system.attributes?.eac?.value || 10;
-        const kac = system.attributes?.kac?.value || 10;
-
-        // Get saves - use bonus property which contains the calculated total
-        const fort = system.attributes?.fort?.bonus || 0;
-        const reflex = system.attributes?.reflex?.bonus || 0;
-        const will = system.attributes?.will?.bonus || 0;
+        const hp = SystemAdapter.getHP(this.actor);
+        const sp = SystemAdapter.getSP(this.actor);
+        const rp = SystemAdapter.getRP(this.actor);
+        const heroPoints = SystemAdapter.getHeroPoints(this.actor);
+        const focusPoints = SystemAdapter.getFocusPoints(this.actor);
+        const acValues = SystemAdapter.getACValues(this.actor);
+        const saves = SystemAdapter.getSaves(this.actor);
+        const abilities = SystemAdapter.getAbilities(this.actor);
 
         const healthPercent = hp.max > 0 ? (hp.value / hp.max) * 100 : 0;
-        const staminaPercent = sp.max > 0 ? (sp.value / sp.max) * 100 : 0;
+        const staminaPercent = sp && sp.max > 0 ? (sp.value / sp.max) * 100 : 0;
 
-        // Update resource bars in left panel
-        const resourcesDiv = this.hud.find('.sf1e-hud-resources');
-        resourcesDiv.html(`
-            <div class="sf1e-hud-bars-section">
-                ${sp.max > 0 ? `
-                    <div class="sf1e-hud-bar sf1e-hud-stamina" title="Stamina Points">
-                        <div class="sf1e-hud-bar-fill" style="width: ${staminaPercent}%"></div>
-                        <div class="sf1e-hud-bar-label">SP</div>
-                        <div class="sf1e-hud-bar-value">${sp.value}/${sp.max}</div>
-                    </div>
-                ` : ''}
+        // Build resource bars HTML
+        let barsHTML = '';
 
-                <div class="sf1e-hud-bar sf1e-hud-hp" title="Hit Points">
-                    <div class="sf1e-hud-bar-fill" style="width: ${healthPercent}%"></div>
-                    <div class="sf1e-hud-bar-label">HP</div>
-                    <div class="sf1e-hud-bar-value">${hp.value}/${hp.max}</div>
+        // SF1E: Stamina bar
+        if (sp && sp.max > 0) {
+            barsHTML += `
+                <div class="sf1e-hud-bar sf1e-hud-stamina" title="Stamina Points">
+                    <div class="sf1e-hud-bar-fill" style="width: ${staminaPercent}%"></div>
+                    <div class="sf1e-hud-bar-label">SP</div>
+                    <div class="sf1e-hud-bar-value">${sp.value}/${sp.max}</div>
                 </div>
-            </div>
+            `;
+        }
 
-            ${rp.max > 0 ? `
-                <div class="sf1e-hud-resolve" title="Resolve Points">
+        // HP bar (both systems)
+        barsHTML += `
+            <div class="sf1e-hud-bar sf1e-hud-hp" title="Hit Points">
+                <div class="sf1e-hud-bar-fill" style="width: ${healthPercent}%"></div>
+                <div class="sf1e-hud-bar-label">HP</div>
+                <div class="sf1e-hud-bar-value">${hp.value}/${hp.max}</div>
+            </div>
+        `;
+
+        // SF1E: Resolve Points pips
+        let pipsHTML = '';
+        if (rp && rp.max > 0) {
+            pipsHTML += `
+                <div class="sf1e-hud-resolve" title="Resolve Points" data-resource="rp">
                     <span class="sf1e-resolve-label">RP:</span>
                     ${Array.from({length: rp.max}, (_, i) =>
                         `<span class="sf1e-rp-pip ${i < rp.value ? 'filled' : ''}">●</span>`
                     ).join('')}
                 </div>
-            ` : ''}
+            `;
+        }
+
+        // SF2E: Hero Points pips
+        if (heroPoints && heroPoints.max > 0 && game.settings.get('sf1e-hud', 'showHeroPoints')) {
+            pipsHTML += `
+                <div class="sf1e-hud-resolve sf1e-hero-points" title="Hero Points" data-resource="heroPoints">
+                    <span class="sf1e-resolve-label">Hero:</span>
+                    ${Array.from({length: heroPoints.max}, (_, i) =>
+                        `<span class="sf1e-rp-pip ${i < heroPoints.value ? 'filled' : ''}">◆</span>`
+                    ).join('')}
+                </div>
+            `;
+        }
+
+        // SF2E: Focus Points pips
+        if (focusPoints && focusPoints.max > 0 && game.settings.get('sf1e-hud', 'showFocusPoints')) {
+            pipsHTML += `
+                <div class="sf1e-hud-resolve sf1e-focus-points" title="Focus Points" data-resource="focusPoints">
+                    <span class="sf1e-resolve-label">Focus:</span>
+                    ${Array.from({length: focusPoints.max}, (_, i) =>
+                        `<span class="sf1e-rp-pip ${i < focusPoints.value ? 'filled' : ''}">●</span>`
+                    ).join('')}
+                </div>
+            `;
+        }
+
+        // Build ability modifiers HTML
+        const abilityHTML = ['str', 'dex', 'con', 'int', 'wis', 'cha'].map(key => `
+            <div class="sf1e-ability-check" data-ability="${key}" title="${key.charAt(0).toUpperCase() + key.slice(1)} Check">
+                <div class="sf1e-ability-label">${key.toUpperCase()}</div>
+                <div class="sf1e-ability-mod">${abilities[key] >= 0 ? '+' : ''}${abilities[key]}</div>
+            </div>
+        `).join('');
+
+        // Update resource bars in left panel
+        const resourcesDiv = this.hud.find('.sf1e-hud-resources');
+        resourcesDiv.html(`
+            <div class="sf1e-hud-bars-section">
+                ${barsHTML}
+            </div>
+
+            ${pipsHTML}
 
             ${this._getClassResourceHTML()}
 
@@ -244,32 +291,17 @@ export class PersistentHUD {
             </div>
 
             <div class="sf1e-hud-abilities">
-                <div class="sf1e-ability-check" data-ability="str" title="Strength Check">
-                    <div class="sf1e-ability-label">STR</div>
-                    <div class="sf1e-ability-mod">+${system.abilities?.str?.mod || 0}</div>
-                </div>
-                <div class="sf1e-ability-check" data-ability="dex" title="Dexterity Check">
-                    <div class="sf1e-ability-label">DEX</div>
-                    <div class="sf1e-ability-mod">+${system.abilities?.dex?.mod || 0}</div>
-                </div>
-                <div class="sf1e-ability-check" data-ability="con" title="Constitution Check">
-                    <div class="sf1e-ability-label">CON</div>
-                    <div class="sf1e-ability-mod">+${system.abilities?.con?.mod || 0}</div>
-                </div>
-                <div class="sf1e-ability-check" data-ability="int" title="Intelligence Check">
-                    <div class="sf1e-ability-label">INT</div>
-                    <div class="sf1e-ability-mod">+${system.abilities?.int?.mod || 0}</div>
-                </div>
-                <div class="sf1e-ability-check" data-ability="wis" title="Wisdom Check">
-                    <div class="sf1e-ability-label">WIS</div>
-                    <div class="sf1e-ability-mod">+${system.abilities?.wis?.mod || 0}</div>
-                </div>
-                <div class="sf1e-ability-check" data-ability="cha" title="Charisma Check">
-                    <div class="sf1e-ability-label">CHA</div>
-                    <div class="sf1e-ability-mod">+${system.abilities?.cha?.mod || 0}</div>
-                </div>
+                ${abilityHTML}
             </div>
         `);
+
+        // Build AC display — adapts to single or dual AC
+        const acHTML = acValues.map(ac => `
+            <div class="sf1e-armor-stat" title="${ac.title}">
+                <div class="sf1e-armor-label">${ac.label}</div>
+                <div class="sf1e-armor-value">${ac.value}</div>
+            </div>
+        `).join('');
 
         // Update stats panel on right side
         const statsPanel = this.hud.find('.sf1e-hud-stats-panel');
@@ -277,27 +309,20 @@ export class PersistentHUD {
             <div class="sf1e-hud-saves">
                 <div class="sf1e-save-stat" title="Fortitude Save">
                     <div class="sf1e-save-label">FORT</div>
-                    <div class="sf1e-save-value">+${fort}</div>
+                    <div class="sf1e-save-value">${saves.fort >= 0 ? '+' : ''}${saves.fort}</div>
                 </div>
                 <div class="sf1e-save-stat" title="Reflex Save">
                     <div class="sf1e-save-label">REF</div>
-                    <div class="sf1e-save-value">+${reflex}</div>
+                    <div class="sf1e-save-value">${saves.ref >= 0 ? '+' : ''}${saves.ref}</div>
                 </div>
                 <div class="sf1e-save-stat" title="Will Save">
                     <div class="sf1e-save-label">WILL</div>
-                    <div class="sf1e-save-value">+${will}</div>
+                    <div class="sf1e-save-value">${saves.will >= 0 ? '+' : ''}${saves.will}</div>
                 </div>
             </div>
 
             <div class="sf1e-hud-armor">
-                <div class="sf1e-armor-stat" title="Energy Armor Class">
-                    <div class="sf1e-armor-label">EAC</div>
-                    <div class="sf1e-armor-value">${eac}</div>
-                </div>
-                <div class="sf1e-armor-stat" title="Kinetic Armor Class">
-                    <div class="sf1e-armor-label">KAC</div>
-                    <div class="sf1e-armor-value">${kac}</div>
-                </div>
+                ${acHTML}
             </div>
         `);
 
@@ -321,6 +346,19 @@ export class PersistentHUD {
                 this._editResource('sp');
             } else if (bar.hasClass('sf1e-hud-hp')) {
                 this._editResource('hp');
+            }
+        });
+
+        // Add click handlers for pip resources (RP, Hero Points, Focus Points)
+        this.hud.find('.sf1e-hud-resolve').on('click', (e) => {
+            const el = $(e.currentTarget);
+            const resourceType = el.data('resource');
+            if (resourceType === 'rp') {
+                this._editResource('rp');
+            } else if (resourceType === 'heroPoints') {
+                this._editHeroPoints();
+            } else if (resourceType === 'focusPoints') {
+                this._editFocusPoints();
             }
         });
 
@@ -377,13 +415,15 @@ export class PersistentHUD {
 
     /**
      * Get all class-specific resources from the actor's actorResource items.
-     * The sfrpg system stores class resources as embedded items of type "actorResource"
+     * SF1E: The sfrpg system stores class resources as embedded items of type "actorResource"
      * which are computed into system.resources during prepareData().
+     * SF2E: Class resources are not applicable in the same way.
      * @returns {Array} Array of resource objects with name, type, subType, value, max, icon, itemId
      */
     _getClassResources() {
         if (!this.actor) return [];
         if (!game.settings.get('sf1e-hud', 'showClassResource')) return [];
+        if (SystemAdapter.isSF2E) return []; // SF2E uses Hero/Focus Points instead
 
         const results = [];
         const system = this.actor.system;
@@ -561,6 +601,30 @@ export class PersistentHUD {
     async _editResource(type) {
         if (!this.actor) return;
         
+        // For SF1E 'rp', handle RP editing
+        if (type === 'rp') {
+            const rp = SystemAdapter.getRP(this.actor);
+            if (!rp) return;
+            const newValue = await Dialog.prompt({
+                title: 'Edit RP',
+                content: `
+                    <form>
+                        <div class="form-group">
+                            <label>Current RP: </label>
+                            <input type="number" name="value" value="${rp.value}" min="0" max="${rp.max}" autofocus />
+                            <span> / ${rp.max}</span>
+                        </div>
+                    </form>
+                `,
+                callback: (html) => html.find('[name="value"]').val(),
+                rejectClose: false
+            });
+            if (newValue !== null) {
+                await SystemAdapter.editResource(this.actor, 'rp', newValue);
+            }
+            return;
+        }
+
         const resource = this.actor.system.attributes[type];
         const current = resource.value;
         const max = resource.max;
@@ -581,55 +645,72 @@ export class PersistentHUD {
         });
         
         if (newValue !== null) {
-            await this.actor.update({
-                [`system.attributes.${type}.value`]: parseInt(newValue)
-            });
+            await SystemAdapter.editResource(this.actor, type, newValue);
+        }
+    }
+
+    async _editHeroPoints() {
+        if (!this.actor) return;
+        const heroPoints = SystemAdapter.getHeroPoints(this.actor);
+        if (!heroPoints) return;
+
+        const newValue = await Dialog.prompt({
+            title: 'Edit Hero Points',
+            content: `
+                <form>
+                    <div class="form-group">
+                        <label>Current Hero Points: </label>
+                        <input type="number" name="value" value="${heroPoints.value}" min="0" max="${heroPoints.max}" autofocus />
+                        <span> / ${heroPoints.max}</span>
+                    </div>
+                </form>
+            `,
+            callback: (html) => html.find('[name="value"]').val(),
+            rejectClose: false
+        });
+
+        if (newValue !== null) {
+            await SystemAdapter.editHeroPoints(this.actor, newValue);
+        }
+    }
+
+    async _editFocusPoints() {
+        if (!this.actor) return;
+        const focusPoints = SystemAdapter.getFocusPoints(this.actor);
+        if (!focusPoints) return;
+
+        const newValue = await Dialog.prompt({
+            title: 'Edit Focus Points',
+            content: `
+                <form>
+                    <div class="form-group">
+                        <label>Current Focus Points: </label>
+                        <input type="number" name="value" value="${focusPoints.value}" min="0" max="${focusPoints.max}" autofocus />
+                        <span> / ${focusPoints.max}</span>
+                    </div>
+                </form>
+            `,
+            callback: (html) => html.find('[name="value"]').val(),
+            rejectClose: false
+        });
+
+        if (newValue !== null) {
+            await SystemAdapter.editFocusPoints(this.actor, newValue);
         }
     }
     
     async _rollSave(saveType) {
         if (!this.actor) return;
-
-        const saveMap = {
-            'fort': 'fortitude',
-            'ref': 'reflex',
-            'will': 'will'
-        };
-
-        const saveName = saveMap[saveType] || saveType;
-        const shortName = saveType;
-
-        // Use Starfinder's roll save method if available
-        if (this.actor.rollSave) {
-            await this.actor.rollSave(saveName);
-        } else {
-            // Fallback manual roll - use the short key (fort, reflex, will) to access attributes
-            const save = this.actor.system.attributes[shortName];
-            if (save) {
-                const bonus = save.bonus || 0;
-                const roll = await new Roll(`1d20 + ${bonus}`).evaluate({async: true});
-                await roll.toMessage({
-                    speaker: ChatMessage.getSpeaker({actor: this.actor}),
-                    flavor: `${saveName.charAt(0).toUpperCase() + saveName.slice(1)} Save`
-                });
-            }
-        }
+        console.log('SF1E-HUD | Rolling save:', saveType);
+        await SystemAdapter.rollSave(this.actor, saveType);
     }
     
     _updateButtons() {
         const buttonsDiv = this.hud.find('.sf1e-hud-buttons');
 
-        // Count active conditions for badge
-        // Use hasCondition API if available, fall back to boolean flags
-        let activeConditions = 0;
-        const conditions = this.actor.system.conditions || {};
-        if (typeof this.actor.hasCondition === 'function') {
-            for (const condId of Object.keys(conditions)) {
-                if (this.actor.hasCondition(condId)) activeConditions++;
-            }
-        } else {
-            activeConditions = Object.values(conditions).filter(c => c === true).length;
-        }
+        // Count active conditions using SystemAdapter
+        const allConditions = SystemAdapter.getConditions(this.actor);
+        const activeConditions = allConditions.filter(c => c.active).length;
         const conditionBadge = activeConditions > 0 ?
             `<span class="sf1e-condition-badge">${activeConditions}</span>` : '';
 
@@ -917,11 +998,11 @@ export class PersistentHUD {
                 sidebarDiv.find('.sf1e-item-roll').on('click', async (e) => {
                     e.stopPropagation();
                     const skillKey = $(e.currentTarget).closest('.sf1e-skill-item').data('skill');
-                    await this._rollSkill(skillKey);
+                    await SystemAdapter.rollSkill(this.actor, skillKey);
                 });
                 break;
             case 'conditions':
-                // Toggle conditions on/off using the sfrpg system API
+                // Toggle conditions on/off using SystemAdapter
                 sidebarDiv.find('.sf1e-condition-item').on('click', async (e) => {
                     try {
                         e.preventDefault();
@@ -939,22 +1020,11 @@ export class PersistentHUD {
                             return;
                         }
 
-                        // Use the sfrpg system's setCondition API if available
-                        // This properly creates/deletes the condition Item from compendium
-                        // AND updates the boolean flag on system.conditions
-                        if (typeof freshActor.setCondition === 'function') {
-                            console.log('SF1E-HUD | Using setCondition API, setting', conditionId, 'to', !isActive);
-                            await freshActor.setCondition(conditionId, !isActive);
-                        } else {
-                            // Fallback: directly update the boolean flag
-                            console.warn('SF1E-HUD | setCondition not available, falling back to direct update');
-                            await freshActor.update({
-                                [`system.conditions.${conditionId}`]: !isActive
-                            });
-                        }
+                        await SystemAdapter.toggleCondition(freshActor, conditionId, isActive);
 
                         console.log('SF1E-HUD | Condition toggled successfully');
-                        this._buildSidebar('conditions');
+                        // Small delay to let the system process the change
+                        setTimeout(() => this._buildSidebar('conditions'), 100);
                     } catch (err) {
                         console.error('SF1E-HUD | Error toggling condition:', err);
                     }
@@ -971,77 +1041,14 @@ export class PersistentHUD {
         }
 
         return weapons.map(weapon => {
-            const damage = weapon.system.damage?.parts?.[0]?.[0] || '—';
-            const range = weapon.system.range?.value || '—';
+            const displayData = SystemAdapter.getWeaponDisplayData(weapon);
+            const damage = displayData.damage;
+            const range = displayData.range;
 
-            // Get ammo information using type-based matching (SF1E stores ammo by type, not ID)
+            // Ammo information — SF1E specific
             let ammoInfo = '';
-
-            // Try different possible locations for ammo info in this SF1E version
-            const ammoType = weapon.system.itemUsage?.ammunitionType ||
-                           weapon.system.ammunition?.type ||
-                           weapon.system.ammoType ||
-                           weapon.system.ammunitionType;
-            const loadedAmmo = weapon.system.itemUsage?.capacity?.value ||
-                             weapon.system.ammunition?.capacity?.value ||
-                             weapon.system.capacity?.value || 0;
-            const maxCapacity = weapon.system.itemUsage?.capacity?.max ||
-                               weapon.system.ammunition?.capacity?.max ||
-                               weapon.system.capacity?.max || 0;
-
-            console.log(`SF1E-HUD | Checking weapon "${weapon.name}"`);
-            console.log(`  - Ammo type: ${ammoType}`);
-            console.log(`  - Loaded: ${loadedAmmo}`);
-            console.log(`  - system.itemUsage:`, weapon.system.itemUsage);
-            console.log(`  - system.ammunition:`, weapon.system.ammunition);
-            console.log(`  - system.capacity:`, weapon.system.capacity);
-            console.log(`  - Full system object keys:`, Object.keys(weapon.system || {}));
-
-            // Trim and check ammoType (it might have whitespace)
-            const trimmedAmmoType = (ammoType || '').trim();
-            console.log(`  - ammoType after trim: "${trimmedAmmoType}" (length: ${trimmedAmmoType.length})`);
-
-            if (trimmedAmmoType && trimmedAmmoType.length > 0 && loadedAmmo > 0) {
-                // Find all ammo items that match this weapon's type
-                const matchingAmmo = this.actor.items.filter(item =>
-                    item.type === 'ammunition' &&
-                    (item.system.ammunitionType === trimmedAmmoType ||
-                     (item.system.category && item.system.category === trimmedAmmoType))
-                );
-
-                console.log(`  - Matching ammo items found: ${matchingAmmo.length}`);
-                if (matchingAmmo.length > 0) {
-                    matchingAmmo.forEach(ammo => {
-                        console.log(`    - ${ammo.name}: useCapacity=${ammo.system.useCapacity}, qty=${ammo.system.quantity}, capacity=${ammo.system.capacity?.value}`);
-                    });
-                }
-
-                if (matchingAmmo.length > 0) {
-                    // Calculate total available ammo from all matching ammo items
-                    let totalAvailable = 0;
-                    for (const ammo of matchingAmmo) {
-                        if (ammo.system.useCapacity) {
-                            totalAvailable += ammo.system.capacity?.value || 0;
-                        } else {
-                            totalAvailable += ammo.system.quantity || 0;
-                        }
-                    }
-
-                    console.log(`  - Total available: ${totalAvailable}`);
-                    console.log(`  - Max capacity: ${maxCapacity}`);
-                    console.log(`  - Creating ammo badges: ${loadedAmmo}/${maxCapacity} | ${totalAvailable}`);
-
-                    // Show two separate badges: loaded/capacity and total available
-                    const loadedDisplay = maxCapacity > 0 ? `${loadedAmmo}/${maxCapacity}` : `${loadedAmmo}`;
-                    ammoInfo = `<span class="sf1e-ammo-loaded" title="Loaded: ${loadedDisplay}">${loadedDisplay}</span><span class="sf1e-ammo-total" title="Total available: ${totalAvailable}">+${totalAvailable}</span>`;
-                } else if (loadedAmmo > 0) {
-                    console.log(`  - No matching ammo in inventory, but weapon has ${loadedAmmo} loaded`);
-                    // Show loaded ammo even if no ammo items in inventory
-                    const loadedDisplay = maxCapacity > 0 ? `${loadedAmmo}/${maxCapacity}` : `${loadedAmmo}`;
-                    ammoInfo = `<span class="sf1e-ammo-loaded" title="Loaded: ${loadedDisplay}">${loadedDisplay}</span>`;
-                }
-            } else {
-                console.log(`  - Skipping ammo display: ammoType="${trimmedAmmoType}" (${trimmedAmmoType.length} chars), loadedAmmo=${loadedAmmo}`);
+            if (SystemAdapter.isSF1E) {
+                ammoInfo = this._buildSF1EAmmoInfo(weapon);
             }
 
             // Check for attachments (upgrades loaded on the weapon)
@@ -1110,6 +1117,50 @@ export class PersistentHUD {
             return weaponHTML;
         }).join('');
     }
+
+    /**
+     * Build SF1E-specific ammo display HTML for a weapon.
+     * SF1E stores ammo by type on weapons, matching against ammunition items in inventory.
+     */
+    _buildSF1EAmmoInfo(weapon) {
+        const ammoType = weapon.system.itemUsage?.ammunitionType ||
+                       weapon.system.ammunition?.type ||
+                       weapon.system.ammoType ||
+                       weapon.system.ammunitionType;
+        const loadedAmmo = weapon.system.itemUsage?.capacity?.value ||
+                         weapon.system.ammunition?.capacity?.value ||
+                         weapon.system.capacity?.value || 0;
+        const maxCapacity = weapon.system.itemUsage?.capacity?.max ||
+                           weapon.system.ammunition?.capacity?.max ||
+                           weapon.system.capacity?.max || 0;
+
+        const trimmedAmmoType = (ammoType || '').trim();
+        if (!trimmedAmmoType || trimmedAmmoType.length === 0 || loadedAmmo <= 0) return '';
+
+        const matchingAmmo = this.actor.items.filter(item =>
+            item.type === 'ammunition' &&
+            (item.system.ammunitionType === trimmedAmmoType ||
+             (item.system.category && item.system.category === trimmedAmmoType))
+        );
+
+        if (matchingAmmo.length > 0) {
+            let totalAvailable = 0;
+            for (const ammo of matchingAmmo) {
+                if (ammo.system.useCapacity) {
+                    totalAvailable += ammo.system.capacity?.value || 0;
+                } else {
+                    totalAvailable += ammo.system.quantity || 0;
+                }
+            }
+            const loadedDisplay = maxCapacity > 0 ? `${loadedAmmo}/${maxCapacity}` : `${loadedAmmo}`;
+            return `<span class="sf1e-ammo-loaded" title="Loaded: ${loadedDisplay}">${loadedDisplay}</span><span class="sf1e-ammo-total" title="Total available: ${totalAvailable}">+${totalAvailable}</span>`;
+        } else if (loadedAmmo > 0) {
+            const loadedDisplay = maxCapacity > 0 ? `${loadedAmmo}/${maxCapacity}` : `${loadedAmmo}`;
+            return `<span class="sf1e-ammo-loaded" title="Loaded: ${loadedDisplay}">${loadedDisplay}</span>`;
+        }
+
+        return '';
+    }
     
     _buildSpellsList() {
         const spells = this.actor.items.filter(i => i.type === 'spell');
@@ -1118,31 +1169,29 @@ export class PersistentHUD {
             return '<div class="sf1e-sidebar-empty">No spells available</div>';
         }
 
-        // Organize spells by level
+        // Organize spells by level/rank using SystemAdapter
+        const maxRank = SystemAdapter.maxSpellRank;
         const spellsByLevel = {};
-        for (let level = 0; level <= 6; level++) {
-            spellsByLevel[level] = spells.filter(s => (s.system.level || 0) === level);
+        for (let level = 0; level <= maxRank; level++) {
+            spellsByLevel[level] = spells.filter(s => SystemAdapter.getSpellLevel(s) === level);
         }
-
-        // Get spell slots from actor
-        const spellSlots = this.actor.system.spells || {};
 
         let html = '<div class="sf1e-spells-list">';
 
         // Build spell levels with slots
-        for (let level = 0; level <= 6; level++) {
+        for (let level = 0; level <= maxRank; level++) {
             const levelSpells = spellsByLevel[level];
             if (levelSpells.length === 0) continue;
 
-            // Get slot information
-            const slotKey = `spell${level}`;
-            const slotInfo = spellSlots[slotKey] || { value: 0, max: 0 };
+            // Get slot information via SystemAdapter
+            const slotInfo = SystemAdapter.getSpellSlotInfo(this.actor, level);
             const slotsUsed = slotInfo.value || 0;
             const slotsMax = slotInfo.max || 0;
             const hasSlots = slotsMax > 0;
 
             // Determine label
-            let levelLabel = level === 0 ? 'Cantrips' : `Level ${level}`;
+            const rankWord = SystemAdapter.isSF1E ? 'Level' : 'Rank';
+            let levelLabel = level === 0 ? 'Cantrips' : `${rankWord} ${level}`;
 
             html += `
                 <div class="sf1e-spell-level-group">
@@ -1161,42 +1210,11 @@ export class PersistentHUD {
 
             // Add spells for this level
             html += levelSpells.map(spell => {
-                const school = spell.system.school || '—';
+                const detailText = SystemAdapter.getSpellDetailText(spell);
 
-                // Get spell targeting info from save.type (not savingThrow)
+                // Build targeting badge from SystemAdapter
+                const targetDetails = SystemAdapter.getSpellDefenseInfo(spell);
                 let targetInfo = '';
-                const saveType = spell.system.save?.type;
-                const saveStr = saveType ? saveType.toLowerCase() : '';
-                const hasSpellResistance = spell.system.sr === true;
-
-                // Build targeting badge
-                const targetDetails = [];
-
-                // Add save type (will, reflex, fortitude)
-                if (saveStr && saveStr !== 'none' && saveStr !== '') {
-                    // Map save types to proper names
-                    const saveMap = {
-                        'will': 'Will',
-                        'ref': 'Reflex',
-                        'reflex': 'Reflex',
-                        'fort': 'Fortitude',
-                        'fortitude': 'Fortitude',
-                        'str': 'Strength',
-                        'dex': 'Dexterity',
-                        'con': 'Constitution',
-                        'int': 'Intelligence',
-                        'wis': 'Wisdom',
-                        'cha': 'Charisma'
-                    };
-                    const saveName = saveMap[saveStr] || saveStr;
-                    targetDetails.push(`${saveName} Save`);
-                }
-
-                // Add spell resistance if applicable
-                if (hasSpellResistance) {
-                    targetDetails.push('SR');
-                }
-
                 if (targetDetails.length > 0) {
                     targetInfo = `<span class="sf1e-spell-target">${targetDetails.join(' | ')}</span>`;
                 }
@@ -1207,7 +1225,7 @@ export class PersistentHUD {
                         <div class="sf1e-item-info">
                             <div class="sf1e-item-name">${spell.name}</div>
                             <div class="sf1e-item-details">
-                                <span>${school}</span>
+                                <span>${detailText}</span>
                                 ${targetInfo}
                             </div>
                         </div>
@@ -1230,10 +1248,9 @@ export class PersistentHUD {
     
     _buildItemsList() {
         try {
-            // Get all items and organize by category (excluding character info and spells)
-            let items = this.actor.items.filter(i =>
-                !['feat', 'class', 'race', 'theme', 'spell'].includes(i.type)
-            );
+            // Get all items excluding non-inventory types
+            const nonInvTypes = SystemAdapter.getNonInventoryTypes();
+            let items = this.actor.items.filter(i => !nonInvTypes.includes(i.type));
 
             // Build header with currency
             let html = this._buildInventoryHeader();
@@ -1273,16 +1290,16 @@ export class PersistentHUD {
 
     _buildCurrencyDisplay() {
         try {
-            const currency = this.actor.system?.currency || {};
-            const credits = currency.credit || 0;
-
+            const currency = SystemAdapter.getCurrency(this.actor);
             return `
                 <div class="sf1e-currency-display">
-                    <div class="sf1e-currency-item">
-                        <i class="fas fa-coins"></i>
-                        <span class="sf1e-currency-label">Credits:</span>
-                        <span class="sf1e-currency-value">${credits}</span>
-                    </div>
+                    ${currency.display.map(c => `
+                        <div class="sf1e-currency-item">
+                            <i class="fas ${c.icon}"></i>
+                            <span class="sf1e-currency-label">${c.label}:</span>
+                            <span class="sf1e-currency-value">${c.value}</span>
+                        </div>
+                    `).join('')}
                 </div>
             `;
         } catch (e) {
@@ -1292,34 +1309,24 @@ export class PersistentHUD {
     }
 
     _categorizeItems(items) {
-        const categories = {
-            'weapons': { label: 'Weapons', items: [], icon: 'fa-gun' },
-            'shields': { label: 'Shields', items: [], icon: 'fa-shield-alt' },
-            'armor': { label: 'Armor', items: [], icon: 'fa-shield' },
-            'ammunition': { label: 'Ammunition', items: [], icon: 'fa-box-bullets' },
-            'consumables': { label: 'Consumables', items: [], icon: 'fa-vial' },
-            'goods': { label: 'Goods', items: [], icon: 'fa-bag-shopping' },
-            'containers': { label: 'Containers', items: [], icon: 'fa-box' },
-            'technological': { label: 'Technological Items', items: [], icon: 'fa-microchip' },
-            'magical': { label: 'Magical Items', items: [], icon: 'fa-wand-magic-sparkles' },
-            'hybrid': { label: 'Hybrid Items', items: [], icon: 'fa-wand-magic' },
-            'upgrades': { label: 'Upgrades', items: [], icon: 'fa-wrench' },
-            'augmentations': { label: 'Augmentations', items: [], icon: 'fa-circle-nodes' }
-        };
+        // Get category definitions from adapter
+        const catDefs = SystemAdapter.getItemCategories();
+        const categories = {};
+        for (const [key, def] of Object.entries(catDefs)) {
+            categories[key] = { label: def.label, items: [], icon: def.icon };
+        }
 
-        // FIRST PASS: Identify which items are inside containers
-        // These items should NOT appear in main categories - only nested under their container
+        // Identify which items are inside containers
         const containerContents = new Set();
         items.forEach(item => {
             try {
-                const isContainer = item.type === 'container';
-                if (isContainer) {
-                    // Get the contents array - try multiple locations for compatibility
+                if (SystemAdapter.isContainer(item)) {
                     const contents = item.system.container?.contents || item.data?.container?.contents || [];
                     if (Array.isArray(contents)) {
                         contents.forEach(contentId => {
                             if (contentId) {
-                                containerContents.add(contentId);
+                                const id = (typeof contentId === 'object') ? (contentId._id || contentId.id) : contentId;
+                                if (id) containerContents.add(id);
                             }
                         });
                     }
@@ -1329,113 +1336,23 @@ export class PersistentHUD {
             }
         });
 
-        // SECOND PASS: Categorize items, but skip items that are inside containers
+        // Categorize items, skipping items inside containers
+        const nonInvTypes = SystemAdapter.getNonInventoryTypes();
         items.forEach(item => {
             try {
-                // Skip items that are inside containers - they'll only appear nested
-                if (containerContents.has(item.id)) {
-                    return;
+                if (containerContents.has(item.id)) return;
+                if (nonInvTypes.includes(item.type)) return;
+
+                const catKey = SystemAdapter.categorizeItem(item);
+                if (catKey && categories[catKey]) {
+                    categories[catKey].items.push(item);
+                } else if (catKey) {
+                    // Ensure category exists even if not pre-defined
+                    if (!categories[catKey]) {
+                        categories[catKey] = { label: catKey.charAt(0).toUpperCase() + catKey.slice(1), items: [], icon: 'fa-box' };
+                    }
+                    categories[catKey].items.push(item);
                 }
-
-                const type = item.type;
-
-                // Skip spells - they're shown in the Spells sidebar, not inventory
-                if (type === 'spell') {
-                    return;
-                }
-
-                // Skip feats and other non-inventory items
-                if (type === 'feat' || type === 'class' || type === 'race' || type === 'theme' ||
-                    type === 'archetypes' || type === 'asi' || type === 'effect') {
-                    return;
-                }
-
-                // Handle weapon type
-                if (type === 'weapon') {
-                    categories.weapons.items.push(item);
-                    return;
-                }
-
-                // Handle shield type - shields are their own type, not equipment
-                if (type === 'shield') {
-                    categories.shields.items.push(item);
-                    return;
-                }
-
-                // Handle equipment type (body armor and other equipment)
-                if (type === 'equipment') {
-                    categories.armor.items.push(item);
-                    return;
-                }
-
-                // Handle container type
-                if (type === 'container') {
-                    categories.containers.items.push(item);
-                    return;
-                }
-
-                // Handle ammo type
-                if (type === 'ammunition') {
-                    categories.ammunition.items.push(item);
-                    return;
-                }
-
-                // Handle consumable type
-                if (type === 'consumable') {
-                    categories.consumables.items.push(item);
-                    return;
-                }
-
-                // Handle goods type
-                if (type === 'goods') {
-                    categories.goods.items.push(item);
-                    return;
-                }
-
-                // Handle technological items
-                if (type === 'technological') {
-                    categories.technological.items.push(item);
-                    return;
-                }
-
-                // Handle magical items
-                if (type === 'magic') {
-                    categories.magical.items.push(item);
-                    return;
-                }
-
-                // Handle hybrid items
-                if (type === 'hybrid') {
-                    categories.hybrid.items.push(item);
-                    return;
-                }
-
-                // Handle upgrade type (equipment upgrades/enhancements)
-                if (type === 'upgrade') {
-                    categories.upgrades.items.push(item);
-                    return;
-                }
-
-                // Handle augmentation type
-                if (type === 'augmentation') {
-                    categories.augmentations.items.push(item);
-                    return;
-                }
-
-                // Handle fusion (enchantment fusion items)
-                if (type === 'fusion') {
-                    categories.upgrades.items.push(item);
-                    return;
-                }
-
-                // Handle weapon accessories
-                if (type === 'weaponAccessory') {
-                    categories.goods.items.push(item);
-                    return;
-                }
-
-                // Catch-all for unknown types - log and skip
-                console.warn(`SF1E-HUD | Unknown item type in categorization: ${type} (${item.name})`);
             } catch (e) {
                 console.warn('SF1E-HUD | Error categorizing item:', item.name, e);
             }
@@ -1514,9 +1431,9 @@ export class PersistentHUD {
     _filterInventoryItems(items) {
         switch(this.inventoryFilter) {
             case 'equipped':
-                return items.filter(i => i.system.equipped === true);
+                return items.filter(i => SystemAdapter.isItemEquipped(i));
             case 'containers':
-                return items.filter(i => i.type === 'container');
+                return items.filter(i => SystemAdapter.isContainer(i));
             case 'all':
             default:
                 return items;
@@ -1526,7 +1443,7 @@ export class PersistentHUD {
     _sortInventoryItems(items) {
         switch(this.inventorySort) {
             case 'bulk':
-                return items.sort((a, b) => (b.system.bulk || 0) - (a.system.bulk || 0));
+                return items.sort((a, b) => SystemAdapter.getItemBulk(b) - SystemAdapter.getItemBulk(a));
             case 'default':
             default:
                 return items;
@@ -1536,14 +1453,19 @@ export class PersistentHUD {
     _calculateTotalBulk(items = null) {
         if (!this.actor) return 0;
 
+        // SF2E may have pre-computed encumbrance
+        const precomputed = SystemAdapter.getTotalBulk(this.actor);
+        if (precomputed !== null) return precomputed;
+
+        const nonInvTypes = SystemAdapter.getNonInventoryTypes();
         const itemsToCount = items || this.actor.items.filter(i =>
-            !['weapon', 'spell', 'feat', 'class', 'race', 'theme', 'archetypes', 'asi', 'effect'].includes(i.type)
+            !nonInvTypes.includes(i.type)
         );
 
         try {
             const total = itemsToCount.reduce((total, item) => {
                 try {
-                    const bulk = parseFloat(item.system.bulk) || 0;
+                    const bulk = SystemAdapter.getItemBulk(item);
                     const quantity = Math.max(parseInt(item.system.quantity) || 1, 1);
                     return total + (bulk * quantity);
                 } catch (e) {
@@ -1559,33 +1481,18 @@ export class PersistentHUD {
     }
 
     _getCarryCapacity() {
-        // In Starfinder 1E, carrying capacity is based on STR modifier
-        // Default is 10 + STR mod, but can be modified by feats, etc.
         if (!this.actor) return 10;
-
-        const strMod = this.actor.system.abilities?.str?.mod || 0;
-        let capacity = 10 + strMod;
-
-        // Check for carrying capacity increasing feats (add more as needed)
-        const hasExpansibleCarry = this.actor.items.some(i =>
-            i.type === 'feat' && (i.name.includes('Bulk') || i.name.includes('Carry') || i.name.includes('Encumbrance'))
-        );
-
-        if (hasExpansibleCarry) {
-            capacity += 5; // Example bonus
-        }
-
-        return Math.max(capacity, 1); // Minimum capacity of 1
+        return SystemAdapter.getCarryCapacity(this.actor);
     }
 
     _buildItemElement(item, depth = 0, containerName = null) {
         try {
             const quantity = item.system.quantity || 1;
-            const bulk = item.system.bulk || 0;
-            const isContainer = item.type === 'container' || (item.type === 'loot' && item.system.category === 'container');
+            const bulk = SystemAdapter.getItemBulk(item);
+            const isContainer = SystemAdapter.isContainer(item);
             const isWeapon = item.type === 'weapon';
-            const isArmor = item.type === 'equipment';
-            const isEquipped = item.system.equipped === true;
+            const isArmor = item.type === 'equipment' || item.type === 'armor';
+            const isEquipped = SystemAdapter.isItemEquipped(item);
             const isExpanded = this.expandedContainers.has(item.id);
             const isWeaponExpanded = this.expandedWeapons.has(item.id);
             const isArmorExpanded = this.expandedWeapons.has(item.id); // Reuse expandedWeapons for armor too
@@ -1755,17 +1662,14 @@ export class PersistentHUD {
     }
 
     _buildFeaturesList() {
-        // Get feats, class features, racial traits, and themes
-        // Filter out ability score increase feats
+        // Get feats, class features, and system-specific feature types
+        const featureTypes = SystemAdapter.getFeatureTypes();
         const features = this.actor.items.filter(i => {
-            if (!['feat', 'class', 'race', 'theme'].includes(i.type)) {
-                return false;
-            }
+            if (!featureTypes.includes(i.type)) return false;
 
             // Filter out ability score increase feats (they clutter the features list)
             if (i.type === 'feat') {
                 const name = i.name.toLowerCase();
-                // Check if this is an ability score increase feat
                 if (name.includes('ability') && name.includes('increase') ||
                     name.includes('ability') && name.includes('boost') ||
                     name.includes('ability score') ||
@@ -1773,7 +1677,6 @@ export class PersistentHUD {
                     return false;
                 }
             }
-
             return true;
         });
 
@@ -1782,12 +1685,7 @@ export class PersistentHUD {
         }
 
         return features.map(feature => {
-            let type = feature.type.toUpperCase();
-            if (type === 'CLASS') {
-                type = 'CLASS FEATURE';
-            } else if (type === 'RACE') {
-                type = 'RACIAL TRAIT';
-            }
+            const type = SystemAdapter.getFeatureTypeLabel(feature.type);
 
             return `
                 <div class="sf1e-sidebar-item sf1e-feature-item" data-feature-id="${feature.id}">
@@ -1804,31 +1702,22 @@ export class PersistentHUD {
     }
     
     _buildSkillsList() {
-        const skills = this.actor.system.skills || {};
+        const skills = SystemAdapter.getSkills(this.actor);
 
-        if (Object.keys(skills).length === 0) {
+        if (skills.length === 0) {
             return '<div class="sf1e-sidebar-empty">No skills available</div>';
         }
 
-        return Object.entries(skills).map(([key, skill]) => {
-            // Get the full skill name from localization or use label
-            let name = skill.label;
-            if (!name || name === key) {
-                // Try to get localized name
-                name = game.i18n.localize(`SFRPG.Skill${this._capitalizeSkillName(key)}`);
-            }
-
-            const mod = skill.mod || 0;
-            const ranks = skill.ranks || 0;
-            const isClass = skill.isTrainedOnly || false;
+        return skills.map(skill => {
+            const modSign = skill.mod >= 0 ? '+' : '';
 
             return `
-                <div class="sf1e-sidebar-item sf1e-skill-item ${isClass ? 'class-skill' : ''}" data-skill="${key}">
+                <div class="sf1e-sidebar-item sf1e-skill-item ${skill.isClass ? 'class-skill' : ''}" data-skill="${skill.key}">
                     <div class="sf1e-skill-info">
-                        <div class="sf1e-skill-name">${name}</div>
+                        <div class="sf1e-skill-name">${skill.name}</div>
                         <div class="sf1e-skill-details">
-                            <span class="sf1e-skill-mod">+${mod}</span>
-                            <span class="sf1e-skill-ranks">${ranks} ranks</span>
+                            <span class="sf1e-skill-mod">${modSign}${skill.mod}</span>
+                            <span class="sf1e-skill-ranks">${skill.detailText}</span>
                         </div>
                     </div>
                     <div class="sf1e-item-roll" title="Roll">
@@ -1837,17 +1726,6 @@ export class PersistentHUD {
                 </div>
             `;
         }).join('');
-    }
-
-    _capitalizeSkillName(key) {
-        // Map abbreviations to capitalized names for localization
-        const map = {
-            'acr': 'Acr', 'ath': 'Ath', 'blu': 'Blu', 'com': 'Com', 'cul': 'Cul',
-            'dip': 'Dip', 'dis': 'Dis', 'eng': 'Eng', 'int': 'Int', 'lsc': 'Lsc',
-            'med': 'Med', 'mys': 'Mys', 'per': 'Per', 'phs': 'Phs', 'pil': 'Pil',
-            'pro': 'Pro', 'sen': 'Sen', 'sle': 'Sle', 'ste': 'Ste', 'sur': 'Sur'
-        };
-        return map[key] || key.charAt(0).toUpperCase() + key.slice(1);
     }
 
     _buildConditionsList() {
@@ -1860,50 +1738,30 @@ export class PersistentHUD {
             return '<div class="sf1e-sidebar-empty">Error loading conditions</div>';
         }
 
-        // In SFRPG, conditions are defined at system.conditions as boolean fields
-        const conditions = freshActor.system.conditions || {};
-        const conditionsList = Object.entries(conditions);
+        const conditions = SystemAdapter.getConditions(freshActor);
 
-        if (conditionsList.length === 0) {
+        if (conditions.length === 0) {
             return '<div class="sf1e-sidebar-empty">No conditions available</div>';
         }
 
-        // Use actor.hasCondition() if available for more reliable active-state detection
-        // (checks both the boolean flag AND the embedded condition Item)
-        const hasConditionFn = typeof freshActor.hasCondition === 'function';
-
         // Separate active and inactive conditions
-        const activeConditions = [];
-        const inactiveConditions = [];
-
-        conditionsList.forEach(([condId, isActive]) => {
-            // Prefer the API method, fall back to the boolean flag
-            const reallyActive = hasConditionFn ? freshActor.hasCondition(condId) : (isActive === true);
-            if (reallyActive) {
-                activeConditions.push(condId);
-            } else {
-                inactiveConditions.push(condId);
-            }
-        });
-
-        // Sort alphabetically
-        activeConditions.sort((a, b) => a.localeCompare(b));
-        inactiveConditions.sort((a, b) => a.localeCompare(b));
+        const activeConditions = conditions.filter(c => c.active).sort((a, b) => a.name.localeCompare(b.name));
+        const inactiveConditions = conditions.filter(c => !c.active).sort((a, b) => a.name.localeCompare(b.name));
 
         let html = '';
 
         // Display active conditions
         if (activeConditions.length > 0) {
             html += '<div class="sf1e-conditions-section"><h4 class="sf1e-conditions-header">Active Conditions</h4>';
-            html += activeConditions.map(condId => {
-                const condName = condId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            html += activeConditions.map(cond => {
+                const valueDisplay = cond.value ? ` (${cond.value})` : '';
                 return `
-                    <div class="sf1e-condition-item active" data-condition-id="${condId}">
+                    <div class="sf1e-condition-item active" data-condition-id="${cond.id}">
                         <div class="sf1e-condition-icon">
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <div class="sf1e-condition-info">
-                            <div class="sf1e-condition-name">${condName}</div>
+                            <div class="sf1e-condition-name">${cond.name}${valueDisplay}</div>
                         </div>
                     </div>
                 `;
@@ -1914,15 +1772,14 @@ export class PersistentHUD {
         // Display inactive conditions
         if (inactiveConditions.length > 0) {
             html += '<div class="sf1e-conditions-section"><h4 class="sf1e-conditions-header">All Conditions</h4>';
-            html += inactiveConditions.map(condId => {
-                const condName = condId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            html += inactiveConditions.map(cond => {
                 return `
-                    <div class="sf1e-condition-item inactive" data-condition-id="${condId}">
+                    <div class="sf1e-condition-item inactive" data-condition-id="${cond.id}">
                         <div class="sf1e-condition-icon">
                             <i class="fas fa-circle"></i>
                         </div>
                         <div class="sf1e-condition-info">
-                            <div class="sf1e-condition-name">${condName}</div>
+                            <div class="sf1e-condition-name">${cond.name}</div>
                         </div>
                     </div>
                 `;
@@ -1943,18 +1800,7 @@ export class PersistentHUD {
         }
 
         console.log('SF1E-HUD | Rolling weapon attack:', weapon.name);
-
-        // Try different methods depending on what's available
-        if (weapon.roll && typeof weapon.roll === 'function') {
-            await weapon.roll();
-        } else if (weapon.rollAttack && typeof weapon.rollAttack === 'function') {
-            await weapon.rollAttack();
-        } else if (weapon.use && typeof weapon.use === 'function') {
-            await weapon.use();
-        } else {
-            // Fallback: display card
-            await weapon.displayCard?.();
-        }
+        await SystemAdapter.rollWeaponAttack(this.actor, weapon);
     }
 
     async _castSpell(itemId) {
@@ -1967,15 +1813,7 @@ export class PersistentHUD {
         }
 
         console.log('SF1E-HUD | Casting spell:', spell.name);
-
-        // Try different methods depending on what's available
-        if (spell.roll && typeof spell.roll === 'function') {
-            await spell.roll();
-        } else if (spell.use && typeof spell.use === 'function') {
-            await spell.use();
-        } else if (spell.displayCard && typeof spell.displayCard === 'function') {
-            await spell.displayCard();
-        }
+        await SystemAdapter.castSpell(this.actor, spell);
     }
 
     async _useItem(itemId) {
@@ -2001,46 +1839,14 @@ export class PersistentHUD {
 
     async _rollSkill(skillKey) {
         if (!this.actor) return;
-
         console.log('SF1E-HUD | Rolling skill:', skillKey);
-
-        // Use the actor's rollSkill method if available
-        if (this.actor.rollSkill && typeof this.actor.rollSkill === 'function') {
-            await this.actor.rollSkill(skillKey);
-        } else {
-            // Fallback manual roll
-            const skill = this.actor.system.skills?.[skillKey];
-            if (skill) {
-                const mod = skill.mod || 0;
-                const roll = await new Roll(`1d20 + ${mod}`).evaluate({async: true});
-                const skillName = skill.label || skillKey;
-                await roll.toMessage({
-                    speaker: ChatMessage.getSpeaker({actor: this.actor}),
-                    flavor: `${skillName} Check`
-                });
-            }
-        }
+        await SystemAdapter.rollSkill(this.actor, skillKey);
     }
 
     async _rollPerception() {
         if (!this.actor) return;
-
         console.log('SF1E-HUD | Rolling Perception');
-
-        // Perception is typically a Wisdom-based skill check
-        const perceptionSkill = this.actor.system.skills?.per;
-        if (perceptionSkill) {
-            if (this.actor.rollSkill && typeof this.actor.rollSkill === 'function') {
-                await this.actor.rollSkill('per');
-            } else {
-                const mod = perceptionSkill.mod || 0;
-                const roll = await new Roll(`1d20 + ${mod}`).evaluate({async: true});
-                await roll.toMessage({
-                    speaker: ChatMessage.getSpeaker({actor: this.actor}),
-                    flavor: 'Perception Check'
-                });
-            }
-        }
+        await SystemAdapter.rollPerception(this.actor);
     }
 
     async _rollInitiative() {
@@ -2081,30 +1887,7 @@ export class PersistentHUD {
 
     async _rollAbilityCheck(ability) {
         if (!this.actor) return;
-
         console.log('SF1E-HUD | Rolling ability check:', ability);
-
-        // Map ability abbreviations to full names and ability scores
-        const abilityMap = {
-            'str': { name: 'Strength', path: 'strength' },
-            'dex': { name: 'Dexterity', path: 'dexterity' },
-            'con': { name: 'Constitution', path: 'constitution' },
-            'int': { name: 'Intelligence', path: 'intelligence' },
-            'wis': { name: 'Wisdom', path: 'wisdom' },
-            'cha': { name: 'Charisma', path: 'charisma' }
-        };
-
-        const abilityInfo = abilityMap[ability];
-        if (!abilityInfo) return;
-
-        // Get the ability modifier
-        const abilityData = this.actor.system.abilities?.[ability];
-        const mod = abilityData?.mod || 0;
-
-        const roll = await new Roll(`1d20 + ${mod}`).evaluate({async: true});
-        await roll.toMessage({
-            speaker: ChatMessage.getSpeaker({actor: this.actor}),
-            flavor: `${abilityInfo.name} Check`
-        });
+        await SystemAdapter.rollAbilityCheck(this.actor, ability);
     }
 }

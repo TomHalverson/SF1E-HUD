@@ -73,7 +73,7 @@ class SF1EThemeSwitcher {
     static registerSettings() {
         game.settings.register(this.MODULE_ID, this.SETTING_KEY, {
             name: 'Sheet Theme',
-            hint: 'Choose your preferred theme for Starfinder character and NPC sheets',
+            hint: 'Choose your preferred theme for Starfinder character and NPC sheets (works with both SF1E and SF2E)',
             scope: 'client',
             config: true,
             type: String,

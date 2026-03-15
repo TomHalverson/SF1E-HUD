@@ -1,3 +1,5 @@
+import { SystemAdapter } from './system-adapter.js';
+
 export class TokenTooltip {
     constructor() {
         this.tooltip = null;
@@ -134,24 +136,73 @@ export class TokenTooltip {
     
     _generateFullTooltip(token, actor) {
         const system = actor.system;
-        const hp = system.attributes?.hp || { value: 0, max: 0 };
-        const sp = system.attributes?.sp || { value: 0, max: 0 };
-        const rp = system.attributes?.rp || { value: 0, max: 0 };
+        const hp = SystemAdapter.getHP(actor);
+        const sp = SystemAdapter.getSP(actor);
+        const rp = SystemAdapter.getRP(actor);
+        const heroPoints = SystemAdapter.getHeroPoints(actor);
         
         const healthPercent = hp.max > 0 ? (hp.value / hp.max) * 100 : 0;
-        const staminaPercent = sp.max > 0 ? (sp.value / sp.max) * 100 : 0;
+        const staminaPercent = sp && sp.max > 0 ? (sp.value / sp.max) * 100 : 0;
         
-        const eac = system.attributes?.eac?.value || 0;
-        const kac = system.attributes?.kac?.value || 0;
-
-        const fort = system.attributes?.fort?.bonus || 0;
-        const reflex = system.attributes?.reflex?.bonus || 0;
-        const will = system.attributes?.will?.bonus || 0;
+        const acValues = SystemAdapter.getACValues(actor);
+        const saves = SystemAdapter.getSaves(actor);
         
-        const speeds = this._getSpeeds(system);
-        const immunities = this._getIWR(system, 'di');
-        const resistances = this._getIWR(system, 'dr');
-        const vulnerabilities = this._getIWR(system, 'dv');
+        const speeds = this._getSpeeds(actor);
+        const iwr = SystemAdapter.getIWR(actor);
+        const immunities = iwr.immunities;
+        const resistances = iwr.resistances;
+        const vulnerabilities = iwr.vulnerabilities;
+        
+        // Build AC display — single AC for SF2E, dual EAC/KAC for SF1E
+        const acHTML = acValues.map(ac => `
+            <div class="sf1e-stat">
+                <span class="sf1e-stat-label">${ac.label}</span>
+                <span class="sf1e-stat-value">${ac.value}</span>
+            </div>
+        `).join('');
+        
+        // Build save display
+        const fort = saves.fort;
+        const reflex = saves.ref;
+        const will = saves.will;
+        
+        // Build resource section (SP/RP for SF1E, Hero Points for SF2E)
+        let resourceHTML = '';
+        if (sp && sp.max > 0 && game.settings.get('sf1e-hud', 'showStaminaBar')) {
+            resourceHTML += `
+                <div class="sf1e-resource-bar sf1e-stamina-bar">
+                    <div class="sf1e-resource-label">SP</div>
+                    <div class="sf1e-resource-fill" style="width: ${staminaPercent}%"></div>
+                    <div class="sf1e-resource-text">${sp.value} / ${sp.max}</div>
+                </div>
+            `;
+        }
+        
+        resourceHTML += `
+            <div class="sf1e-resource-bar sf1e-hp-bar">
+                <div class="sf1e-resource-label">HP</div>
+                <div class="sf1e-resource-fill" style="width: ${healthPercent}%"></div>
+                <div class="sf1e-resource-text">${hp.value} / ${hp.max}</div>
+            </div>
+        `;
+        
+        if (rp && rp.max > 0) {
+            resourceHTML += `
+                <div class="sf1e-resolve-points">
+                    <span class="sf1e-rp-label">RP:</span>
+                    ${this._generatePipDisplay(rp.value, rp.max)}
+                </div>
+            `;
+        }
+        
+        if (heroPoints && heroPoints.max > 0 && game.settings.get('sf1e-hud', 'showHeroPoints')) {
+            resourceHTML += `
+                <div class="sf1e-resolve-points sf1e-hero-points">
+                    <span class="sf1e-rp-label">Hero:</span>
+                    ${this._generatePipDisplay(heroPoints.value, heroPoints.max)}
+                </div>
+            `;
+        }
         
         return `
             <div class="sf1e-tooltip-full">
@@ -165,14 +216,7 @@ export class TokenTooltip {
                 
                 <div class="sf1e-tooltip-stats">
                     <div class="sf1e-stat-row">
-                        <div class="sf1e-stat">
-                            <span class="sf1e-stat-label">EAC</span>
-                            <span class="sf1e-stat-value">${eac}</span>
-                        </div>
-                        <div class="sf1e-stat">
-                            <span class="sf1e-stat-label">KAC</span>
-                            <span class="sf1e-stat-value">${kac}</span>
-                        </div>
+                        ${acHTML}
                     </div>
                     
                     <div class="sf1e-stat-row">
@@ -192,26 +236,7 @@ export class TokenTooltip {
                 </div>
                 
                 <div class="sf1e-health-section">
-                    ${game.settings.get('sf1e-hud', 'showStaminaBar') && sp.max > 0 ? `
-                        <div class="sf1e-resource-bar sf1e-stamina-bar">
-                            <div class="sf1e-resource-label">SP</div>
-                            <div class="sf1e-resource-fill" style="width: ${staminaPercent}%"></div>
-                            <div class="sf1e-resource-text">${sp.value} / ${sp.max}</div>
-                        </div>
-                    ` : ''}
-                    
-                    <div class="sf1e-resource-bar sf1e-hp-bar">
-                        <div class="sf1e-resource-label">HP</div>
-                        <div class="sf1e-resource-fill" style="width: ${healthPercent}%"></div>
-                        <div class="sf1e-resource-text">${hp.value} / ${hp.max}</div>
-                    </div>
-                    
-                    ${rp.max > 0 ? `
-                        <div class="sf1e-resolve-points">
-                            <span class="sf1e-rp-label">RP:</span>
-                            ${this._generateResolvePoints(rp.value, rp.max)}
-                        </div>
-                    ` : ''}
+                    ${resourceHTML}
                 </div>
                 
                 ${speeds ? `
@@ -242,35 +267,15 @@ export class TokenTooltip {
         return 'Healthy';
     }
     
-    _getSpeeds(system) {
-        const speeds = [];
-        const attrs = system.attributes || {};
-        
-        if (attrs.speed?.value) {
-            speeds.push(`${attrs.speed.value} ft`);
-        }
-        
-        const special = attrs.speed?.special || '';
-        if (special) {
-            speeds.push(special);
-        }
-        
-        return speeds.length > 0 ? speeds.join(', ') : null;
+    _getSpeeds(actor) {
+        const speed = SystemAdapter.getSpeed(actor);
+        const parts = [];
+        if (speed.value) parts.push(`${speed.value} ft`);
+        if (speed.special) parts.push(speed.special);
+        return parts.length > 0 ? parts.join(', ') : null;
     }
     
-    _getIWR(system, type) {
-        const traits = system.traits?.[type];
-        if (!traits || !Array.isArray(traits) || traits.length === 0) return null;
-        
-        return traits.map(t => {
-            if (typeof t === 'object') {
-                return t.amount ? `${t.types.join(', ')} ${t.amount}` : t.types.join(', ');
-            }
-            return t;
-        }).join(', ');
-    }
-    
-    _generateResolvePoints(current, max) {
+    _generatePipDisplay(current, max) {
         let html = '';
         for (let i = 0; i < max; i++) {
             html += `<span class="sf1e-rp-pip ${i < current ? 'filled' : ''}">◆</span>`;

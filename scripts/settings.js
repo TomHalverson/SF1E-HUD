@@ -1,5 +1,9 @@
 export function registerSettings() {
     
+    // Detect which system we're running on
+    const isSF1E = game.system.id === 'sfrpg';
+    const isSF2E = game.system.id === 'sf2e';
+
     game.settings.register('sf1e-hud', 'enableTooltip', {
         name: 'Enable Token Tooltip',
         hint: 'Show tooltips when hovering over tokens',
@@ -68,11 +72,32 @@ export function registerSettings() {
         default: 'right'
     });
     
+    // SF1E-only: Stamina bar
     game.settings.register('sf1e-hud', 'showStaminaBar', {
         name: 'Show Stamina Bar',
-        hint: 'Display stamina points as a separate bar',
+        hint: 'Display stamina points as a separate bar (SF1E only)',
         scope: 'client',
-        config: true,
+        config: isSF1E,
+        type: Boolean,
+        default: true
+    });
+
+    // SF2E-only: Hero Points display
+    game.settings.register('sf1e-hud', 'showHeroPoints', {
+        name: 'Show Hero Points',
+        hint: 'Display Hero Points pips in the HUD and tooltip (SF2E only)',
+        scope: 'client',
+        config: isSF2E,
+        type: Boolean,
+        default: true
+    });
+
+    // SF2E-only: Focus Points display
+    game.settings.register('sf1e-hud', 'showFocusPoints', {
+        name: 'Show Focus Points',
+        hint: 'Display Focus Points pips in the HUD (SF2E only)',
+        scope: 'client',
+        config: isSF2E,
         type: Boolean,
         default: true
     });
@@ -128,11 +153,12 @@ export function registerSettings() {
         onChange: () => window.location.reload()
     });
 
+    // SF1E-only: Class-specific resources
     game.settings.register('sf1e-hud', 'showClassResource', {
         name: 'Show Class Resource',
-        hint: 'Display class-specific resources like Vanguard Entropy Points or Solarian Stellar Mode',
+        hint: 'Display class-specific resources like Vanguard Entropy Points or Solarian Stellar Mode (SF1E only)',
         scope: 'client',
-        config: true,
+        config: isSF1E,
         type: Boolean,
         default: true
     });

@@ -1000,3 +1000,429 @@ bottom: 170px !important;
   text-shadow: 0 0 8px var(--cyan-highlight) !important;
   background: transparent !important;
 }
+
+/* ===============================================
+   SF2E (Starfinder 2E) Sheet Overrides
+   SF2E uses PF2E-based sheet structure with .crb-style
+   =============================================== */
+
+/* --- PF2E/SF2E System CSS Variable Overrides --- */
+.sf2e .actor.sheet,
+.sf2e .actor.sheet .window-content {
+  --color-pf-primary: var(--cyan-highlight);
+  --color-pf-secondary: var(--magenta-highlight);
+  --color-pf-alternate: var(--cyan-dark);
+  --color-bg-base: var(--dark-bg-primary);
+  --color-bg-light: var(--dark-bg-secondary);
+  --color-bg-dark: var(--dark-bg-primary);
+  --text-color-base: var(--text-primary);
+  --text-color-light: var(--text-secondary);
+  --text-color-heading: var(--cyan-highlight);
+  --color-link: var(--cyan-highlight);
+  --color-link-hover: var(--magenta-highlight);
+  --color-border: var(--dark-border);
+  --color-scrollbar: var(--cyan-dark);
+}
+
+/* Character Sheet Background */
+.actor.sheet.character section.window-content .crb-style,
+.actor.sheet.character .window-content {
+  background: var(--dark-bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Character Sheet Header */
+.actor.sheet.character .crb-style header.char-header,
+.actor.sheet.character .sheet-header {
+  background: var(--dark-bg-secondary) !important;
+  border-bottom: 2px solid var(--cyan-highlight) !important;
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.3) !important;
+}
+
+.actor.sheet.character .crb-style header.char-header .char-name,
+.actor.sheet.character .sheet-header h1,
+.actor.sheet.character .sheet-header .charname input {
+  color: var(--cyan-highlight) !important;
+  text-shadow: 0 0 10px var(--cyan-highlight) !important;
+}
+
+/* Character Level Badge */
+.actor.sheet.character .crb-style header.char-header .level {
+  background: var(--dark-bg-tertiary) !important;
+  color: var(--magenta-highlight) !important;
+  border: 1px solid var(--magenta-highlight) !important;
+  text-shadow: 0 0 8px var(--magenta-dark) !important;
+}
+
+/* Character Portrait */
+.actor.sheet.character .crb-style header.char-header .player-image,
+.actor.sheet.character .profile-img {
+  border: 2px solid var(--magenta-highlight) !important;
+  box-shadow: 0 0 15px var(--magenta-dark) !important;
+}
+
+/* Navigation Tabs */
+.actor.sheet.character .crb-style nav.sheet-tabs,
+.actor.sheet nav.sheet-tabs {
+  background: var(--dark-bg-secondary) !important;
+  border-bottom: 1px solid var(--dark-border) !important;
+}
+
+.actor.sheet.character .crb-style nav.sheet-tabs .item,
+.actor.sheet nav.sheet-tabs .item {
+  color: var(--text-secondary) !important;
+  border-color: var(--dark-border) !important;
+}
+
+.actor.sheet.character .crb-style nav.sheet-tabs .item:hover,
+.actor.sheet nav.sheet-tabs .item:hover {
+  color: var(--cyan-highlight) !important;
+  background: var(--dark-bg-tertiary) !important;
+  text-shadow: 0 0 8px var(--cyan-highlight) !important;
+}
+
+.actor.sheet.character .crb-style nav.sheet-tabs .item.active,
+.actor.sheet nav.sheet-tabs .item.active {
+  color: var(--cyan-highlight) !important;
+  border-bottom: 2px solid var(--cyan-highlight) !important;
+  background: var(--dark-bg-primary) !important;
+  text-shadow: 0 0 10px var(--cyan-highlight) !important;
+}
+
+/* Sheet Body */
+.actor.sheet.character .crb-style .sheet-body,
+.actor.sheet .sheet-body {
+  background: var(--dark-bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Sidebar Panels */
+.actor.sheet.character .crb-style .sheet-body aside,
+.actor.sheet .sheet-body aside {
+  background: var(--dark-bg-secondary) !important;
+  border-right: 1px solid var(--dark-border) !important;
+}
+
+/* Input Fields */
+.actor.sheet input[type="text"],
+.actor.sheet input[type="number"],
+.actor.sheet textarea,
+.actor.sheet select {
+  background: var(--dark-bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--dark-border) !important;
+}
+
+.actor.sheet input[type="text"]:focus,
+.actor.sheet input[type="number"]:focus,
+.actor.sheet textarea:focus,
+.actor.sheet select:focus {
+  border-color: var(--cyan-highlight) !important;
+  box-shadow: 0 0 12px var(--cyan-dark) !important;
+  outline: none !important;
+}
+
+/* Ability Scores */
+.actor.sheet .ability-scores .ability-score,
+.actor.sheet .ability-score {
+  background: var(--dark-bg-tertiary) !important;
+  border: 2px solid var(--cyan-dark) !important;
+  color: var(--text-primary) !important;
+}
+
+.actor.sheet .ability-scores .ability-score:hover {
+  border-color: var(--cyan-highlight) !important;
+  box-shadow: 0 0 15px var(--cyan-dark) !important;
+}
+
+.actor.sheet .ability-scores label,
+.actor.sheet .ability-score .ability-name {
+  color: var(--cyan-highlight) !important;
+  text-shadow: 0 0 8px var(--cyan-dark) !important;
+}
+
+/* Strikes / Attack Panel */
+.actor.sheet .strikes-list .strike,
+.actor.sheet .action-list .action {
+  background: var(--dark-bg-secondary) !important;
+  border: 1px solid var(--dark-border) !important;
+  color: var(--text-primary) !important;
+}
+
+.actor.sheet .strikes-list .strike:hover,
+.actor.sheet .action-list .action:hover {
+  background: var(--dark-bg-tertiary) !important;
+  border-left: 3px solid var(--cyan-highlight) !important;
+  box-shadow: 0 0 8px rgba(0, 245, 255, 0.2) !important;
+}
+
+/* Item Lists */
+.actor.sheet .item-list .item,
+.actor.sheet .items-list .item,
+.actor.sheet .inventory-list .item {
+  background: var(--dark-bg-tertiary) !important;
+  border-bottom: 1px solid var(--dark-border) !important;
+  color: var(--text-primary) !important;
+}
+
+.actor.sheet .item-list .item:hover,
+.actor.sheet .items-list .item:hover,
+.actor.sheet .inventory-list .item:hover {
+  background: var(--dark-bg-primary) !important;
+  border-left: 3px solid var(--cyan-highlight) !important;
+  box-shadow: 0 0 8px rgba(0, 245, 255, 0.2) !important;
+}
+
+.actor.sheet .item-name,
+.actor.sheet .item-header {
+  color: var(--cyan-highlight) !important;
+}
+
+/* Item Controls */
+.actor.sheet .item-controls a,
+.actor.sheet .item-control {
+  color: var(--text-secondary) !important;
+}
+
+.actor.sheet .item-controls a:hover,
+.actor.sheet .item-control:hover {
+  color: var(--magenta-highlight) !important;
+  text-shadow: 0 0 6px var(--magenta-highlight) !important;
+}
+
+/* Buttons and Rollables */
+.actor.sheet button,
+.actor.sheet .rollable {
+  background: var(--dark-bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--cyan-highlight) !important;
+}
+
+.actor.sheet button:hover,
+.actor.sheet .rollable:hover {
+  background: var(--cyan-dark) !important;
+  color: #ffffff !important;
+  border-color: var(--cyan-highlight) !important;
+  box-shadow: 0 0 15px var(--cyan-highlight) !important;
+}
+
+/* Tags / Traits */
+.actor.sheet .tags .tag,
+.actor.sheet .trait-tags .tag,
+.actor.sheet .traits .tag {
+  background: var(--dark-bg-tertiary) !important;
+  color: var(--magenta-highlight) !important;
+  border: 1px solid var(--magenta-highlight) !important;
+  text-shadow: 0 0 4px var(--magenta-dark) !important;
+}
+
+/* Skills List */
+.actor.sheet .skills-list .skill,
+.actor.sheet .skill-list .skill {
+  background: var(--dark-bg-tertiary) !important;
+  border-bottom: 1px solid var(--dark-border) !important;
+  color: var(--text-primary) !important;
+}
+
+.actor.sheet .skills-list .skill:hover,
+.actor.sheet .skill-list .skill:hover {
+  background: var(--dark-bg-primary) !important;
+  border-left: 3px solid var(--magenta-highlight) !important;
+  box-shadow: 0 0 8px rgba(255, 0, 255, 0.2) !important;
+}
+
+.actor.sheet .skill-name {
+  color: var(--text-primary) !important;
+}
+
+.actor.sheet .proficiency-rank {
+  color: var(--cyan-highlight) !important;
+  text-shadow: 0 0 6px var(--cyan-dark) !important;
+}
+
+/* Spellcasting */
+.actor.sheet .spellcasting-entry,
+.actor.sheet .spell-list {
+  background: var(--dark-bg-secondary) !important;
+}
+
+.actor.sheet .spell-level-header,
+.actor.sheet .spellcasting-header {
+  background: var(--dark-bg-tertiary) !important;
+  color: var(--magenta-highlight) !important;
+  border: 1px solid var(--magenta-highlight) !important;
+  text-shadow: 0 0 8px var(--magenta-dark) !important;
+}
+
+/* Features / Feats */
+.actor.sheet .feats-list .feat,
+.actor.sheet .feat-item {
+  background: var(--dark-bg-tertiary) !important;
+  border-bottom: 1px solid var(--dark-border) !important;
+}
+
+.actor.sheet .feats-list .feat:hover,
+.actor.sheet .feat-item:hover {
+  border-left: 3px solid var(--cyan-highlight) !important;
+  box-shadow: 0 0 8px rgba(0, 245, 255, 0.2) !important;
+}
+
+/* Conditions & Effects */
+.actor.sheet .effects-list .effect,
+.actor.sheet .conditions-list .condition {
+  background: var(--dark-bg-tertiary) !important;
+  border: 1px solid var(--dark-border) !important;
+  color: var(--text-primary) !important;
+}
+
+.actor.sheet .effects-list .effect:hover,
+.actor.sheet .conditions-list .condition:hover {
+  border-color: var(--magenta-highlight) !important;
+  box-shadow: 0 0 8px rgba(255, 0, 255, 0.3) !important;
+}
+
+/* Resource Bars (HP, Shield, etc.) */
+.actor.sheet .health-bar,
+.actor.sheet .hp-bar,
+.actor.sheet .attribute-bar {
+  background: var(--dark-bg-tertiary) !important;
+  border: 1px solid var(--dark-border) !important;
+}
+
+.actor.sheet .health-bar .bar-fill,
+.actor.sheet .hp-bar .bar-fill,
+.actor.sheet .attribute-bar .bar-fill {
+  background: linear-gradient(90deg, var(--magenta-dark), var(--magenta-highlight), var(--cyan-highlight)) !important;
+  box-shadow: 0 0 10px var(--cyan-highlight) !important;
+}
+
+/* Headers and Titles */
+.actor.sheet h1,
+.actor.sheet h2,
+.actor.sheet h3,
+.actor.sheet h4 {
+  color: var(--cyan-highlight) !important;
+  text-shadow: 0 0 10px var(--cyan-dark) !important;
+}
+
+/* Editor / Description */
+.actor.sheet .editor,
+.actor.sheet .editor-content {
+  background: var(--dark-bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--dark-border) !important;
+}
+
+/* Scrollbars */
+.actor.sheet ::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+.actor.sheet ::-webkit-scrollbar-track {
+  background: var(--dark-bg-primary) !important;
+}
+
+.actor.sheet ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--cyan-dark), var(--magenta-dark)) !important;
+  border-radius: 4px !important;
+}
+
+.actor.sheet ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--cyan-highlight), var(--magenta-highlight)) !important;
+}
+
+/* NPC Sheet Overrides */
+.actor.npc.sheet form,
+.actor.npc.sheet .window-content {
+  background: var(--dark-bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.actor.npc.sheet .sheet-header {
+  background: var(--dark-bg-secondary) !important;
+  border-bottom: 2px solid var(--cyan-highlight) !important;
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.3) !important;
+}
+
+.actor.npc.sheet .npc-header .name,
+.actor.npc.sheet .sheet-header h1 {
+  color: var(--cyan-highlight) !important;
+  text-shadow: 0 0 10px var(--cyan-highlight) !important;
+}
+
+.actor.npc.sheet .cr-label,
+.actor.npc.sheet .npc-level {
+  color: var(--magenta-highlight) !important;
+  text-shadow: 0 0 8px var(--magenta-dark) !important;
+}
+
+.actor.npc.sheet .sheet-body {
+  background: var(--dark-bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Item Sheet Overrides */
+.item.sheet form,
+.item.sheet .window-content {
+  background: var(--dark-bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.item.sheet .sheet-header {
+  background: var(--dark-bg-secondary) !important;
+  border-bottom: 2px solid var(--cyan-highlight) !important;
+}
+
+/* Checkboxes */
+.actor.sheet input[type="checkbox"] {
+  border: 1px solid var(--dark-border) !important;
+  background: var(--dark-bg-tertiary) !important;
+}
+
+.actor.sheet input[type="checkbox"]:checked {
+  background: var(--magenta-highlight) !important;
+  border-color: var(--magenta-highlight) !important;
+  box-shadow: 0 0 8px var(--magenta-highlight) !important;
+}
+
+/* Window Resize Handle */
+.actor.sheet .window-resizable-handle {
+  color: var(--cyan-dark) !important;
+}
+
+/* Action Pips (3-action economy) */
+.actor.sheet .action-glyph,
+.actor.sheet .pf2-icon {
+  color: var(--cyan-highlight) !important;
+  text-shadow: 0 0 6px var(--cyan-dark) !important;
+}
+
+/* Details Labels */
+.actor.sheet .details-label {
+  color: var(--text-primary) !important;
+}
+
+/* Proficiency Indicators */
+.actor.sheet .proficiency-indicator {
+  color: var(--cyan-highlight) !important;
+  border-color: var(--cyan-highlight) !important;
+}
+
+.actor.sheet .proficiency-indicator.trained {
+  background: rgba(0, 245, 255, 0.15) !important;
+}
+
+.actor.sheet .proficiency-indicator.expert {
+  background: rgba(0, 245, 255, 0.3) !important;
+}
+
+.actor.sheet .proficiency-indicator.master {
+  background: rgba(255, 0, 255, 0.3) !important;
+}
+
+.actor.sheet .proficiency-indicator.legendary {
+  background: rgba(255, 0, 255, 0.5) !important;
+  color: var(--magenta-highlight) !important;
+  border-color: var(--magenta-highlight) !important;
+}

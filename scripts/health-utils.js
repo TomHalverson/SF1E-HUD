@@ -2,6 +2,8 @@
  * Health status utilities for SF1E HUD
  */
 
+import { SystemAdapter } from './system-adapter.js';
+
 export class HealthUtils {
     /**
      * Get health status based on current/max HP
@@ -66,15 +68,17 @@ export class HealthUtils {
     static formatHealthDisplay(actor) {
         if (!actor || !actor.system) return null;
 
-        const hp = actor.system.attributes?.hp || { value: 0, max: 0 };
-        const sp = actor.system.attributes?.sp || { value: 0, max: 0 };
-        const rp = actor.system.attributes?.rp || { value: 0, max: 0 };
+        const hp = SystemAdapter.getHP(actor);
+        const sp = SystemAdapter.getSP(actor);
+        const rp = SystemAdapter.getRP(actor);
+        const heroPoints = SystemAdapter.getHeroPoints(actor);
+        const focusPoints = SystemAdapter.getFocusPoints(actor);
 
         const healthStatus = this.getHealthStatus(hp.value, hp.max);
         const healthLabel = this.getHealthLabel(healthStatus);
         const healthColor = this.getHealthColor(healthStatus);
 
-        return {
+        const result = {
             hp: {
                 value: hp.value,
                 max: hp.max,
@@ -82,17 +86,30 @@ export class HealthUtils {
                 status: healthStatus,
                 label: healthLabel,
                 color: healthColor
-            },
-            sp: {
+            }
+        };
+
+        // SF1E resources
+        if (sp) {
+            result.sp = {
                 value: sp.value,
                 max: sp.max,
                 percent: sp.max > 0 ? (sp.value / sp.max) * 100 : 0
-            },
-            rp: {
-                value: rp.value,
-                max: rp.max
-            }
-        };
+            };
+        }
+        if (rp) {
+            result.rp = { value: rp.value, max: rp.max };
+        }
+
+        // SF2E resources
+        if (heroPoints) {
+            result.heroPoints = { value: heroPoints.value, max: heroPoints.max };
+        }
+        if (focusPoints) {
+            result.focusPoints = { value: focusPoints.value, max: focusPoints.max };
+        }
+
+        return result;
     }
 
     /**

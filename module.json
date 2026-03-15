@@ -1,8 +1,8 @@
 {
   "id": "sf1e-hud",
-  "title": "Starfinder 1E HUD & Theme Switcher",
-  "description": "A sci-fi themed HUD system with token tooltips, persistent character HUD, action sidebars, and multiple customizable dark themes for Starfinder 1E",
-  "version": "2.1.0",
+  "title": "Starfinder HUD & Theme Switcher",
+  "description": "A sci-fi themed HUD system with token tooltips, persistent character HUD, action sidebars, and multiple customizable dark themes for Starfinder 1E and 2E",
+  "version": "3.0.0",
   "authors": [
     {
       "name": "Intrinsic"
@@ -32,6 +32,13 @@
         "type": "system",
         "compatibility": {
           "minimum": "0.25.0"
+        }
+      },
+      {
+        "id": "sf2e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "0.0.7"
         }
       }
     ]
