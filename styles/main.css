@@ -51,6 +51,57 @@ select {
     border: 1px solid var(--dark-border, #2a2a4a) !important;
 }
 
+/* Dropdown option elements — browsers render these natively,
+   so we force dark backgrounds on them to avoid light-on-light */
+select option,
+select optgroup,
+.window-content select option,
+.window-content select optgroup,
+.sheet select option,
+.sheet select optgroup,
+.actor.sheet select option,
+.actor.sheet select optgroup,
+.dialog select option,
+.dialog select optgroup {
+    background: var(--dark-bg-secondary, #141420) !important;
+    color: var(--text-primary, #e0e0ff) !important;
+}
+
+select option:checked,
+.window-content select option:checked,
+.sheet select option:checked {
+    background: var(--dark-bg-tertiary, #1a1a2e) !important;
+    color: var(--text-primary, #e0e0ff) !important;
+}
+
+/* Also fix dropdowns rendered as custom elements (PF2E tagify, etc.) */
+.pf2e.sheet .dropbar,
+.pf2e.sheet .tagify,
+.pf2e.sheet .choices,
+.pf2e.sheet .choices__inner,
+.pf2e.sheet .choices__list,
+.pf2e.sheet .choices__item,
+.pf2e.sheet [class*="dropdown"],
+.pf2e.sheet [class*="select"],
+.pf2e.sheet .tags .tag {
+    background-color: var(--dark-bg-secondary, #141420) !important;
+    color: var(--text-primary, #e0e0ff) !important;
+}
+
+.pf2e.sheet .choices__list--dropdown,
+.pf2e.sheet [class*="dropdown-menu"],
+.pf2e.sheet [class*="dropdown-content"] {
+    background: var(--dark-bg-primary, #0a0a0f) !important;
+    color: var(--text-primary, #e0e0ff) !important;
+    border: 1px solid var(--dark-border, #2a2a4a) !important;
+}
+
+.pf2e.sheet .choices__list--dropdown .choices__item--selectable:hover,
+.pf2e.sheet .choices__list--dropdown .choices__item.is-highlighted {
+    background: var(--dark-bg-tertiary, #1a1a2e) !important;
+    color: var(--text-primary, #e0e0ff) !important;
+}
+
 input[type="text"]:focus,
 input[type="number"]:focus,
 textarea:focus,
@@ -167,11 +218,184 @@ select:focus {
     background-color: transparent !important;
 }
 
+/* ===============================================
+   PF2E / SF2E Chat Card Button Fixes
+   Fix dark-on-dark text for damage, critical, and strike buttons
+   =============================================== */
+
+/* PF2E/SF2E chat card action buttons (damage, critical, etc.) */
+.chat-message .card-buttons button,
+.chat-message .card-buttons .button,
+.chat-message [data-action="strike-damage"],
+.chat-message [data-action="strike-critical"],
+.chat-message .strike-damage,
+.chat-message .strike-critical,
+.chat-message .chat-card .card-buttons button,
+.chat-message .message-content button,
+.chat-message .message-content .button {
+    background: var(--dark-bg-tertiary, #1a1a2e) !important;
+    color: var(--text-primary, #e0e0ff) !important;
+    border: 1px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+    text-shadow: none !important;
+    padding: 4px 8px;
+}
+
+.chat-message .card-buttons button:hover,
+.chat-message .card-buttons .button:hover,
+.chat-message [data-action="strike-damage"]:hover,
+.chat-message [data-action="strike-critical"]:hover,
+.chat-message .strike-damage:hover,
+.chat-message .strike-critical:hover,
+.chat-message .chat-card .card-buttons button:hover,
+.chat-message .message-content button:hover,
+.chat-message .message-content .button:hover {
+    background: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+    color: var(--dark-bg-primary, #0a0a0f) !important;
+    box-shadow: 0 0 10px var(--cyan-highlight, rgba(0, 255, 255, 0.4)) !important;
+}
+
+/* PF2E/SF2E specific inline check buttons and tags in chat */
+.chat-message .inline-check,
+.chat-message .action-glyph,
+.chat-message .pf2-icon,
+.chat-message span.action-glyph {
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+}
+
+/* PF2E/SF2E chat card header areas */
+.chat-message .card-header,
+.chat-message .card-header h3,
+.chat-message .card-header h4,
+.chat-message .card-content h3,
+.chat-message .card-content h4,
+.chat-message .message-content h3,
+.chat-message .message-content h4 {
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+    text-shadow: 0 0 5px currentColor;
+}
+
+/* PF2E/SF2E roll tags in chat (traits, tags) */
+.chat-message .tags .tag,
+.chat-message .trait-tags .tag,
+.chat-message .tag {
+    background: var(--dark-bg-tertiary, #1a1a2e) !important;
+    color: var(--text-primary, #e0e0ff) !important;
+    border: 1px solid var(--dark-border, #2a2a4a) !important;
+}
+
+/* PF2E/SF2E general text in chat messages */
+.chat-message .message-content,
+.chat-message .card-content,
+.chat-message p,
+.chat-message span,
+.chat-message label {
+    color: var(--text-primary, #e0e0ff) !important;
+}
+
+/* ===============================================
+   PF2E / SF2E Character Sheet Header Fixes
+   Fix dark-on-dark text in header sections
+   =============================================== */
+
+/* Character sheet header sections - ensure text is visible */
+.actor.sheet .header-details,
+.actor.sheet .header-details span,
+.actor.sheet .header-details label,
+.actor.sheet .char-header .details,
+.actor.sheet .char-header .details span,
+.actor.sheet .char-header .details label,
+.actor.sheet .sheet-header .details,
+.actor.sheet .sheet-header .details span,
+.actor.sheet .sheet-header .details label {
+    color: var(--text-primary, #e0e0ff) !important;
+}
+
+/* PF2E/SF2E attribute/modifier labels inside headers */
+.actor.sheet .attribute-modifiers label,
+.actor.sheet .attribute-modifiers span,
+.actor.sheet .attribute-modifiers .modifier,
+.actor.sheet .modifiers-list .modifier,
+.actor.sheet .char-header label,
+.actor.sheet .char-header span {
+    color: var(--text-primary, #e0e0ff) !important;
+}
+
+/* ===============================================
+   PF2E / SF2E Speeds Section Fix
+   Fix dark-on-dark text in the speeds display
+   =============================================== */
+
+/* Character sheet speeds section */
+.speeds,
+div.speeds,
+.actor.sheet .speeds,
+.actor.sheet div.speeds,
+.actor.sheet.character .speeds,
+.crb-style .speeds {
+    background: var(--dark-bg-secondary, #141420) !important;
+    color: var(--text-primary, #e0e0ff) !important;
+    border: 1px solid var(--dark-border, #2a2a4a) !important;
+    border-radius: 4px;
+}
+
+.speeds span,
+.speeds label,
+.speeds .speed-type,
+.speeds .speed-value,
+.speeds .speed,
+div.speeds span,
+div.speeds label,
+.actor.sheet .speeds span,
+.actor.sheet .speeds label,
+.actor.sheet .speeds .speed-type,
+.actor.sheet .speeds .speed-value {
+    color: var(--text-primary, #e0e0ff) !important;
+}
+
+.speeds .speed-label,
+.speeds .label,
+div.speeds .speed-label,
+.actor.sheet .speeds .speed-label {
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+    text-shadow: 0 0 3px currentColor;
+}
+
 /* Dialog windows */
 .dialog,
 .form {
     background: var(--dark-bg-primary, #0a0a0f) !important;
     border: 2px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff))))))) !important;
+}
+
+/* ===============================================
+   PF2E / SF2E General Label/Text Contrast Fixes
+   =============================================== */
+
+/* Ensure labels inside actor sheets are always visible */
+.actor.sheet label,
+.actor.sheet .label,
+.actor.sheet th,
+.actor.sheet .section-header,
+.actor.sheet .section-title {
+    color: var(--text-primary, #e0e0ff) !important;
+}
+
+/* PF2E/SF2E sidebar panel sections */
+.actor.sheet aside label,
+.actor.sheet aside span,
+.actor.sheet aside .sidebar-label {
+    color: var(--text-primary, #e0e0ff) !important;
+}
+
+/* PF2E/SF2E section headers within sheet body */
+.actor.sheet .section-container > header,
+.actor.sheet .section-container > header h3,
+.actor.sheet .section-body > header,
+.actor.sheet .strikes-list header,
+.actor.sheet .inventory header,
+.actor.sheet .spellcasting header {
+    color: var(--text-primary, #e0e0ff) !important;
+    background: var(--dark-bg-secondary, #141420) !important;
 }
 
 /* Scrollbars */
@@ -2045,4 +2269,149 @@ select:focus {
     padding: 12px !important;
     box-shadow: 0 0 30px var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, rgba(0,255,255,0.3)))))))) !important,
                 inset 0 0 20px rgba(255,255,255,0.05) !important;
+}
+
+/* ===============================================
+   Weapon Item Layout — Two-Row Design
+   Row 1: icon + name/details + attack buttons
+   Row 2: ammo dropdown + reload button (if applicable)
+   =============================================== */
+
+.sf1e-weapon-item {
+    flex-direction: column !important;
+    gap: 0 !important;
+    padding: 6px !important;
+}
+
+.sf1e-weapon-info-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.sf1e-weapon-info-row > img {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    border: 1px solid var(--dark-border, #2a2a4a);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+/* Attack row — holds the dice + MAP buttons inline */
+.sf1e-attack-row {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+/* Primary attack button (dice icon) */
+.sf1e-map-btn.sf1e-attack-primary {
+    width: 30px;
+    height: 28px;
+    font-size: 14px;
+}
+
+/* MAP penalty buttons — compact */
+.sf1e-map-btn.sf1e-map-secondary {
+    min-width: 28px;
+    height: 22px;
+    font-size: 10px;
+    padding: 1px 4px;
+}
+
+.sf1e-map-btn {
+    min-width: 28px;
+    height: 28px;
+    padding: 2px 5px;
+    background: var(--dark-bg-secondary, #141420);
+    border: 1px solid var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    border-radius: 4px;
+    color: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-family: 'Orbitron', 'Rajdhani', monospace;
+    white-space: nowrap;
+}
+
+.sf1e-map-btn:hover {
+    background: var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, #00ffff)))))));
+    color: var(--dark-bg-primary, #0a0a0f);
+    box-shadow: 0 0 10px var(--cyan-highlight, var(--orange-highlight, var(--green-highlight, var(--red-highlight, var(--blue-highlight, var(--purple-highlight, var(--highlight, rgba(0,255,255,0.5))))))));
+}
+
+.sf1e-map-btn:active {
+    transform: scale(0.95);
+}
+
+/* ===============================================
+   Ammo Row — dropdown + reload button
+   =============================================== */
+
+.sf1e-ammo-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    padding-top: 4px;
+    border-top: 1px solid var(--dark-border, rgba(42,42,74,0.5));
+    margin-top: 4px;
+}
+
+.sf1e-ammo-select {
+    flex: 1;
+    height: 24px;
+    padding: 0 4px;
+    font-size: 11px;
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--dark-bg-secondary, #141420) !important;
+    color: var(--text-primary, #e0e0ff) !important;
+    border: 1px solid var(--dark-border, #2a2a4a) !important;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 0;
+}
+
+.sf1e-ammo-select:focus {
+    border-color: var(--orange-highlight, var(--cyan-highlight, #ff9900)) !important;
+    outline: none;
+}
+
+.sf1e-ammo-select option {
+    background: var(--dark-bg-secondary, #141420) !important;
+    color: var(--text-primary, #e0e0ff) !important;
+}
+
+.sf1e-reload-btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: var(--dark-bg-secondary, #141420);
+    border: 1px solid var(--orange-highlight, var(--cyan-highlight, #ff9900));
+    border-radius: 4px;
+    color: var(--orange-highlight, var(--cyan-highlight, #ff9900));
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+.sf1e-reload-btn:hover {
+    background: var(--orange-highlight, var(--cyan-highlight, #ff9900));
+    color: var(--dark-bg-primary, #0a0a0f);
+    box-shadow: 0 0 10px var(--orange-highlight, rgba(255, 153, 0, 0.5));
+}
+
+.sf1e-reload-btn:active {
+    transform: scale(0.95);
 }

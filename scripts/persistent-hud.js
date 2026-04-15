@@ -830,11 +830,11 @@ export class PersistentHUD {
                     }
                 });
 
-                // Weapon click to open sheet (click anywhere on weapon except roll button/toggle)
+                // Weapon click to open sheet (click anywhere on weapon except roll button/toggle/map/reload)
                 sidebarDiv.find('.sf1e-sidebar-item').on('click', (e) => {
                     try {
-                        // Don't trigger if clicking on roll button or toggle
-                        if ($(e.target).closest('.sf1e-item-roll, .sf1e-weapon-toggle').length > 0) {
+                        // Don't trigger if clicking on roll button, toggle, MAP button, reload button, or ammo select
+                        if ($(e.target).closest('.sf1e-item-roll, .sf1e-weapon-toggle, .sf1e-map-btn, .sf1e-reload-btn, .sf1e-ammo-select, .sf1e-ammo-row').length > 0) {
                             return;
                         }
 
@@ -851,11 +851,40 @@ export class PersistentHUD {
                     }
                 });
 
-                // Weapon attack roll handler
+                // Weapon attack roll handler (no MAP - single roll button)
                 sidebarDiv.find('.sf1e-item-roll').on('click', async (e) => {
                     e.stopPropagation();
                     const itemId = $(e.currentTarget).closest('.sf1e-sidebar-item').data('item-id');
-                    await this._rollWeaponAttack(itemId);
+                    await this._rollWeaponAttack(itemId, 0);
+                });
+
+                // MAP button handlers (SF2E)
+                sidebarDiv.find('.sf1e-map-btn').on('click', async (e) => {
+                    e.stopPropagation();
+                    const mapIndex = parseInt($(e.currentTarget).data('map-index')) || 0;
+                    const itemId = $(e.currentTarget).closest('.sf1e-sidebar-item').data('item-id');
+                    await this._rollWeaponAttack(itemId, mapIndex);
+                });
+
+                // Reload button handler (SF2E)
+                sidebarDiv.find('.sf1e-reload-btn').on('click', async (e) => {
+                    e.stopPropagation();
+                    const weaponId = $(e.currentTarget).data('weapon-id');
+                    await this._reloadWeapon(weaponId);
+                });
+
+                // Ammo dropdown change handler (SF2E)
+                sidebarDiv.find('.sf1e-ammo-select').on('change', async (e) => {
+                    e.stopPropagation();
+                    const weaponId = $(e.currentTarget).data('weapon-id');
+                    const ammoId = $(e.currentTarget).val();
+                    if (weaponId && ammoId) {
+                        await this._setWeaponAmmo(weaponId, ammoId);
+                    }
+                });
+                // Prevent ammo dropdown clicks from propagating
+                sidebarDiv.find('.sf1e-ammo-select').on('click mousedown', (e) => {
+                    e.stopPropagation();
                 });
                 break;
             case 'spells':
@@ -1051,6 +1080,9 @@ export class PersistentHUD {
                 ammoInfo = this._buildSF1EAmmoInfo(weapon);
             }
 
+            // MAP and reload info — SF2E specific
+            const strikeData = SystemAdapter.getStrikeData(this.actor, weapon);
+
             // Check for attachments (upgrades loaded on the weapon)
             let attachments = weapon.system.container?.contents || [];
 
@@ -1065,28 +1097,78 @@ export class PersistentHUD {
             const hasAttachments = attachments.length > 0;
             const isExpanded = this.expandedWeapons && this.expandedWeapons.has(weapon.id);
 
+            // Get available ammunition for dropdown (SF2E)
+            const availableAmmo = SystemAdapter.isSF2E ? SystemAdapter.getAvailableAmmo(this.actor) : [];
+
+            // Build ammo dropdown HTML for SF2E
+            let ammoDropdownHTML = '';
+            if (SystemAdapter.isSF2E && availableAmmo.length > 0) {
+                ammoDropdownHTML = `
+                    <div class="sf1e-ammo-row">
+                        <select class="sf1e-ammo-select" data-weapon-id="${weapon.id}" title="Select ammunition">
+                            <option value="">— Ammo —</option>
+                            ${availableAmmo.map(a => `
+                                <option value="${a.id}"${strikeData.ammoName === a.name ? ' selected' : ''}>${a.name} (${a.quantity})</option>
+                            `).join('')}
+                        </select>
+                        <button class="sf1e-reload-btn" data-weapon-id="${weapon.id}" title="Reload (1 action)">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                `;
+            }
+
+            // Build attack buttons HTML — compact layout
+            let attackButtonsHTML = '';
+            if (SystemAdapter.isSF2E && strikeData.hasMAP) {
+                const map1Label = strikeData.isAgile ? '-4' : '-5';
+                const map2Label = strikeData.isAgile ? '-8' : '-10';
+                attackButtonsHTML = `
+                    <div class="sf1e-attack-row">
+                        <button class="sf1e-map-btn sf1e-attack-primary" data-map-index="0" title="Attack">
+                            <i class="fas fa-dice-d20"></i>
+                        </button>
+                        <button class="sf1e-map-btn sf1e-map-secondary" data-map-index="1" title="MAP ${map1Label}">
+                            ${map1Label}
+                        </button>
+                        <button class="sf1e-map-btn sf1e-map-secondary" data-map-index="2" title="MAP ${map2Label}">
+                            ${map2Label}
+                        </button>
+                    </div>
+                `;
+            } else {
+                attackButtonsHTML = `
+                    <div class="sf1e-attack-row">
+                        <div class="sf1e-item-roll" title="Attack">
+                            <i class="fas fa-dice-d20"></i>
+                        </div>
+                    </div>
+                `;
+            }
+
             let weaponHTML = `
                 <div class="sf1e-sidebar-item sf1e-weapon-item" data-item-id="${weapon.id}">
-                    ${hasAttachments ? `
-                        <button class="sf1e-weapon-toggle" data-weapon-id="${weapon.id}" title="Toggle attachments">
-                            <i class="fas fa-chevron-${isExpanded ? 'down' : 'right'}"></i>
-                        </button>
-                    ` : '<div class="sf1e-weapon-toggle-placeholder"></div>'}
-                    <img src="${weapon.img}" alt="${weapon.name}">
-                    <div class="sf1e-item-info">
-                        <div class="sf1e-item-name">
-                            ${weapon.name}
-                            ${hasAttachments ? `<span class="sf1e-weapon-attachments-badge" title="Attachments">${attachments.length}</span>` : ''}
+                    <div class="sf1e-weapon-info-row">
+                        ${hasAttachments ? `
+                            <button class="sf1e-weapon-toggle" data-weapon-id="${weapon.id}" title="Toggle attachments">
+                                <i class="fas fa-chevron-${isExpanded ? 'down' : 'right'}"></i>
+                            </button>
+                        ` : '<div class="sf1e-weapon-toggle-placeholder"></div>'}
+                        <img src="${weapon.img}" alt="${weapon.name}">
+                        <div class="sf1e-item-info">
+                            <div class="sf1e-item-name">
+                                ${weapon.name}
+                                ${hasAttachments ? `<span class="sf1e-weapon-attachments-badge" title="Attachments">${attachments.length}</span>` : ''}
+                            </div>
+                            <div class="sf1e-item-details">
+                                <span>${damage}</span>
+                                <span>${range}ft</span>
+                                ${ammoInfo}
+                            </div>
                         </div>
-                        <div class="sf1e-item-details">
-                            <span>${damage}</span>
-                            <span>${range}ft</span>
-                            ${ammoInfo}
-                        </div>
+                        ${attackButtonsHTML}
                     </div>
-                    <div class="sf1e-item-roll" title="Attack">
-                        <i class="fas fa-dice-d20"></i>
-                    </div>
+                    ${ammoDropdownHTML}
                 </div>
             `;
 
@@ -1790,7 +1872,7 @@ export class PersistentHUD {
         return html;
     }
 
-    async _rollWeaponAttack(itemId) {
+    async _rollWeaponAttack(itemId, mapIndex = 0) {
         if (!this.actor) return;
 
         const weapon = this.actor.items.get(itemId);
@@ -1799,8 +1881,61 @@ export class PersistentHUD {
             return;
         }
 
-        console.log('SF1E-HUD | Rolling weapon attack:', weapon.name);
-        await SystemAdapter.rollWeaponAttack(this.actor, weapon);
+        console.log('SF1E-HUD | Rolling weapon attack:', weapon.name, 'MAP index:', mapIndex);
+        await SystemAdapter.rollWeaponAttack(this.actor, weapon, mapIndex);
+    }
+
+    async _reloadWeapon(weaponId) {
+        if (!this.actor) return;
+
+        const weapon = this.actor.items.get(weaponId);
+        if (!weapon) {
+            console.warn('SF1E-HUD | Weapon not found for reload:', weaponId);
+            return;
+        }
+
+        console.log('SF1E-HUD | Reloading weapon:', weapon.name);
+        await SystemAdapter.reloadWeapon(this.actor, weapon);
+    }
+
+    async _setWeaponAmmo(weaponId, ammoId) {
+        if (!this.actor) return;
+
+        const weapon = this.actor.items.get(weaponId);
+        if (!weapon) {
+            console.warn('SF1E-HUD | Weapon not found for ammo set:', weaponId);
+            return;
+        }
+
+        const ammoItem = this.actor.items.get(ammoId);
+        if (!ammoItem) {
+            console.warn('SF1E-HUD | Ammo item not found:', ammoId);
+            return;
+        }
+
+        console.log('SF1E-HUD | Setting ammo for', weapon.name, 'to', ammoItem.name);
+
+        // Try to set the ammunition on the weapon through various paths
+        try {
+            // Path 1: weapon.system.ammunition.id (PF2E standard)
+            if (weapon.system.ammunition !== undefined) {
+                await weapon.update({ 'system.ammunition.id': ammoId });
+                ui.notifications.info(`${weapon.name}: loaded ${ammoItem.name}`);
+                return;
+            }
+            // Path 2: weapon.system.selectedAmmo.id
+            if (weapon.system.selectedAmmo !== undefined) {
+                await weapon.update({ 'system.selectedAmmo.id': ammoId });
+                ui.notifications.info(`${weapon.name}: loaded ${ammoItem.name}`);
+                return;
+            }
+            // Path 3: create the ammunition property
+            await weapon.update({ 'system.ammunition.id': ammoId });
+            ui.notifications.info(`${weapon.name}: loaded ${ammoItem.name}`);
+        } catch (e) {
+            console.warn('SF1E-HUD | Could not set ammunition:', e);
+            ui.notifications.warn(`Could not set ammunition for ${weapon.name}`);
+        }
     }
 
     async _castSpell(itemId) {

@@ -464,13 +464,85 @@ export class SystemAdapter {
                 ]
             };
         }
-        // SF2E / PF2E
+        // SF2E — uses Credstick system (an item the player owns with a settable value)
+        // Look for credstick items in the actor's inventory
+        const credsticks = actor.items.filter(i => {
+            const name = (i.name || '').toLowerCase();
+            return name.includes('credstick') || name.includes('credit stick');
+        });
+
+        if (credsticks.length > 0) {
+            const display = [];
+            let totalCredits = 0;
+            for (const stick of credsticks) {
+                // The credstick value is in price.value.sp — in SF2E, sp = credits
+                let value = 0;
+
+                // Check price object — In SF2E, price.value.sp IS the credit amount.
+                // PF2E stores price as { value: { pp: N, gp: N, sp: N, cp: N } }
+                // For credsticks: sp = credits, gp = 10 credits, pp = 100 credits
+                const price = stick.system.price?.value;
+                if (price && typeof price === 'object') {
+                    value = (price.pp ?? 0) * 100 + (price.gp ?? 0) * 10 + (price.sp ?? 0) + Math.round((price.cp ?? 0) / 10);
+                } else if (typeof price === 'number') {
+                    value = price;
+                }
+
+                // If price was 0, check other possible locations
+                if (value === 0) {
+                    // Direct value property
+                    if (stick.system.value?.value != null) {
+                        value = parseInt(stick.system.value.value) || 0;
+                    } else if (stick.system.value != null && typeof stick.system.value !== 'object') {
+                        value = parseInt(stick.system.value) || 0;
+                    }
+                }
+
+                // Check flags — some implementations store credits in flags
+                if (value === 0 && stick.flags) {
+                    const sf2eFlags = stick.flags.sf2e ?? stick.flags.pf2e ?? {};
+                    if (sf2eFlags.credits != null) {
+                        value = parseInt(sf2eFlags.credits) || 0;
+                    }
+                }
+
+                // Check description for a numeric credit value as last resort
+                // e.g., description might say "Value: 500 credits"
+                if (value === 0) {
+                    const desc = stick.system.description?.value || '';
+                    const creditMatch = desc.match(/(\d[\d,]*)\s*credit/i);
+                    if (creditMatch) {
+                        value = parseInt(creditMatch[1].replace(/,/g, '')) || 0;
+                    }
+                }
+
+                // Check quantity — sometimes credstick "quantity" IS the credit amount
+                // Only use quantity if it's notably large (> 1), as qty=1 likely means 1 stick
+                if (value === 0) {
+                    const qty = stick.system.quantity ?? 0;
+                    if (qty > 1) {
+                        value = qty;
+                    }
+                }
+
+                totalCredits += value;
+            }
+            display.push({ label: 'Credits', value: totalCredits, icon: 'fa-credit-card' });
+            return { display };
+        }
+
+        // Fallback: check traditional PF2E currency (in case no credsticks found)
         const c = actor.system.currency || {};
         const display = [];
-        if (c.pp) display.push({ label: 'PP', value: c.pp, icon: 'fa-gem' });
-        display.push({ label: 'GP', value: c.gp ?? 0, icon: 'fa-coins' });
-        if (c.sp) display.push({ label: 'SP', value: c.sp, icon: 'fa-coins' });
-        if (c.cp) display.push({ label: 'CP', value: c.cp, icon: 'fa-coins' });
+        // Convert PF2E coin denominations to credit display for SF2E
+        const totalCoins = (c.pp ?? 0) * 10 + (c.gp ?? 0) + (c.sp ?? 0) / 10 + (c.cp ?? 0) / 100;
+        if (totalCoins > 0) {
+            display.push({ label: 'Credits', value: Math.round(totalCoins), icon: 'fa-credit-card' });
+        }
+        // If no currency at all, show Credits: 0
+        if (display.length === 0) {
+            display.push({ label: 'Credits', value: 0, icon: 'fa-credit-card' });
+        }
         return { display };
     }
 
@@ -678,8 +750,12 @@ export class SystemAdapter {
         return null;
     }
 
-    /** Roll a weapon attack */
-    static async rollWeaponAttack(actor, weapon) {
+    /** Roll a weapon attack
+     * @param {Actor} actor
+     * @param {Item} weapon
+     * @param {number} [mapIndex=0] — MAP variant index: 0 = no MAP, 1 = MAP-5 (or -4 agile), 2 = MAP-10 (or -8 agile). SF2E only.
+     */
+    static async rollWeaponAttack(actor, weapon, mapIndex = 0) {
         if (this.isSF1E) {
             if (typeof weapon.roll === 'function') return weapon.roll();
             if (typeof weapon.rollAttack === 'function') return weapon.rollAttack();
@@ -693,10 +769,16 @@ export class SystemAdapter {
             const strike = actions.find(s => s.item?.id === weapon.id)
                         || actions.find(s => s.item?.name === weapon.name);
             if (strike) {
-                // Use the first variant (no MAP) roll
-                if (typeof strike.roll === 'function') return strike.roll();
-                if (typeof strike.attack === 'function') return strike.attack();
-                if (strike.variants?.[0]?.roll) return strike.variants[0].roll();
+                // Use the requested MAP variant (0 = no MAP, 1 = MAP -5/-4, 2 = MAP -10/-8)
+                const variant = strike.variants?.[mapIndex];
+                if (variant?.roll) return variant.roll({ event: new MouseEvent('click') });
+                // Fallback to basic roll methods
+                if (mapIndex === 0) {
+                    if (typeof strike.roll === 'function') return strike.roll();
+                    if (typeof strike.attack === 'function') return strike.attack();
+                }
+                // If specific MAP variant not found, fall back to first variant
+                if (strike.variants?.[0]?.roll) return strike.variants[0].roll({ event: new MouseEvent('click') });
             }
         }
         // Fallback — use rollActionMacro if available
@@ -710,6 +792,194 @@ export class SystemAdapter {
         }
         // Last resort — toMessage creates a chat card
         if (typeof weapon.toMessage === 'function') return weapon.toMessage();
+        return null;
+    }
+
+    /**
+     * Get strike data for a weapon (SF2E only) including MAP labels and ammo info.
+     * @returns {{ hasMAP: boolean, isAgile: boolean, variants: Array<{label: string, modifier: string}>, hasAmmo: boolean, ammoName: string|null, ammoCount: number|null }}
+     */
+    static getStrikeData(actor, weapon) {
+        if (this.isSF1E) {
+            return { hasMAP: false, isAgile: false, variants: [], hasAmmo: false, ammoName: null, ammoCount: null };
+        }
+
+        const result = { hasMAP: false, isAgile: false, variants: [], hasAmmo: false, ammoName: null, ammoCount: null };
+
+        // Check for Agile trait to determine MAP penalties
+        const traits = weapon.system.traits?.value || [];
+        result.isAgile = traits.some(t => typeof t === 'string' && t.toLowerCase() === 'agile');
+
+        // Check for ammunition — SF2E weapons use an ammunition type selector
+        // in their details, and ammo is attached to the weapon as an item
+        const ammoType = weapon.system.ammunition?.type
+                      ?? weapon.system.selectedAmmo?.type
+                      ?? weapon.system.usage?.type;
+        const loadedAmmoId = weapon.system.ammunition?.id
+                          ?? weapon.system.selectedAmmo?.id;
+
+        // Also check if weapon has ammo items attached via container contents
+        const weaponContents = weapon.system.container?.contents || [];
+        const ammoAttachments = weaponContents
+            .map(c => {
+                const id = (typeof c === 'object') ? (c._id || c.id) : c;
+                return id ? actor.items.get(id) : null;
+            })
+            .filter(i => i && (i.type === 'consumable' || i.type === 'ammunition' || i.type === 'ammo'));
+
+        if (loadedAmmoId) {
+            // Weapon has a specific ammo item selected
+            const ammoItem = actor.items.get(loadedAmmoId);
+            if (ammoItem) {
+                result.hasAmmo = true;
+                result.ammoName = ammoItem.name;
+                result.ammoCount = ammoItem.system.quantity ?? ammoItem.system.uses?.value ?? null;
+            }
+        } else if (ammoAttachments.length > 0) {
+            // Weapon has ammo attached via container
+            result.hasAmmo = true;
+            result.ammoName = ammoAttachments.map(a => a.name).join(', ');
+            result.ammoCount = ammoAttachments.reduce((sum, a) =>
+                sum + (a.system.quantity ?? a.system.uses?.value ?? 0), 0);
+        } else if (ammoType) {
+            // Weapon has an ammo type configured but no specific ammo loaded
+            result.hasAmmo = true;
+            result.ammoName = ammoType;
+            result.ammoCount = 0;
+        }
+
+        // Build MAP variant info
+        // In PF2E/SF2E, all weapons have MAP. Agile = -4/-8, normal = -5/-10
+        const map1 = result.isAgile ? -4 : -5;
+        const map2 = result.isAgile ? -8 : -10;
+
+        const actions = actor.system.actions;
+        if (Array.isArray(actions)) {
+            const strike = actions.find(s => s.item?.id === weapon.id)
+                        || actions.find(s => s.item?.name === weapon.name);
+            if (strike?.variants && strike.variants.length > 1) {
+                result.hasMAP = true;
+                result.variants = strike.variants.map((v, i) => {
+                    if (i === 0) {
+                        return { label: 'Attack', modifier: v.modifier != null ? String(v.modifier) : '' };
+                    } else if (i === 1) {
+                        return { label: `MAP ${map1}`, modifier: v.modifier != null ? String(v.modifier) : String(map1) };
+                    } else {
+                        return { label: `MAP ${map2}`, modifier: v.modifier != null ? String(v.modifier) : String(map2) };
+                    }
+                });
+            } else {
+                // No strike variants found, but still show MAP buttons with calculated penalties
+                result.hasMAP = true;
+                result.variants = [
+                    { label: 'Attack', modifier: '' },
+                    { label: `MAP ${map1}`, modifier: String(map1) },
+                    { label: `MAP ${map2}`, modifier: String(map2) }
+                ];
+            }
+        } else {
+            // No actions array — still provide MAP info
+            result.hasMAP = true;
+            result.variants = [
+                { label: 'Attack', modifier: '' },
+                { label: `MAP ${map1}`, modifier: String(map1) },
+                { label: `MAP ${map2}`, modifier: String(map2) }
+            ];
+        }
+
+        return result;
+    }
+
+    /**
+     * Get available ammunition items from the actor's inventory.
+     * Returns all consumable/ammo items that could be used as ammunition.
+     * @returns {Array<{id: string, name: string, quantity: number, img: string, type: string}>}
+     */
+    static getAvailableAmmo(actor) {
+        if (!actor) return [];
+        const ammoItems = actor.items.filter(i => {
+            // Include ammo, consumable items that look like ammunition
+            if (i.type === 'ammo' || i.type === 'ammunition') return true;
+            if (i.type === 'consumable') {
+                // Check if it's actually ammunition
+                const category = i.system.category ?? i.system.consumableType?.value ?? '';
+                if (category === 'ammo' || category === 'ammunition') return true;
+                // Check traits for ammo-related keywords
+                const traits = i.system.traits?.value || [];
+                if (traits.some(t => typeof t === 'string' && (t.includes('ammo') || t.includes('ammunition')))) return true;
+            }
+            return false;
+        });
+        return ammoItems.map(i => ({
+            id: i.id,
+            name: i.name,
+            quantity: i.system.quantity ?? i.system.uses?.value ?? 0,
+            img: i.img || '',
+            type: i.type
+        })).sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    /**
+     * Perform a reload/interact action for a weapon (SF2E).
+     * In SF2E, weapons use ammunition items attached to them.
+     * Reloading costs 1 Interact action.
+     */
+    static async reloadWeapon(actor, weapon) {
+        if (this.isSF1E) {
+            ui.notifications.info(`${weapon.name} reloaded.`);
+            return null;
+        }
+
+        // Try to find the corresponding strike and use its reload method
+        const actions = actor.system.actions;
+        if (Array.isArray(actions)) {
+            const strike = actions.find(s => s.item?.id === weapon.id)
+                        || actions.find(s => s.item?.name === weapon.name);
+            // PF2E strikes may expose a reload() method
+            if (strike?.reload && typeof strike.reload === 'function') {
+                try {
+                    return await strike.reload();
+                } catch (e) {
+                    console.warn('SF1E-HUD | strike.reload() failed:', e);
+                }
+            }
+        }
+
+        // Try PF2E system actions
+        const systemActions = game.sf2e?.actions ?? game.pf2e?.actions;
+        if (systemActions?.reload) {
+            try {
+                return await systemActions.reload({ actors: [actor], item: weapon });
+            } catch (e) {
+                console.warn('SF1E-HUD | system reload action failed:', e);
+            }
+        }
+        if (systemActions?.interact) {
+            try {
+                return await systemActions.interact({ actors: [actor], item: weapon });
+            } catch (e) {
+                console.warn('SF1E-HUD | system interact action failed:', e);
+            }
+        }
+
+        // Fallback: post a chat message indicating reload
+        const strikeData = this.getStrikeData(actor, weapon);
+        const ammoInfo = strikeData.ammoName ? ` with ${strikeData.ammoName}` : '';
+        const speaker = ChatMessage.getSpeaker({ actor });
+        await ChatMessage.create({
+            speaker,
+            content: `<div class="pf2e chat-card action-card">
+                <header class="card-header">
+                    <h3><i class="fas fa-sync-alt"></i> Reload</h3>
+                </header>
+                <div class="card-content">
+                    <p><strong>${actor.name}</strong> reloads <strong>${weapon.name}</strong>${ammoInfo}.</p>
+                    <p class="action-cost"><span class="pf2-icon">1</span> Interact action</p>
+                </div>
+            </div>`,
+            type: CONST.CHAT_MESSAGE_TYPES?.EMOTE ?? 2
+        });
+        ui.notifications.info(`${actor.name} reloads ${weapon.name} (1 action).`);
         return null;
     }
 
