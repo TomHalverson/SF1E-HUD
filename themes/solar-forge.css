@@ -1,0 +1,222 @@
+/* Starfinder Solar Forge Theme */
+/* Obsidian panels with ember orange, gold, and plasma-red accents */
+:root {
+  --dark-bg-primary: #130b08;
+  --dark-bg-secondary: #20120e;
+  --dark-bg-tertiary: #2d1a14;
+  --dark-border: #6d3a22;
+  --text-primary: #fff3e6;
+  --text-secondary: #e9c8ab;
+  --text-muted: #b48767;
+
+  --orange-highlight: #ff9b42;
+  --orange-highlight-hover: #ffb869;
+  --orange-highlight-dark: #d66a1f;
+  --yellow-highlight: #ffd166;
+  --yellow-highlight-dark: #d6a437;
+  --red-highlight: #ff6b57;
+  --red-highlight-dark: #cf4439;
+  --magenta-highlight: #ff8b7b;
+  --pink-highlight: #ffb199;
+  --highlight: #ff9b42;
+}
+
+body {
+  --color-shadow-primary: rgba(255, 155, 66, 0.26);
+}
+
+.window-header,
+.sheet-header,
+.chat-message {
+  position: relative;
+  overflow: hidden;
+}
+
+.sf1e-persistent-hud {
+  overflow: visible;
+}
+
+.window-header::before,
+.sheet-header::before,
+.sf1e-persistent-hud::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255, 209, 102, 0.14), transparent 28%),
+    radial-gradient(circle at 86% 16%, rgba(255, 107, 87, 0.14), transparent 28%),
+    linear-gradient(120deg, rgba(255, 255, 255, 0.04), transparent 45%);
+}
+
+.window-content,
+.sheet-body,
+.dialog .window-content,
+.chat-message {
+  background:
+    linear-gradient(180deg, rgba(32, 18, 14, 0.96) 0%, rgba(19, 11, 8, 0.98) 100%) !important;
+}
+
+.window-content,
+.sheet-body,
+.dialog .window-content,
+.chat-message,
+.actor.sheet,
+.actor.sheet p,
+.actor.sheet li,
+.actor.sheet label,
+.actor.sheet td,
+.actor.sheet th,
+.actor.sheet small,
+.actor.sheet .hint,
+.actor.sheet .notes,
+.actor.sheet .value,
+.actor.sheet .tag,
+.actor.sheet .item-summary,
+.actor.sheet .section-body {
+  color: var(--text-primary) !important;
+}
+
+.window-content a,
+.actor.sheet a,
+.chat-message a {
+  color: var(--yellow-highlight) !important;
+}
+
+.window-content a:hover,
+.actor.sheet a:hover,
+.chat-message a:hover {
+  color: var(--magenta-highlight) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-secondary) !important;
+  opacity: 1;
+}
+
+.actor.sheet .tab,
+.actor.sheet .section-container,
+.actor.sheet .section-body,
+.actor.sheet aside,
+.actor.sheet .inventory-list,
+.actor.sheet .items-list,
+.actor.sheet .spellbook,
+.actor.sheet .card-content,
+.actor.sheet table tbody tr,
+.actor.sheet .inventory-list > li,
+.actor.sheet .items-list > li {
+  background-color: var(--dark-bg-secondary) !important;
+  border-color: var(--dark-border) !important;
+}
+
+.actor.sheet .inventory-list > li:nth-child(odd),
+.actor.sheet .items-list > li:nth-child(odd),
+.actor.sheet table tbody tr:nth-child(odd) {
+  background-color: var(--dark-bg-tertiary) !important;
+}
+
+.window-header,
+.sheet-header {
+  border-bottom-color: var(--orange-highlight) !important;
+  box-shadow: 0 0 18px rgba(255, 155, 66, 0.16) !important;
+}
+
+.window-header .window-title,
+.sheet-header h1,
+.sheet-header .charname input {
+  color: var(--yellow-highlight) !important;
+  text-shadow: 0 0 10px rgba(255, 209, 102, 0.35) !important;
+}
+
+.tabs .item.active,
+.sfrpg.sheet.actor nav.sheet-tabs .item.active,
+.pf2e.sheet nav.sheet-navigation .item.active {
+  color: var(--yellow-highlight) !important;
+  border-bottom-color: var(--orange-highlight) !important;
+  box-shadow: inset 0 -2px 0 0 var(--orange-highlight);
+}
+
+.window-content button:hover,
+.window-content .button:hover,
+.dialog button:hover,
+.dialog .button:hover,
+.sfrpg.sheet.actor .rollable:hover,
+.pf2e.sheet .rollable:hover {
+  color: #fffdf8 !important;
+  background: linear-gradient(135deg, rgba(214, 106, 31, 0.42), rgba(207, 68, 57, 0.36)) !important;
+  border-color: var(--orange-highlight) !important;
+  box-shadow: 0 0 15px rgba(255, 155, 66, 0.25) !important;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+  background: rgba(45, 26, 20, 0.96) !important;
+}
+
+.sf1e-persistent-hud {
+  background:
+    linear-gradient(160deg, rgba(28, 16, 12, 0.95), rgba(15, 9, 7, 0.98)) !important;
+  border-color: rgba(255, 155, 66, 0.32) !important;
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 209, 102, 0.14),
+    0 0 28px rgba(255, 107, 87, 0.12) !important;
+}
+
+.sf1e-hud-main,
+.sf1e-hud-sidebar,
+.sf1e-sidebar-item,
+.sf1e-save-stat,
+.sf1e-armor-stat,
+.sf1e-quick-btn,
+.sf1e-hud-bar,
+.sf1e-skills-search-input {
+  background: rgba(39, 23, 18, 0.9) !important;
+  border-color: rgba(255, 155, 66, 0.18) !important;
+}
+
+.sf1e-sidebar-btn,
+.sf1e-item-roll-btn,
+.sf1e-spell-cast-btn,
+.sf1e-skill-action-roll,
+.sf1e-weapon-attack-btn,
+.sf1e-reload-btn {
+  background: linear-gradient(135deg, rgba(45, 26, 20, 0.96), rgba(59, 31, 20, 0.96)) !important;
+  border-color: rgba(255, 155, 66, 0.35) !important;
+}
+
+.sf1e-sidebar-btn:hover,
+.sf1e-sidebar-btn.active,
+.sf1e-item-roll-btn:hover,
+.sf1e-spell-cast-btn:hover,
+.sf1e-skill-action-roll:hover,
+.sf1e-weapon-attack-btn:hover,
+.sf1e-reload-btn:hover {
+  color: #fffdf8 !important;
+  background: linear-gradient(135deg, rgba(214, 106, 31, 0.46), rgba(207, 68, 57, 0.34)) !important;
+  box-shadow: 0 0 16px rgba(255, 155, 66, 0.22) !important;
+}
+
+.sf1e-sidebar-section-header,
+.sf1e-skill-name,
+.sf1e-item-name,
+.sf1e-spell-name,
+.sf1e-weapon-name {
+  color: var(--yellow-highlight) !important;
+}
+
+.sf1e-hud-bar-fill,
+.sf1e-resource-fill,
+.sfrpg.sheet.actor .resource-bar-fill,
+.sfrpg.sheet.actor .bar-fill {
+  background: linear-gradient(90deg, #d66a1f, #ff9b42 46%, #ffd166 100%) !important;
+  box-shadow: 0 0 12px rgba(255, 155, 66, 0.26) !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(255, 209, 102, 0.74), rgba(255, 107, 87, 0.74)) !important;
+  border: 1px solid rgba(19, 11, 8, 0.8) !important;
+}

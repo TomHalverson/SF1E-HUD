@@ -98,46 +98,33 @@ Hooks.on('controlToken', (token, controlled) => {
 Hooks.on('updateActor', (actor, data, options) => {
     if (game.sf1eHUD?.persistentHUD && game.sf1eHUD.persistentHUD.actor?.id === actor.id) {
         console.log('SF1E-HUD | Actor updated, refreshing HUD');
-        // Check if the active sidebar is conditions and refresh it
-        if (game.sf1eHUD.persistentHUD.activeSidebar === 'conditions') {
-            game.sf1eHUD.persistentHUD._buildSidebar('conditions');
-        }
-        // Also update the button badges (condition count, etc.)
-        game.sf1eHUD.persistentHUD._updateButtons();
+        game.sf1eHUD.persistentHUD._updateDisplay();
+        game.sf1eHUD.persistentHUD._scheduleSidebarRefresh();
     }
 });
 
 // Update HUD when embedded items change (actorResource items for class resources, conditions, etc.)
 Hooks.on('updateItem', (item, data, options) => {
     if (game.sf1eHUD?.persistentHUD && item.parent?.id === game.sf1eHUD.persistentHUD.actor?.id) {
-        if (item.type === 'actorResource' || item.type === 'condition') {
-            console.log('SF1E-HUD | Embedded item updated, refreshing HUD');
-            game.sf1eHUD.persistentHUD._updateDisplay();
-        }
+        console.log('SF1E-HUD | Embedded item updated, refreshing HUD');
+        game.sf1eHUD.persistentHUD._updateDisplay();
+        game.sf1eHUD.persistentHUD._scheduleSidebarRefresh();
     }
 });
 
 // Update HUD when embedded items are created or deleted (SF2E conditions, etc.)
 Hooks.on('createItem', (item, options, userId) => {
     if (game.sf1eHUD?.persistentHUD && item.parent?.id === game.sf1eHUD.persistentHUD.actor?.id) {
-        if (item.type === 'condition') {
-            console.log('SF1E-HUD | Condition added, refreshing HUD');
-            game.sf1eHUD.persistentHUD._updateButtons();
-            if (game.sf1eHUD.persistentHUD.activeSidebar === 'conditions') {
-                game.sf1eHUD.persistentHUD._buildSidebar('conditions');
-            }
-        }
+        console.log('SF1E-HUD | Embedded item created, refreshing HUD');
+        game.sf1eHUD.persistentHUD._updateDisplay();
+        game.sf1eHUD.persistentHUD._scheduleSidebarRefresh();
     }
 });
 
 Hooks.on('deleteItem', (item, options, userId) => {
     if (game.sf1eHUD?.persistentHUD && item.parent?.id === game.sf1eHUD.persistentHUD.actor?.id) {
-        if (item.type === 'condition') {
-            console.log('SF1E-HUD | Condition removed, refreshing HUD');
-            game.sf1eHUD.persistentHUD._updateButtons();
-            if (game.sf1eHUD.persistentHUD.activeSidebar === 'conditions') {
-                game.sf1eHUD.persistentHUD._buildSidebar('conditions');
-            }
-        }
+        console.log('SF1E-HUD | Embedded item deleted, refreshing HUD');
+        game.sf1eHUD.persistentHUD._updateDisplay();
+        game.sf1eHUD.persistentHUD._scheduleSidebarRefresh();
     }
 });

@@ -1,0 +1,231 @@
+/* Starfinder Holo Interface Theme */
+/* Sterile sci-fi glass panels with icy cyan and mint highlights */
+:root {
+  --dark-bg-primary: #07131b;
+  --dark-bg-secondary: #0d202b;
+  --dark-bg-tertiary: #123140;
+  --dark-border: #2e6b78;
+  --text-primary: #edfdfd;
+  --text-secondary: #b9e8e6;
+  --text-muted: #7eafb0;
+
+  --cyan-highlight: #74f7f2;
+  --cyan-dark: #37d6d0;
+  --blue-highlight: #8ad9ff;
+  --blue-highlight-dark: #59b1d9;
+  --green-highlight: #93ffc8;
+  --green-highlight-dark: #52d99c;
+  --highlight: #74f7f2;
+  --magenta-highlight: #9de8ff;
+  --pink-highlight: #c7ffff;
+}
+
+body {
+  --color-shadow-primary: rgba(116, 247, 242, 0.24);
+}
+
+.window-header,
+.sheet-header,
+.chat-message {
+  position: relative;
+  overflow: hidden;
+}
+
+.sf1e-persistent-hud {
+  overflow: visible;
+}
+
+.window-header::before,
+.sheet-header::before,
+.sf1e-persistent-hud::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.08), transparent 38%),
+    radial-gradient(circle at 12% 22%, rgba(116, 247, 242, 0.16), transparent 26%),
+    radial-gradient(circle at 84% 16%, rgba(147, 255, 200, 0.12), transparent 24%);
+}
+
+.window-content,
+.sheet-body,
+.dialog .window-content,
+.chat-message {
+  background:
+    linear-gradient(180deg, rgba(13, 32, 43, 0.96) 0%, rgba(7, 19, 27, 0.98) 100%) !important;
+}
+
+.window-content,
+.sheet-body,
+.dialog .window-content,
+.chat-message,
+.actor.sheet,
+.actor.sheet p,
+.actor.sheet li,
+.actor.sheet label,
+.actor.sheet td,
+.actor.sheet th,
+.actor.sheet small,
+.actor.sheet .hint,
+.actor.sheet .notes,
+.actor.sheet .value,
+.actor.sheet .tag,
+.actor.sheet .item-summary,
+.actor.sheet .section-body {
+  color: var(--text-primary) !important;
+}
+
+.window-content a,
+.actor.sheet a,
+.chat-message a {
+  color: var(--cyan-highlight) !important;
+}
+
+.window-content a:hover,
+.actor.sheet a:hover,
+.chat-message a:hover {
+  color: var(--green-highlight) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-secondary) !important;
+  opacity: 1;
+}
+
+.actor.sheet .tab,
+.actor.sheet .section-container,
+.actor.sheet .section-body,
+.actor.sheet aside,
+.actor.sheet .inventory-list,
+.actor.sheet .items-list,
+.actor.sheet .spellbook,
+.actor.sheet .card-content,
+.actor.sheet table tbody tr,
+.actor.sheet .inventory-list > li,
+.actor.sheet .items-list > li {
+  background-color: var(--dark-bg-secondary) !important;
+  border-color: var(--dark-border) !important;
+}
+
+.actor.sheet .inventory-list > li:nth-child(odd),
+.actor.sheet .items-list > li:nth-child(odd),
+.actor.sheet table tbody tr:nth-child(odd) {
+  background-color: var(--dark-bg-tertiary) !important;
+}
+
+.window-header,
+.sheet-header {
+  border-bottom-color: var(--cyan-highlight) !important;
+  box-shadow: 0 0 18px rgba(116, 247, 242, 0.14) !important;
+}
+
+.window-header .window-title,
+.sheet-header h1,
+.sheet-header .charname input {
+  color: var(--cyan-highlight) !important;
+  letter-spacing: 0.03em;
+  text-shadow: 0 0 12px rgba(116, 247, 242, 0.35) !important;
+}
+
+.tabs .item.active,
+.sfrpg.sheet.actor nav.sheet-tabs .item.active,
+.pf2e.sheet nav.sheet-navigation .item.active {
+  color: var(--cyan-highlight) !important;
+  border-bottom-color: var(--cyan-highlight) !important;
+  box-shadow: inset 0 -2px 0 0 var(--cyan-highlight);
+}
+
+.window-content button,
+.window-content .button,
+.dialog button,
+.dialog .button,
+.sfrpg.sheet.actor .rollable,
+.pf2e.sheet .rollable {
+  border-color: rgba(116, 247, 242, 0.26) !important;
+}
+
+.window-content button:hover,
+.window-content .button:hover,
+.dialog button:hover,
+.dialog .button:hover,
+.sfrpg.sheet.actor .rollable:hover,
+.pf2e.sheet .rollable:hover {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, rgba(55, 214, 208, 0.34), rgba(82, 217, 156, 0.28)) !important;
+  box-shadow: 0 0 15px rgba(116, 247, 242, 0.22) !important;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+  background: rgba(18, 49, 64, 0.96) !important;
+}
+
+.sf1e-persistent-hud {
+  background: linear-gradient(160deg, rgba(10, 28, 38, 0.94), rgba(7, 19, 27, 0.98)) !important;
+  border-color: rgba(116, 247, 242, 0.28) !important;
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(138, 217, 255, 0.1),
+    0 0 28px rgba(116, 247, 242, 0.12) !important;
+}
+
+.sf1e-hud-main,
+.sf1e-hud-sidebar,
+.sf1e-sidebar-item,
+.sf1e-save-stat,
+.sf1e-armor-stat,
+.sf1e-quick-btn,
+.sf1e-hud-bar,
+.sf1e-skills-search-input {
+  background: rgba(15, 36, 47, 0.88) !important;
+  border-color: rgba(116, 247, 242, 0.16) !important;
+}
+
+.sf1e-sidebar-btn,
+.sf1e-item-roll-btn,
+.sf1e-spell-cast-btn,
+.sf1e-skill-action-roll,
+.sf1e-weapon-attack-btn,
+.sf1e-reload-btn {
+  background: linear-gradient(135deg, rgba(18, 49, 64, 0.95), rgba(20, 61, 73, 0.95)) !important;
+  border-color: rgba(116, 247, 242, 0.28) !important;
+}
+
+.sf1e-sidebar-btn:hover,
+.sf1e-sidebar-btn.active,
+.sf1e-item-roll-btn:hover,
+.sf1e-spell-cast-btn:hover,
+.sf1e-skill-action-roll:hover,
+.sf1e-weapon-attack-btn:hover,
+.sf1e-reload-btn:hover {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, rgba(55, 214, 208, 0.38), rgba(82, 217, 156, 0.28)) !important;
+  box-shadow: 0 0 16px rgba(116, 247, 242, 0.18) !important;
+}
+
+.sf1e-sidebar-section-header,
+.sf1e-skill-name,
+.sf1e-item-name,
+.sf1e-spell-name,
+.sf1e-weapon-name,
+.sfrpg.sheet.actor .item-name,
+.sfrpg.sheet.actor .item-header {
+  color: var(--cyan-highlight) !important;
+}
+
+.sf1e-hud-bar-fill,
+.sf1e-resource-fill,
+.sfrpg.sheet.actor .resource-bar-fill,
+.sfrpg.sheet.actor .bar-fill {
+  background: linear-gradient(90deg, #37d6d0, #74f7f2 44%, #93ffc8 100%) !important;
+  box-shadow: 0 0 12px rgba(116, 247, 242, 0.24) !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(116, 247, 242, 0.72), rgba(147, 255, 200, 0.72)) !important;
+  border: 1px solid rgba(7, 19, 27, 0.84) !important;
+}

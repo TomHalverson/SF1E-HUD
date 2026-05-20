@@ -61,6 +61,26 @@ class SF1EThemeSwitcher {
             name: 'Cyberpunk (Purple/Pink)',
             description: 'Neon purple and pink theme',
             file: 'cyberpunk-purple.css'
+        },
+        auroraVeil: {
+            name: 'Aurora Veil',
+            description: 'Deep indigo theme with teal and violet aurora glows',
+            file: 'aurora-veil.css'
+        },
+        solarForge: {
+            name: 'Solar Forge',
+            description: 'Obsidian theme with ember orange, gold, and plasma-red accents',
+            file: 'solar-forge.css'
+        },
+        holoInterface: {
+            name: 'Holo Interface',
+            description: 'Sterile holographic panels with icy cyan and mint accents',
+            file: 'holo-interface.css'
+        },
+        retroTerminal: {
+            name: 'Retro Terminal',
+            description: 'Phosphor green monochrome with a vintage terminal glow',
+            file: 'retro-terminal.css'
         }
     };
 

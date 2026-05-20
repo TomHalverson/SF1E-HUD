@@ -9,6 +9,8 @@ export class PersistentHUD {
         this.expandedWeapons = new Set(); // Track expanded weapons with attachments
         this.inventoryFilter = 'all'; // Track current inventory filter
         this.inventorySort = 'default'; // Track current sorting method
+        this.skillSearchTerm = '';
+        this.sidebarRefreshTimeouts = new Map();
         this.minimized = false; // Track minimized state
     }
     
@@ -175,6 +177,37 @@ export class PersistentHUD {
         this._updatePortrait();
         this._updateResources();
         this._updateButtons();
+
+        if (this.activeSidebar && !this.minimized) {
+            this._buildSidebar(this.activeSidebar);
+            this.hud?.find('.sf1e-hud-sidebar').addClass('active');
+            this.hud?.find(`.sf1e-sidebar-btn[data-sidebar="${this.activeSidebar}"]`).addClass('active');
+        }
+    }
+
+    _refreshActiveSidebar(sidebarType = this.activeSidebar) {
+        if (!this.actor || !sidebarType || this.minimized) return;
+        this._buildSidebar(sidebarType);
+        this.hud?.find('.sf1e-hud-sidebar').addClass('active');
+        this.hud?.find('.sf1e-sidebar-btn').removeClass('active');
+        this.hud?.find(`.sf1e-sidebar-btn[data-sidebar="${sidebarType}"]`).addClass('active');
+    }
+
+    _scheduleSidebarRefresh(sidebarType = this.activeSidebar, delays = [0, 150, 500]) {
+        if (!sidebarType) return;
+
+        const pending = this.sidebarRefreshTimeouts.get(sidebarType) || [];
+        for (const timeoutId of pending) {
+            clearTimeout(timeoutId);
+        }
+
+        const timeoutIds = delays.map(delay => setTimeout(() => {
+            if (this.activeSidebar === sidebarType) {
+                this._refreshActiveSidebar(sidebarType);
+            }
+        }, delay));
+
+        this.sidebarRefreshTimeouts.set(sidebarType, timeoutIds);
     }
     
     _updatePortrait() {
@@ -189,7 +222,6 @@ export class PersistentHUD {
     }
     
     _updateResources() {
-        const system = this.actor.system;
         const hp = SystemAdapter.getHP(this.actor);
         const sp = SystemAdapter.getSP(this.actor);
         const rp = SystemAdapter.getRP(this.actor);
@@ -197,7 +229,6 @@ export class PersistentHUD {
         const focusPoints = SystemAdapter.getFocusPoints(this.actor);
         const acValues = SystemAdapter.getACValues(this.actor);
         const saves = SystemAdapter.getSaves(this.actor);
-        const abilities = SystemAdapter.getAbilities(this.actor);
 
         const healthPercent = hp.max > 0 ? (hp.value / hp.max) * 100 : 0;
         const staminaPercent = sp && sp.max > 0 ? (sp.value / sp.max) * 100 : 0;
@@ -262,14 +293,6 @@ export class PersistentHUD {
             `;
         }
 
-        // Build ability modifiers HTML
-        const abilityHTML = ['str', 'dex', 'con', 'int', 'wis', 'cha'].map(key => `
-            <div class="sf1e-ability-check" data-ability="${key}" title="${key.charAt(0).toUpperCase() + key.slice(1)} Check">
-                <div class="sf1e-ability-label">${key.toUpperCase()}</div>
-                <div class="sf1e-ability-mod">${abilities[key] >= 0 ? '+' : ''}${abilities[key]}</div>
-            </div>
-        `).join('');
-
         // Update resource bars in left panel
         const resourcesDiv = this.hud.find('.sf1e-hud-resources');
         resourcesDiv.html(`
@@ -288,10 +311,6 @@ export class PersistentHUD {
                 <button class="sf1e-quick-btn" data-action="initiative" title="Quick Roll Initiative">
                     <i class="fas fa-bolt"></i>
                 </button>
-            </div>
-
-            <div class="sf1e-hud-abilities">
-                ${abilityHTML}
             </div>
         `);
 
@@ -373,12 +392,6 @@ export class PersistentHUD {
                     await this._rollInitiative();
                     break;
             }
-        });
-
-        // Add ability check handlers
-        this.hud.find('.sf1e-ability-check').on('click', async (e) => {
-            const ability = $(e.currentTarget).data('ability');
-            await this._rollAbilityCheck(ability);
         });
 
         // Add class resource click handler
@@ -766,6 +779,11 @@ export class PersistentHUD {
     
     _buildSidebar(type) {
         const sidebarDiv = this.hud.find('.sf1e-hud-sidebar');
+        sidebarDiv.attr('data-sidebar-type', type);
+        sidebarDiv.removeClass((_, className) => {
+            return (className.match(/\bsf1e-sidebar-[^\s]+/g) || []).join(' ');
+        });
+        sidebarDiv.addClass(`sf1e-sidebar-${type}`);
 
         let title = type.charAt(0).toUpperCase() + type.slice(1);
         let content = '';
@@ -1024,10 +1042,52 @@ export class PersistentHUD {
                 });
                 break;
             case 'skills':
+                sidebarDiv.find('.sf1e-skills-search-input').on('input', (e) => {
+                    this.skillSearchTerm = String($(e.currentTarget).val() || '');
+                    this._buildSidebar('skills');
+                });
+
                 sidebarDiv.find('.sf1e-item-roll').on('click', async (e) => {
                     e.stopPropagation();
                     const skillKey = $(e.currentTarget).closest('.sf1e-skill-item').data('skill');
                     await SystemAdapter.rollSkill(this.actor, skillKey);
+                });
+
+                sidebarDiv.find('.sf1e-skill-action-roll').on('click', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const actionEl = $(e.currentTarget).closest('.sf1e-skill-action-item');
+                    await SystemAdapter.useSkillAction(
+                        this.actor,
+                        actionEl.data('actionItemId'),
+                        actionEl.data('actionSkill'),
+                        actionEl.data('actionSlug')
+                    );
+                });
+
+                sidebarDiv.find('.sf1e-skill-action-image').on('click', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const actionEl = $(e.currentTarget).closest('.sf1e-skill-action-item');
+                    await SystemAdapter.sendSkillActionToChat(
+                        this.actor,
+                        actionEl.data('actionItemId'),
+                        actionEl.data('actionSkill'),
+                        actionEl.data('actionSlug')
+                    );
+                });
+
+                sidebarDiv.find('.sf1e-skill-action-name').on('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const actionEl = $(e.currentTarget).closest('.sf1e-skill-action-item');
+                    this._showSkillActionDetails({
+                        itemId: actionEl.data('actionItemId') || null,
+                        skillKey: actionEl.data('actionSkill'),
+                        actionSlug: actionEl.data('actionSlug') || null,
+                        actionName: actionEl.data('actionName') || '',
+                        actionCost: actionEl.data('actionCost') || ''
+                    });
                 });
                 break;
             case 'conditions':
@@ -1098,20 +1158,46 @@ export class PersistentHUD {
             const isExpanded = this.expandedWeapons && this.expandedWeapons.has(weapon.id);
 
             // Get available ammunition for dropdown (SF2E)
-            const availableAmmo = SystemAdapter.isSF2E ? SystemAdapter.getAvailableAmmo(this.actor) : [];
+            const availableAmmo = SystemAdapter.isSF2E ? SystemAdapter.getAvailableAmmo(this.actor, weapon) : [];
+            const showAmmoControls = SystemAdapter.isSF2E && (availableAmmo.length > 0 || strikeData.hasAmmo || (strikeData.ammoCapacity ?? 0) > 0);
 
             // Build ammo dropdown HTML for SF2E
             let ammoDropdownHTML = '';
-            if (SystemAdapter.isSF2E && availableAmmo.length > 0) {
+            if (showAmmoControls) {
+                const ammoLoaded = strikeData.ammoLoaded ?? 0;
+                const ammoCapacity = strikeData.ammoCapacity ?? 0;
+                const ammoReserve = strikeData.ammoReserve ?? 0;
+                const ammoPercent = ammoCapacity > 0
+                    ? Math.max(0, Math.min(100, Math.round((ammoLoaded / ammoCapacity) * 100)))
+                    : 0;
+                const ammoStatusLabel = strikeData.ammoName || 'Ammunition';
+                const ammoStatusText = ammoCapacity > 0 ? `${ammoLoaded}/${ammoCapacity}` : `${ammoLoaded}`;
                 ammoDropdownHTML = `
                     <div class="sf1e-ammo-row">
-                        <select class="sf1e-ammo-select" data-weapon-id="${weapon.id}" title="Select ammunition">
-                            <option value="">— Ammo —</option>
-                            ${availableAmmo.map(a => `
-                                <option value="${a.id}"${strikeData.ammoName === a.name ? ' selected' : ''}>${a.name} (${a.quantity})</option>
-                            `).join('')}
-                        </select>
-                        <button class="sf1e-reload-btn" data-weapon-id="${weapon.id}" title="Reload (1 action)">
+                        <div class="sf1e-ammo-status" title="Loaded ${ammoStatusText}${ammoReserve > 0 ? ` • Reserve ${ammoReserve}` : ''}">
+                            <div class="sf1e-ammo-status-main">
+                                <span class="sf1e-ammo-status-name">${ammoStatusLabel}</span>
+                                <span class="sf1e-ammo-status-count">${ammoStatusText}</span>
+                            </div>
+                            <div class="sf1e-ammo-progress">
+                                <div class="sf1e-ammo-progress-fill" style="width: ${ammoPercent}%;"></div>
+                            </div>
+                            <div class="sf1e-ammo-status-meta">
+                                <span class="sf1e-ammo-chip">Loaded ${ammoStatusText}</span>
+                                <span class="sf1e-ammo-chip sf1e-ammo-chip-muted">Reserve ${ammoReserve}</span>
+                            </div>
+                        </div>
+                        ${availableAmmo.length > 0 ? `
+                            <select class="sf1e-ammo-select" data-weapon-id="${weapon.id}" title="Select ammunition">
+                                <option value="">— Ammo —</option>
+                                ${availableAmmo.map(a => `
+                                    <option value="${a.id}"${strikeData.selectedAmmoId === a.id ? ' selected' : ''}>${a.name} (${a.quantity})</option>
+                                `).join('')}
+                            </select>
+                        ` : `
+                            <div class="sf1e-ammo-select sf1e-ammo-select-static" title="No reserve ammunition available">No reserve</div>
+                        `}
+                        <button class="sf1e-reload-btn" data-weapon-id="${weapon.id}" title="Reload (1 action)"${availableAmmo.length === 0 ? ' disabled' : ''}>
                             <i class="fas fa-sync-alt"></i>
                         </button>
                     </div>
@@ -1766,6 +1852,67 @@ export class PersistentHUD {
             return '<div class="sf1e-sidebar-empty">No features available</div>';
         }
 
+        if (SystemAdapter.isSF2E) {
+            const featureGroups = [
+                { key: 'ancestry', label: SystemAdapter.getFeatureCategoryLabel('ancestry') },
+                { key: 'class-features', label: SystemAdapter.getFeatureCategoryLabel('class-features') },
+                { key: 'class-feats', label: SystemAdapter.getFeatureCategoryLabel('class-feats') },
+                { key: 'skill-feats', label: SystemAdapter.getFeatureCategoryLabel('skill-feats') },
+                { key: 'general-features', label: SystemAdapter.getFeatureCategoryLabel('general-features') },
+                { key: 'other', label: SystemAdapter.getFeatureCategoryLabel('other') }
+            ];
+
+            const groupedFeatures = featureGroups.map(group => {
+                const items = features
+                    .filter(feature => SystemAdapter.getFeatureCategoryKey(feature) === group.key)
+                    .sort((a, b) => {
+                        const levelA = Number(a.system?.level?.value ?? a.level ?? 0);
+                        const levelB = Number(b.system?.level?.value ?? b.level ?? 0);
+                        if (levelA !== levelB) return levelA - levelB;
+                        return a.name.localeCompare(b.name);
+                    });
+                return { ...group, items };
+            }).filter(group => group.items.length > 0);
+
+            return groupedFeatures.map(group => `
+                <div class="sf1e-sidebar-section sf1e-feature-section" data-feature-group="${group.key}">
+                    <div class="sf1e-sidebar-section-header">
+                        <span class="sf1e-sidebar-section-title">${group.label}</span>
+                        <span class="sf1e-sidebar-section-count">${group.items.length}</span>
+                    </div>
+                    <div class="sf1e-sidebar-section-items">
+                        ${group.items.map(feature => {
+                            const categoryKey = SystemAdapter.getFeatureCategoryKey(feature);
+                            const badgeLabel = categoryKey === 'class-features'
+                                ? 'Feature'
+                                : categoryKey === 'class-feats'
+                                    ? 'Feat'
+                                    : categoryKey === 'skill-feats'
+                                        ? 'Skill'
+                                        : categoryKey === 'general-features'
+                                            ? 'General'
+                                            : 'Ancestry';
+                            const level = Number(feature.system?.level?.value ?? feature.level ?? 0);
+                            const levelText = level > 0 ? `Level ${level}` : SystemAdapter.getFeatureTypeLabel(feature.type);
+
+                            return `
+                                <div class="sf1e-sidebar-item sf1e-feature-item" data-feature-id="${feature.id}">
+                                    <img src="${feature.img}" alt="${feature.name}">
+                                    <div class="sf1e-item-info">
+                                        <div class="sf1e-item-name">${feature.name}</div>
+                                        <div class="sf1e-item-details sf1e-feature-details-row">
+                                            <span class="sf1e-feature-type">${badgeLabel}</span>
+                                            <span class="sf1e-feature-meta">${levelText}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
         return features.map(feature => {
             const type = SystemAdapter.getFeatureTypeLabel(feature.type);
 
@@ -1785,29 +1932,162 @@ export class PersistentHUD {
     
     _buildSkillsList() {
         const skills = SystemAdapter.getSkills(this.actor);
+        const skillActions = SystemAdapter.getSkillActions(this.actor);
+        const search = this.skillSearchTerm.trim().toLowerCase();
 
         if (skills.length === 0) {
             return '<div class="sf1e-sidebar-empty">No skills available</div>';
         }
 
-        return skills.map(skill => {
-            const modSign = skill.mod >= 0 ? '+' : '';
+        const rawSkillSections = SystemAdapter.isSF2E
+            ? [
+                { key: 'trained', label: 'Trained Skills', items: skills.filter(skill => (skill.rank ?? 0) > 0) },
+                { key: 'untrained', label: 'Untrained Skills', items: skills.filter(skill => (skill.rank ?? 0) === 0) }
+            ]
+            : [
+                { key: 'class', label: 'Class Skills', items: skills.filter(skill => skill.isClass) },
+                { key: 'other', label: 'Other Skills', items: skills.filter(skill => !skill.isClass) }
+            ];
 
-            return `
-                <div class="sf1e-sidebar-item sf1e-skill-item ${skill.isClass ? 'class-skill' : ''}" data-skill="${skill.key}">
-                    <div class="sf1e-skill-info">
-                        <div class="sf1e-skill-name">${skill.name}</div>
-                        <div class="sf1e-skill-details">
-                            <span class="sf1e-skill-mod">${modSign}${skill.mod}</span>
-                            <span class="sf1e-skill-ranks">${skill.detailText}</span>
-                        </div>
+        const skillSections = rawSkillSections.map(section => ({
+            ...section,
+            items: section.items.map(skill => {
+                const actions = skillActions.get(skill.key) || [];
+                if (!search) {
+                    return { skill, actions };
+                }
+
+                const skillMatches = skill.name.toLowerCase().includes(search);
+                const matchingActions = actions.filter(action => action.name.toLowerCase().includes(search));
+
+                if (!skillMatches && matchingActions.length === 0) {
+                    return null;
+                }
+
+                return {
+                    skill,
+                    actions: skillMatches ? actions : matchingActions
+                };
+            }).filter(Boolean)
+        }));
+
+        return `
+            <div class="sf1e-skills-search">
+                <input
+                    type="text"
+                    class="sf1e-skills-search-input"
+                    placeholder="Search skills or actions..."
+                    value="${this.skillSearchTerm.replace(/"/g, '&quot;')}"
+                >
+            </div>
+            ${skillSections
+            .filter(section => section.items.length > 0)
+            .map(section => `
+                <div class="sf1e-sidebar-section sf1e-skill-section" data-skill-group="${section.key}">
+                    <div class="sf1e-sidebar-section-header">
+                        <span class="sf1e-sidebar-section-title">${section.label}</span>
+                        <span class="sf1e-sidebar-section-count">${section.items.length}</span>
                     </div>
-                    <div class="sf1e-item-roll" title="Roll">
-                        <i class="fas fa-dice-d20"></i>
+                    <div class="sf1e-sidebar-section-items">
+                        ${section.items.map(({ skill, actions }) => {
+                            const modSign = skill.mod >= 0 ? '+' : '';
+                            const badge = SystemAdapter.isSF2E
+                                ? (skill.proficiency || skill.detailText || 'U')
+                                : (skill.isClass ? 'Class' : 'Skill');
+                            const secondaryDetail = SystemAdapter.isSF2E
+                                ? `${skill.detailText}${skill.rank > 0 ? ' proficiency' : ''}`
+                                : skill.detailText;
+
+                            return `
+                                <div class="sf1e-skill-block ${actions.length ? 'has-actions' : ''}" data-skill="${skill.key}">
+                                    <div class="sf1e-sidebar-item sf1e-skill-item ${skill.isClass ? 'class-skill' : ''}" data-skill="${skill.key}">
+                                        <div class="sf1e-skill-info">
+                                            <div class="sf1e-skill-header-row">
+                                                <div class="sf1e-skill-name">${skill.name}</div>
+                                                <span class="sf1e-skill-badge">${badge}</span>
+                                            </div>
+                                            <div class="sf1e-skill-details">
+                                                <span class="sf1e-skill-mod">${modSign}${skill.mod}</span>
+                                                <span class="sf1e-skill-ranks">${secondaryDetail}</span>
+                                            </div>
+                                        </div>
+                                        <div class="sf1e-item-roll" title="Roll">
+                                            <i class="fas fa-dice-d20"></i>
+                                        </div>
+                                    </div>
+                                    ${actions.length ? `
+                                        <div class="sf1e-skill-actions">
+                                            ${actions.map(action => `
+                                                <div class="sf1e-skill-action-item"
+                                                    data-action-item-id="${action.itemId || ''}"
+                                                    data-action-skill="${skill.key}"
+                                                    data-action-slug="${action.slug || ''}"
+                                                    data-action-name="${action.name.replace(/"/g, '&quot;')}"
+                                                    data-action-cost="${String(action.actionCost || '').replace(/"/g, '&quot;')}">
+                                                    <div class="sf1e-skill-action-image" title="Send to chat">
+                                                        <img src="${action.img || 'icons/svg/book.svg'}" alt="${action.name}">
+                                                        <i class="fas fa-message sf1e-skill-action-chat-icon"></i>
+                                                    </div>
+                                                    <div class="sf1e-skill-action-content">
+                                                        <button type="button" class="sf1e-skill-action-name" title="View action details">${action.name}</button>
+                                                        <div class="sf1e-skill-action-meta">
+                                                            ${action.actionCost ? `<span class="sf1e-skill-action-cost">${action.actionCost}</span>` : ''}
+                                                            <span class="sf1e-skill-action-type">${action.sourceType}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="sf1e-item-roll sf1e-skill-action-roll" title="Use action">
+                                                        <i class="fas fa-dice-d20"></i>
+                                                    </div>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                 </div>
-            `;
-        }).join('');
+            `).join('')}
+        `;
+    }
+
+    async _showSkillActionDetails({ itemId = null, actionSlug = null, actionName = '', actionCost = '' } = {}) {
+        if (!this.actor) return;
+
+        const details = SystemAdapter.getSkillActionDetails(this.actor, itemId, actionSlug, actionName, actionCost);
+        const description = details.description || '';
+        const descriptionHtml = description.includes('<')
+            ? await TextEditor.enrichHTML(description, { async: true })
+            : `<p>${description}</p>`;
+        const traitsHtml = Array.isArray(details.traits) && details.traits.length > 0
+            ? `<div class="sf1e-skill-action-detail-traits">${details.traits.map(trait => `<span class="sf1e-skill-action-detail-trait">${trait}</span>`).join('')}</div>`
+            : '';
+        const costHtml = details.actionCost
+            ? `<div class="sf1e-skill-action-detail-cost"><strong>Cost:</strong> ${details.actionCost}</div>`
+            : '';
+
+        new Dialog({
+            title: details.name,
+            content: `
+                <div class="sf1e-skill-action-detail">
+                    ${costHtml}
+                    ${traitsHtml}
+                    <div class="sf1e-skill-action-detail-body">${descriptionHtml}</div>
+                </div>
+            `,
+            buttons: {
+                close: {
+                    label: 'Close'
+                },
+                ...(details.item ? {
+                    open: {
+                        label: 'Open Sheet',
+                        callback: () => details.item.sheet?.render(true)
+                    }
+                } : {})
+            },
+            default: 'close'
+        }).render(true);
     }
 
     _buildConditionsList() {
@@ -1883,6 +2163,7 @@ export class PersistentHUD {
 
         console.log('SF1E-HUD | Rolling weapon attack:', weapon.name, 'MAP index:', mapIndex);
         await SystemAdapter.rollWeaponAttack(this.actor, weapon, mapIndex);
+        this._scheduleSidebarRefresh('weapons', [0, 200, 700]);
     }
 
     async _reloadWeapon(weaponId) {
@@ -1896,6 +2177,7 @@ export class PersistentHUD {
 
         console.log('SF1E-HUD | Reloading weapon:', weapon.name);
         await SystemAdapter.reloadWeapon(this.actor, weapon);
+        this._scheduleSidebarRefresh('weapons', [0, 150, 500]);
     }
 
     async _setWeaponAmmo(weaponId, ammoId) {
@@ -1917,21 +2199,30 @@ export class PersistentHUD {
 
         // Try to set the ammunition on the weapon through various paths
         try {
-            // Path 1: weapon.system.ammunition.id (PF2E standard)
+            if (SystemAdapter.isSF2E) {
+                await weapon.update({ 'system.selectedAmmoId': ammoId });
+                ui.notifications.info(`${weapon.name}: selected ${ammoItem.name}`);
+                this._scheduleSidebarRefresh('weapons', [0, 150, 500]);
+                return;
+            }
+
             if (weapon.system.ammunition !== undefined) {
                 await weapon.update({ 'system.ammunition.id': ammoId });
                 ui.notifications.info(`${weapon.name}: loaded ${ammoItem.name}`);
+                this._scheduleSidebarRefresh('weapons', [0, 150, 500]);
                 return;
             }
-            // Path 2: weapon.system.selectedAmmo.id
+
             if (weapon.system.selectedAmmo !== undefined) {
                 await weapon.update({ 'system.selectedAmmo.id': ammoId });
                 ui.notifications.info(`${weapon.name}: loaded ${ammoItem.name}`);
+                this._scheduleSidebarRefresh('weapons', [0, 150, 500]);
                 return;
             }
-            // Path 3: create the ammunition property
+
             await weapon.update({ 'system.ammunition.id': ammoId });
             ui.notifications.info(`${weapon.name}: loaded ${ammoItem.name}`);
+            this._scheduleSidebarRefresh('weapons', [0, 150, 500]);
         } catch (e) {
             console.warn('SF1E-HUD | Could not set ammunition:', e);
             ui.notifications.warn(`Could not set ammunition for ${weapon.name}`);
@@ -2022,6 +2313,10 @@ export class PersistentHUD {
 
     async _rollAbilityCheck(ability) {
         if (!this.actor) return;
+        if (SystemAdapter.isSF2E) {
+            ui.notifications.info('SF2E uses skill and perception checks instead of direct ability checks.');
+            return;
+        }
         console.log('SF1E-HUD | Rolling ability check:', ability);
         await SystemAdapter.rollAbilityCheck(this.actor, ability);
     }

@@ -1,0 +1,257 @@
+/* Starfinder Retro Terminal Theme */
+/* Phosphor green monochrome with amber system glow */
+:root {
+  --dark-bg-primary: #050a05;
+  --dark-bg-secondary: #0a140a;
+  --dark-bg-tertiary: #102010;
+  --dark-border: #2f6132;
+  --text-primary: #b9ff9d;
+  --text-secondary: #8de07f;
+  --text-muted: #5ca85a;
+
+  --green-highlight: #7dff72;
+  --green-highlight-dark: #3fcb50;
+  --cyan-highlight: #91ffb0;
+  --cyan-dark: #51db85;
+  --yellow-highlight: #ffd36a;
+  --yellow-highlight-dark: #d0a53a;
+  --highlight: #7dff72;
+  --orange-highlight: #ffb357;
+  --orange-highlight-dark: #c9832d;
+}
+
+body {
+  --color-shadow-primary: rgba(125, 255, 114, 0.2);
+}
+
+.window-header,
+.sheet-header,
+.chat-message {
+  position: relative;
+  overflow: hidden;
+}
+
+.sf1e-persistent-hud {
+  overflow: visible;
+}
+
+.window-header::before,
+.sheet-header::before,
+.sf1e-persistent-hud::after,
+.chat-message::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015) 0, rgba(255, 255, 255, 0.015) 1px, transparent 1px, transparent 3px),
+    linear-gradient(90deg, rgba(125, 255, 114, 0.04), transparent 38%);
+  background-size: 100% 4px, 100% 100%;
+  mix-blend-mode: screen;
+}
+
+.window-content,
+.sheet-body,
+.dialog .window-content,
+.chat-message {
+  background:
+    radial-gradient(circle at top, rgba(18, 48, 18, 0.2), transparent 38%),
+    linear-gradient(180deg, rgba(10, 20, 10, 0.97) 0%, rgba(5, 10, 5, 0.99) 100%) !important;
+}
+
+.window-content,
+.sheet-body,
+.dialog .window-content,
+.chat-message,
+.actor.sheet,
+.actor.sheet p,
+.actor.sheet li,
+.actor.sheet label,
+.actor.sheet td,
+.actor.sheet th,
+.actor.sheet small,
+.actor.sheet .hint,
+.actor.sheet .notes,
+.actor.sheet .value,
+.actor.sheet .tag,
+.actor.sheet .item-summary,
+.actor.sheet .section-body {
+  color: var(--text-primary) !important;
+}
+
+.window-content a,
+.actor.sheet a,
+.chat-message a {
+  color: var(--green-highlight) !important;
+}
+
+.window-content a:hover,
+.actor.sheet a:hover,
+.chat-message a:hover {
+  color: var(--yellow-highlight) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-secondary) !important;
+  opacity: 1;
+}
+
+.actor.sheet .tab,
+.actor.sheet .section-container,
+.actor.sheet .section-body,
+.actor.sheet aside,
+.actor.sheet .inventory-list,
+.actor.sheet .items-list,
+.actor.sheet .spellbook,
+.actor.sheet .card-content,
+.actor.sheet table tbody tr,
+.actor.sheet .inventory-list > li,
+.actor.sheet .items-list > li {
+  background-color: var(--dark-bg-secondary) !important;
+  border-color: var(--dark-border) !important;
+}
+
+.actor.sheet .inventory-list > li:nth-child(odd),
+.actor.sheet .items-list > li:nth-child(odd),
+.actor.sheet table tbody tr:nth-child(odd) {
+  background-color: var(--dark-bg-tertiary) !important;
+}
+
+.window-header,
+.sheet-header {
+  border-bottom-color: var(--green-highlight) !important;
+  box-shadow: 0 0 18px rgba(125, 255, 114, 0.12) !important;
+}
+
+.window-header .window-title,
+.sheet-header h1,
+.sheet-header .charname input {
+  color: var(--green-highlight) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 10px rgba(125, 255, 114, 0.32) !important;
+}
+
+.tabs .item,
+.sfrpg.sheet.actor nav.sheet-tabs .item,
+.pf2e.sheet nav.sheet-navigation .item {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tabs .item.active,
+.sfrpg.sheet.actor nav.sheet-tabs .item.active,
+.pf2e.sheet nav.sheet-navigation .item.active {
+  color: var(--green-highlight) !important;
+  border-bottom-color: var(--green-highlight) !important;
+  box-shadow: inset 0 -2px 0 0 var(--green-highlight);
+}
+
+.window-content button,
+.window-content .button,
+.dialog button,
+.dialog .button,
+.sfrpg.sheet.actor .rollable,
+.pf2e.sheet .rollable {
+  border-color: rgba(125, 255, 114, 0.26) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.window-content button:hover,
+.window-content .button:hover,
+.dialog button:hover,
+.dialog .button:hover,
+.sfrpg.sheet.actor .rollable:hover,
+.pf2e.sheet .rollable:hover {
+  color: #081108 !important;
+  background: linear-gradient(135deg, rgba(125, 255, 114, 0.88), rgba(255, 179, 87, 0.72)) !important;
+  box-shadow: 0 0 15px rgba(125, 255, 114, 0.24) !important;
+}
+
+input,
+textarea,
+select {
+  font-family: "Courier New", monospace !important;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+  background: rgba(16, 32, 16, 0.96) !important;
+}
+
+.sf1e-persistent-hud {
+  background: linear-gradient(160deg, rgba(9, 18, 9, 0.95), rgba(5, 10, 5, 0.98)) !important;
+  border-color: rgba(125, 255, 114, 0.26) !important;
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.46),
+    0 0 0 1px rgba(125, 255, 114, 0.1),
+    0 0 28px rgba(125, 255, 114, 0.08) !important;
+}
+
+.sf1e-hud-main,
+.sf1e-hud-sidebar,
+.sf1e-sidebar-item,
+.sf1e-save-stat,
+.sf1e-armor-stat,
+.sf1e-quick-btn,
+.sf1e-hud-bar,
+.sf1e-skills-search-input {
+  background: rgba(10, 20, 10, 0.9) !important;
+  border-color: rgba(125, 255, 114, 0.14) !important;
+}
+
+.sf1e-sidebar-btn,
+.sf1e-item-roll-btn,
+.sf1e-spell-cast-btn,
+.sf1e-skill-action-roll,
+.sf1e-weapon-attack-btn,
+.sf1e-reload-btn {
+  background: linear-gradient(135deg, rgba(16, 32, 16, 0.95), rgba(21, 40, 18, 0.95)) !important;
+  border-color: rgba(125, 255, 114, 0.26) !important;
+}
+
+.sf1e-sidebar-btn:hover,
+.sf1e-sidebar-btn.active,
+.sf1e-item-roll-btn:hover,
+.sf1e-spell-cast-btn:hover,
+.sf1e-skill-action-roll:hover,
+.sf1e-weapon-attack-btn:hover,
+.sf1e-reload-btn:hover {
+  color: #071007 !important;
+  background: linear-gradient(135deg, rgba(125, 255, 114, 0.86), rgba(255, 211, 106, 0.64)) !important;
+  box-shadow: 0 0 16px rgba(125, 255, 114, 0.18) !important;
+}
+
+.sf1e-sidebar-section-header,
+.sf1e-skill-name,
+.sf1e-item-name,
+.sf1e-spell-name,
+.sf1e-weapon-name,
+.sfrpg.sheet.actor .item-name,
+.sfrpg.sheet.actor .item-header {
+  color: var(--green-highlight) !important;
+  text-shadow: 0 0 6px rgba(125, 255, 114, 0.16);
+}
+
+.chat-message a:hover,
+.chat-message .item-name:hover,
+#chat-log .chat-message a:hover {
+  color: var(--yellow-highlight) !important;
+}
+
+.sf1e-hud-bar-fill,
+.sf1e-resource-fill,
+.sfrpg.sheet.actor .resource-bar-fill,
+.sfrpg.sheet.actor .bar-fill {
+  background: linear-gradient(90deg, #3fcb50, #7dff72 50%, #ffd36a 100%) !important;
+  box-shadow: 0 0 12px rgba(125, 255, 114, 0.22) !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(125, 255, 114, 0.72), rgba(255, 179, 87, 0.62)) !important;
+  border: 1px solid rgba(5, 10, 5, 0.84) !important;
+}
